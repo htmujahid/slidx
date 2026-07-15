@@ -2,6 +2,12 @@
 
 visx is a browser-based SVG animation editor. The editing surface is a live SVG document — shapes, filter/gradient definitions, and SMIL animations are all nodes in the same [craft.js](https://craft.js.org/) tree, so what you build in the canvas is the SVG you export.
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="public/dark-theme.png">
+  <source media="(prefers-color-scheme: light)" srcset="public/light-theme.png">
+  <img alt="visx editor screenshot" src="public/light-theme.png">
+</picture>
+
 ## Features
 
 - **Shape toolbox** — rect, circle, ellipse, line, polyline, polygon, path, text, textPath, image, group, and `<use>`, dragged straight onto the canvas.

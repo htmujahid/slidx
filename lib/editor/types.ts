@@ -85,4 +85,4 @@ export function elementFilter(props: ElementTransformProps) {
   return parts.length > 0 ? parts.join(" ") : undefined
 }
 
-export type TextAlign = "left" | "center" | "right"
+export type TextAlign = "left" | "center" | "right" | "justify"

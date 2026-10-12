@@ -5,14 +5,23 @@ import { DUPLICATE_OFFSET } from "@/lib/editor/constants"
 export type CopiedElement = {
   type: React.ElementType
   props: Record<string, unknown>
+  canvas?: boolean
+  children?: CopiedElement[]
 }
 
 let elements: CopiedElement[] = []
 let pastes = 0
 
-const clone = ({ type, props }: CopiedElement): CopiedElement => ({
+const clone = ({
+  type,
+  props,
+  canvas,
+  children,
+}: CopiedElement): CopiedElement => ({
   type,
   props: structuredClone(props),
+  canvas,
+  children: children?.map(clone),
 })
 
 export function writeElements(next: CopiedElement[]) {

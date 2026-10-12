@@ -42,7 +42,7 @@ function EditorSidebar(props: React.ComponentProps<typeof Sidebar>) {
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
       {...props}
     >
-      <SidebarContent className="gap-0">
+      <SidebarContent className="gap-0 bg-background">
         <Tabs defaultValue="elements" className="min-h-0 flex-1 gap-0">
           <SidebarHeader className="shrink-0 p-4 pb-3">
             <TabsList className="w-full">

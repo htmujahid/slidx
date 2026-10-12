@@ -21,6 +21,11 @@ import {
   InputGroupText,
 } from "@/components/ui/input-group"
 import { Slider } from "@/components/ui/slider"
+import {
+  ColorPicker,
+  ColorPickerContent,
+  ColorPickerTrigger,
+} from "@/components/reui/color-picker"
 
 function SettingsSection({
   title,
@@ -99,8 +104,6 @@ function NumberSetting({
   )
 }
 
-const HEX = /^#[0-9a-f]{6}$/i
-
 function ColorSetting({
   label,
   value,
@@ -113,26 +116,18 @@ function ColorSetting({
   const id = React.useId()
   return (
     <Field>
-      <FieldLabel htmlFor={`${id}-text`}>{label}</FieldLabel>
-      <InputGroup>
-        <InputGroupAddon>
-          <input
-            id={id}
-            type="color"
-            aria-label={`${label} picker`}
-            value={HEX.test(value) ? value : "#000000"}
-            onChange={(event) => onChange(event.target.value)}
-            className="size-5 cursor-pointer rounded-sm border-0 bg-transparent p-0"
-          />
-        </InputGroupAddon>
-        <InputGroupInput
-          id={`${id}-text`}
-          value={value}
-          spellCheck={false}
-          className="font-mono uppercase"
-          onChange={(event) => onChange(event.target.value)}
-        />
-      </InputGroup>
+      <FieldLabel htmlFor={id}>{label}</FieldLabel>
+      <ColorPicker
+        id={id}
+        aria-label={label}
+        value={value}
+        onValueChange={(next) => {
+          if (next) onChange(next)
+        }}
+      >
+        <ColorPickerTrigger className="w-full" />
+        <ColorPickerContent className="w-64" />
+      </ColorPicker>
     </Field>
   )
 }

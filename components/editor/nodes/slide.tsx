@@ -17,7 +17,11 @@ import {
   trackPointer,
 } from "@/lib/editor/geometry"
 import { LIBRARY_DRAG_TYPE } from "@/lib/editor/library"
-import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
+import {
+  linearGradientPoints,
+  SLIDE_DEFAULTS,
+  type SlideProps,
+} from "@/lib/editor/slide-props"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
@@ -31,6 +35,10 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const {
     backgroundType,
     background,
+    gradientType,
+    gradientFrom,
+    gradientTo,
+    gradientAngle,
     backgroundImage,
     imageFit,
     showGrid,
@@ -47,6 +55,8 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const uid = React.useId().replace(/\W/g, "")
   const CLIP_ID = `${uid}-clip`
   const GRID_ID = `${uid}-grid`
+  const GRADIENT_ID = `${uid}-gradient`
+  const line = linearGradientPoints(gradientAngle, SLIDE_WIDTH, SLIDE_HEIGHT)
   const { addLibraryItem } = useEditorActions()
   const svgRef = React.useRef<SVGSVGElement | null>(null)
   const [scale, setScale] = React.useState(1)
@@ -185,6 +195,32 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
           <clipPath id={CLIP_ID}>
             <rect width={SLIDE_WIDTH} height={SLIDE_HEIGHT} />
           </clipPath>
+          {backgroundType === "gradient" ? (
+            gradientType === "radial" ? (
+              <radialGradient
+                id={GRADIENT_ID}
+                gradientUnits="userSpaceOnUse"
+                cx={SLIDE_WIDTH / 2}
+                cy={SLIDE_HEIGHT / 2}
+                r={Math.hypot(SLIDE_WIDTH, SLIDE_HEIGHT) / 2}
+              >
+                <stop offset="0" stopColor={gradientFrom} />
+                <stop offset="1" stopColor={gradientTo} />
+              </radialGradient>
+            ) : (
+              <linearGradient
+                id={GRADIENT_ID}
+                gradientUnits="userSpaceOnUse"
+                x1={line.x1}
+                y1={line.y1}
+                x2={line.x2}
+                y2={line.y2}
+              >
+                <stop offset="0" stopColor={gradientFrom} />
+                <stop offset="1" stopColor={gradientTo} />
+              </linearGradient>
+            )
+          ) : null}
           <pattern
             id={GRID_ID}
             width={gridSize}
@@ -202,7 +238,15 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
           </pattern>
         </defs>
         <g clipPath={`url(#${CLIP_ID})`}>
-          <rect width={SLIDE_WIDTH} height={SLIDE_HEIGHT} fill={background} />
+          <rect
+            width={SLIDE_WIDTH}
+            height={SLIDE_HEIGHT}
+            fill={
+              backgroundType === "gradient"
+                ? `url(#${GRADIENT_ID})`
+                : background
+            }
+          />
           {backgroundType === "image" && backgroundImage ? (
             <image
               href={backgroundImage}

@@ -27,8 +27,18 @@ function isEditableTarget(target: EventTarget | null) {
 
 function EditorShortcuts() {
   const { actions, query } = useEditor()
-  const { duplicate, remove, copy, cut, paste, selectAll, nudge, reorder } =
-    useEditorActions()
+  const {
+    duplicate,
+    remove,
+    copy,
+    cut,
+    paste,
+    selectAll,
+    nudge,
+    reorder,
+    group,
+    ungroup,
+  } = useEditorActions()
   const { save, open } = useFileActions()
   const { setEditingId, zoomIn, zoomOut, zoomReset } = useEditorLayout()
   const { presenting } = usePresentation()
@@ -82,6 +92,10 @@ function EditorShortcuts() {
       } else if (mod && key === "d") {
         event.preventDefault()
         duplicate()
+      } else if (mod && key === "g") {
+        event.preventDefault()
+        if (event.shiftKey) ungroup()
+        else group()
       } else if (mod && key === "c") {
         if (copy()) event.preventDefault()
       } else if (mod && key === "x") {
@@ -147,6 +161,8 @@ function EditorShortcuts() {
     selectAll,
     nudge,
     reorder,
+    group,
+    ungroup,
     save,
     open,
     setEditingId,

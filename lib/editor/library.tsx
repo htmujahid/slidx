@@ -7,7 +7,10 @@ import {
   ImageIcon,
   ListIcon,
   ListOrderedIcon,
+  MoveDownRightIcon,
+  SmileIcon,
   SquareFunctionIcon,
+  StarIcon,
   TableIcon,
   TypeIcon,
 } from "lucide-react"
@@ -18,9 +21,12 @@ import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import type { Point } from "@/lib/editor/geometry"
 import { SHAPE_CATEGORIES, SHAPES, type ShapeKind } from "@/lib/editor/shapes"
 import { measureTextHeight } from "@/lib/editor/text"
+import { ArrowLine } from "@/components/editor/nodes/arrow-line"
 import { ChartBox } from "@/components/editor/nodes/chart-box"
 import { CodeBlock, DEFAULT_CODE } from "@/components/editor/nodes/code-block"
+import { EmojiBox } from "@/components/editor/nodes/emoji-box"
 import { Equation } from "@/components/editor/nodes/equation"
+import { IconBox } from "@/components/editor/nodes/icon-box"
 import { ImageBox } from "@/components/editor/nodes/image-box"
 import { Shape } from "@/components/editor/nodes/shape"
 import { Table } from "@/components/editor/nodes/table"
@@ -90,6 +96,17 @@ const shapeItems: LibraryItem[] = SHAPES.map((shape) => {
     ),
   }
 })
+
+const arrowLineItems: LibraryItem[] = [
+  {
+    id: "shape:arrow-line",
+    group: "shape",
+    label: "Diagonal arrow",
+    section: "Arrows & lines",
+    icon: MoveDownRightIcon,
+    create: (at) => <ArrowLine {...center(at, 400, 200)} />,
+  },
+]
 
 const LIST_ITEMS = ["First item", "Second item", "Third item"]
 const listHtml = (tag: "ul" | "ol") =>
@@ -247,10 +264,25 @@ const mediaItems: LibraryItem[] = [
     icon: ImageIcon,
     create: (at) => <ImageBox {...center(at, 640, 400)} />,
   },
+  {
+    id: "media:icon",
+    group: "media",
+    label: "Icon",
+    icon: StarIcon,
+    create: (at) => <IconBox {...center(at, 160, 160)} />,
+  },
+  {
+    id: "media:emoji",
+    group: "media",
+    label: "Emoji",
+    icon: SmileIcon,
+    create: (at) => <EmojiBox {...center(at, 160, 160)} />,
+  },
 ]
 
 export const LIBRARY: LibraryItem[] = [
   ...shapeItems,
+  ...arrowLineItems,
   ...textItems,
   ...equationItems,
   ...tableItems,

@@ -1,9 +1,14 @@
-export type BackgroundType = "solid" | "image"
+export type BackgroundType = "solid" | "gradient" | "image"
+export type GradientType = "linear" | "radial"
 export type ImageFit = "cover" | "contain"
 
 export type SlideProps = {
   backgroundType: BackgroundType
   background: string
+  gradientType: GradientType
+  gradientFrom: string
+  gradientTo: string
+  gradientAngle: number
   backgroundImage: string
   imageFit: ImageFit
   showGrid: boolean
@@ -15,10 +20,38 @@ export type SlideProps = {
 export const SLIDE_DEFAULTS: SlideProps = {
   backgroundType: "solid",
   background: "#ffffff",
+  gradientType: "linear",
+  gradientFrom: "#eef2ff",
+  gradientTo: "#a5b4fc",
+  gradientAngle: 135,
   backgroundImage: "",
   imageFit: "cover",
   showGrid: false,
   gridSize: 40,
   snapToGrid: false,
   snapToAlignment: true,
+}
+
+/**
+ * Endpoints of a CSS-style linear gradient (0° points up, 90° right) across a
+ * width × height box. The line runs through the center and is long enough
+ * that the end colors land exactly on the corners.
+ */
+export function linearGradientPoints(
+  angle: number,
+  width: number,
+  height: number
+) {
+  const radians = (angle * Math.PI) / 180
+  const dx = Math.sin(radians)
+  const dy = -Math.cos(radians)
+  const half = (Math.abs(width * dx) + Math.abs(height * dy)) / 2
+  const cx = width / 2
+  const cy = height / 2
+  return {
+    x1: cx - dx * half,
+    y1: cy - dy * half,
+    x2: cx + dx * half,
+    y2: cy + dy * half,
+  }
 }

@@ -6,6 +6,7 @@ import {
   ArrowDownToLineIcon,
   ArrowUpToLineIcon,
   CopyIcon,
+  GroupIcon,
   LayersIcon,
   SlidersHorizontalIcon,
   Trash2Icon,
@@ -15,6 +16,7 @@ import { getElementLabel } from "@/lib/editor/labels"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Kbd } from "@/components/ui/kbd"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
 import {
@@ -80,7 +82,7 @@ function PropertiesSidebarProvider({
 }
 
 function PropertiesPanel() {
-  const { duplicate, remove, reorder } = useEditorActions()
+  const { duplicate, remove, reorder, group } = useEditorActions()
   const { id, count, title, Settings } = useEditor((state) => {
     const selected = [...state.events.selected].filter(
       (nodeId) => nodeId !== ROOT_NODE && state.nodes[nodeId]
@@ -110,7 +112,7 @@ function PropertiesPanel() {
       aria-label="Properties"
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
     >
-      <SidebarContent className="gap-0">
+      <SidebarContent className="gap-0 bg-background">
         <Tabs defaultValue="properties" className="min-h-0 flex-1 gap-0">
           <SidebarHeader className="shrink-0 p-4">
             <TabsList className="w-full">
@@ -161,10 +163,17 @@ function PropertiesPanel() {
               </p>
             )}
             {count > 1 && (
-              <p className="px-4 pb-3 text-xs text-muted-foreground">
-                Select a single element to edit its appearance. Duplicate,
-                delete, move and align apply to the whole selection.
-              </p>
+              <div className="flex flex-col gap-3 px-4 pb-3">
+                <p className="text-xs text-muted-foreground">
+                  Select a single element to edit its appearance. Duplicate,
+                  delete, move and align apply to the whole selection.
+                </p>
+                <Button variant="outline" size="sm" onClick={() => group()}>
+                  <GroupIcon data-icon="inline-start" />
+                  Group selection
+                  <Kbd className="ml-auto">⌘G</Kbd>
+                </Button>
+              </div>
             )}
             <ScrollArea className="min-h-0 flex-1">
               <Accordion
@@ -182,6 +191,10 @@ function PropertiesPanel() {
                   "Image",
                   "Equation",
                   "Code",
+                  "Group",
+                  "Icon",
+                  "Emoji",
+                  "Arrow",
                   "Effects",
                 ]}
                 className="px-4 pt-1 pb-4"

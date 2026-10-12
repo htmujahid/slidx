@@ -1,13 +1,17 @@
 import * as React from "react"
 import {
   CodeIcon,
+  GroupIcon,
   ImageIcon,
+  MoveDownRightIcon,
+  SmileIcon,
   SquareFunctionIcon,
   TableIcon,
   TypeIcon,
 } from "lucide-react"
 
 import { CHARTS_BY_KIND, type ChartKind } from "@/lib/editor/chart"
+import { DEFAULT_ICON, ICONS } from "@/lib/editor/icons"
 import { SHAPES_BY_KIND, type ShapeKind } from "@/lib/editor/shapes"
 import { ShapePreview } from "@/components/editor/shape-preview"
 
@@ -43,6 +47,14 @@ export function getElementLabel({ name, props }: NodeLike) {
       return `Code · ${props.language}`
     case "ChartBox":
       return CHARTS_BY_KIND[props.kind as ChartKind]?.label ?? "Chart"
+    case "Group":
+      return "Group"
+    case "IconBox":
+      return `Icon · ${props.icon ?? "star"}`
+    case "EmojiBox":
+      return `Emoji ${props.emoji ?? ""}`.trim()
+    case "ArrowLine":
+      return "Diagonal arrow"
     default:
       return name
   }
@@ -70,6 +82,16 @@ export function ElementIcon({
       const Icon = CHARTS_BY_KIND[props.kind as ChartKind]?.icon
       return Icon ? <Icon className={className} /> : null
     }
+    case "Group":
+      return <GroupIcon className={className} />
+    case "IconBox": {
+      const Icon = ICONS[String(props.icon)] ?? ICONS[DEFAULT_ICON]
+      return <Icon className={className} />
+    }
+    case "EmojiBox":
+      return <SmileIcon className={className} />
+    case "ArrowLine":
+      return <MoveDownRightIcon className={className} />
     default:
       return <TypeIcon className={className} />
   }

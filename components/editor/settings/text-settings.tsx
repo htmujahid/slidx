@@ -3,6 +3,7 @@
 import * as React from "react"
 import {
   AlignCenterIcon,
+  AlignJustifyIcon,
   AlignLeftIcon,
   AlignRightIcon,
   BoldIcon,
@@ -121,6 +122,9 @@ function TextSettings() {
             </ToggleGroupItem>
             <ToggleGroupItem value="right" aria-label="Align right">
               <AlignRightIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="justify" aria-label="Justify">
+              <AlignJustifyIcon />
             </ToggleGroupItem>
           </ToggleGroup>
         </div>

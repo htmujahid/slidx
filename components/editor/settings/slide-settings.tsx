@@ -2,10 +2,12 @@
 
 import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
+import { ArrowLeftRightIcon } from "lucide-react"
 
 import {
   SLIDE_DEFAULTS,
   type BackgroundType,
+  type GradientType,
   type SlideProps,
 } from "@/lib/editor/slide-props"
 import { SLIDE_TEMPLATES, type SlideTemplate } from "@/lib/editor/templates"
@@ -16,7 +18,9 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   ColorSetting,
   NumberSetting,
+  SettingsRow,
   SettingsSection,
+  SliderSetting,
 } from "@/components/editor/settings/fields"
 import {
   ImageFitSetting,
@@ -99,12 +103,82 @@ function LayoutSettings() {
   )
 }
 
+function GradientSettings({
+  props,
+  update,
+}: {
+  props: SlideProps
+  update: (patch: Partial<SlideProps>) => void
+}) {
+  return (
+    <>
+      <ToggleGroup
+        variant="outline"
+        size="sm"
+        spacing={0}
+        aria-label="Gradient type"
+        className="w-full"
+        value={[props.gradientType]}
+        onValueChange={([gradientType]) => {
+          if (gradientType)
+            update({ gradientType: gradientType as GradientType })
+        }}
+      >
+        <ToggleGroupItem value="linear" className="flex-1">
+          Linear
+        </ToggleGroupItem>
+        <ToggleGroupItem value="radial" className="flex-1">
+          Radial
+        </ToggleGroupItem>
+      </ToggleGroup>
+      <SettingsRow>
+        <ColorSetting
+          label="From"
+          value={props.gradientFrom}
+          onChange={(gradientFrom) => update({ gradientFrom })}
+        />
+        <ColorSetting
+          label="To"
+          value={props.gradientTo}
+          onChange={(gradientTo) => update({ gradientTo })}
+        />
+      </SettingsRow>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() =>
+          update({
+            gradientFrom: props.gradientTo,
+            gradientTo: props.gradientFrom,
+          })
+        }
+      >
+        <ArrowLeftRightIcon data-icon="inline-start" />
+        Swap colors
+      </Button>
+      {props.gradientType === "linear" ? (
+        <SliderSetting
+          label="Angle"
+          value={props.gradientAngle}
+          min={0}
+          max={360}
+          format={(value) => `${value}°`}
+          onChange={(gradientAngle) => update({ gradientAngle })}
+        />
+      ) : null}
+    </>
+  )
+}
+
 function SlideSettings() {
   const { props: stored, update } = useNodeProps<SlideProps>()
   const props = {
     ...SLIDE_DEFAULTS,
     ...stored,
-    backgroundType: stored.backgroundType === "image" ? "image" : "solid",
+    backgroundType:
+      stored.backgroundType === "image" || stored.backgroundType === "gradient"
+        ? stored.backgroundType
+        : "solid",
   } satisfies SlideProps
 
   return (
@@ -125,6 +199,9 @@ function SlideSettings() {
           <ToggleGroupItem value="solid" className="flex-1">
             Solid
           </ToggleGroupItem>
+          <ToggleGroupItem value="gradient" className="flex-1">
+            Gradient
+          </ToggleGroupItem>
           <ToggleGroupItem value="image" className="flex-1">
             Image
           </ToggleGroupItem>
@@ -136,6 +213,10 @@ function SlideSettings() {
             value={props.background}
             onChange={(background) => update({ background })}
           />
+        ) : null}
+
+        {props.backgroundType === "gradient" ? (
+          <GradientSettings props={props} update={update} />
         ) : null}
 
         {props.backgroundType === "image" ? (

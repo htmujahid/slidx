@@ -3,7 +3,12 @@
 import * as React from "react"
 import { useNode, type UserComponent } from "@craftjs/core"
 
-import { SHAPES_BY_KIND, type ShapeKind } from "@/lib/editor/shapes"
+import {
+  SHAPES_BY_KIND,
+  strokeDashArray,
+  type DashStyle,
+  type ShapeKind,
+} from "@/lib/editor/shapes"
 import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
@@ -21,7 +26,7 @@ export type ShapeProps = ElementTransformProps & {
   gradientAngle: number
   stroke: string
   strokeWidth: number
-  dashStyle: "solid" | "dashed" | "dotted"
+  dashStyle: DashStyle
   cornerRadius: number
   text: string
   textColor: string
@@ -29,13 +34,6 @@ export type ShapeProps = ElementTransformProps & {
 }
 
 const TEXT_FONT_FAMILY = "var(--font-sans), system-ui, sans-serif"
-
-function dashArray(style: ShapeProps["dashStyle"], strokeWidth: number) {
-  const unit = Math.max(strokeWidth, 1)
-  if (style === "dashed") return `${unit * 3} ${unit * 2}`
-  if (style === "dotted") return `0.1 ${unit * 2}`
-  return undefined
-}
 
 function ShapeTextEditor({
   initial,
@@ -157,7 +155,7 @@ const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
         fillRule={definition.fillRule}
         stroke={definition.filled ? stroke : fill}
         strokeWidth={strokeWidth}
-        strokeDasharray={dashArray(dashStyle, strokeWidth)}
+        strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
         strokeLinejoin="round"
         strokeLinecap="round"
         vectorEffect="non-scaling-stroke"

@@ -7,12 +7,14 @@ import {
   ArrowDownToLineIcon,
   ArrowUpToLineIcon,
   CopyIcon,
+  GroupIcon,
   LayersIcon,
   PencilIcon,
   PlusIcon,
   Redo2Icon,
   Trash2Icon,
   Undo2Icon,
+  UngroupIcon,
 } from "lucide-react"
 
 import type { Alignment } from "@/lib/editor/align"
@@ -49,28 +51,33 @@ const ALIGNMENTS: Array<[Alignment, string]> = [
 function EditorContextMenu({ children }: { children: React.ReactNode }) {
   const { setEditingId } = useEditorLayout()
   const { addSlide } = useSlides()
-  const { duplicate, remove, align, reorder, addLibraryItem } =
+  const { duplicate, remove, align, reorder, addLibraryItem, group, ungroup } =
     useEditorActions()
   const insertAt = React.useRef<Point | undefined>(undefined)
   const editingFromMenu = React.useRef(false)
-  const { actions, selection, canUndo, canRedo } = useEditor((state, query) => {
-    const [id] = state.events.selected
-    const node = id && id !== ROOT_NODE ? state.nodes[id] : undefined
-    const siblings = state.nodes[ROOT_NODE]?.data.nodes ?? []
-    return {
-      selection: node
-        ? {
-            id: id as string,
-            name: node.data.name,
-            props: node.data.props,
-            first: siblings[0] === id,
-            last: siblings.at(-1) === id,
-          }
-        : null,
-      canUndo: query.history.canUndo(),
-      canRedo: query.history.canRedo(),
-    }
-  })
+  const { actions, query, selection, selectedCount, canUndo, canRedo } =
+    useEditor((state, query) => {
+      const selected = [...state.events.selected].filter(
+        (nodeId) => nodeId !== ROOT_NODE && state.nodes[nodeId]
+      )
+      const [id] = selected
+      const node = id ? state.nodes[id] : undefined
+      const siblings = state.nodes[ROOT_NODE]?.data.nodes ?? []
+      return {
+        selection: node
+          ? {
+              id,
+              name: node.data.name,
+              props: node.data.props,
+              first: siblings[0] === id,
+              last: siblings.at(-1) === id,
+            }
+          : null,
+        selectedCount: selected.length,
+        canUndo: query.history.canUndo(),
+        canRedo: query.history.canRedo(),
+      }
+    })
 
   return (
     <ContextMenu
@@ -98,8 +105,11 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
           const id = target
             .closest("[data-editor-node]")
             ?.getAttribute("data-editor-node")
-          if (id) actions.selectNode(id)
-          else if (event.button !== 0) actions.clearEvents()
+          if (id) {
+            // Keep a multi-selection intact when right-clicking inside it.
+            const selected = query.getEvent("selected").all()
+            if (!selected.includes(id)) actions.selectNode(id)
+          } else if (event.button !== 0) actions.clearEvents()
           const svg = event.currentTarget.querySelector<SVGSVGElement>(
             "[data-slide-canvas]"
           )
@@ -134,7 +144,11 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
       >
         <ContextMenuGroup>
           <ContextMenuLabel className="truncate">
-            {selection ? getElementLabel(selection) : "Slide"}
+            {selectedCount > 1
+              ? `${selectedCount} elements`
+              : selection
+                ? getElementLabel(selection)
+                : "Slide"}
           </ContextMenuLabel>
           {!selection && (
             <>
@@ -156,7 +170,22 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
           )}
         </ContextMenuGroup>
         <ContextMenuSeparator />
-        {selection ? (
+        {selectedCount > 1 ? (
+          <ContextMenuGroup>
+            <ContextMenuItem onClick={() => group()}>
+              <GroupIcon />
+              Group selection<ContextMenuShortcut>⌘G</ContextMenuShortcut>
+            </ContextMenuItem>
+            <ContextMenuItem onClick={() => duplicate()}>
+              <CopyIcon />
+              Duplicate
+            </ContextMenuItem>
+            <ContextMenuItem variant="destructive" onClick={() => remove()}>
+              <Trash2Icon />
+              Delete<ContextMenuShortcut>Del</ContextMenuShortcut>
+            </ContextMenuItem>
+          </ContextMenuGroup>
+        ) : selection ? (
           <>
             <ContextMenuGroup>
               {canEditContent(selection) && (
@@ -174,6 +203,12 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
                 <CopyIcon />
                 Duplicate
               </ContextMenuItem>
+              {selection.name === "Group" && (
+                <ContextMenuItem onClick={() => ungroup(selection.id)}>
+                  <UngroupIcon />
+                  Ungroup<ContextMenuShortcut>⇧⌘G</ContextMenuShortcut>
+                </ContextMenuItem>
+              )}
             </ContextMenuGroup>
             <ContextMenuSeparator />
             <ContextMenuGroup>

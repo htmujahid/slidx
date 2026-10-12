@@ -26,6 +26,12 @@ import {
   InputGroupButton,
   InputGroupInput,
 } from "@/components/ui/input-group"
+import { PopoverTrigger } from "@/components/ui/popover"
+import {
+  ColorPicker,
+  ColorPickerContent,
+  ColorPickerSwatch,
+} from "@/components/reui/color-picker"
 import type { ChartBoxProps } from "@/components/editor/nodes/chart-box"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 
@@ -105,15 +111,25 @@ function ChartDataDialog({
             {series.map((entry, index) => (
               <InputGroup key={index}>
                 <InputGroupAddon>
-                  <input
-                    type="color"
+                  <ColorPicker
                     aria-label={`Series ${index + 1} color`}
                     value={entry.color}
-                    onChange={(event) =>
-                      updateSeries(index, { color: event.target.value })
-                    }
-                    className="size-5 cursor-pointer rounded-sm border-0 bg-transparent p-0"
-                  />
+                    onValueChange={(color) => {
+                      if (color) updateSeries(index, { color })
+                    }}
+                  >
+                    <PopoverTrigger
+                      render={
+                        <InputGroupButton
+                          size="icon-xs"
+                          aria-label={`Series ${index + 1} color`}
+                        />
+                      }
+                    >
+                      <ColorPickerSwatch />
+                    </PopoverTrigger>
+                    <ColorPickerContent />
+                  </ColorPicker>
                 </InputGroupAddon>
                 <InputGroupInput
                   aria-label={`Series ${index + 1} name`}

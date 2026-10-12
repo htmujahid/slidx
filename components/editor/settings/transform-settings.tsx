@@ -85,10 +85,12 @@ function TransformSettings({
   props,
   update,
   autoHeight,
+  resizable = true,
 }: {
   props: Partial<ElementTransformProps>
   update: (patch: Partial<ElementTransformProps>) => void
   autoHeight?: boolean
+  resizable?: boolean
 }) {
   const merged = { ...DEFAULT_TRANSFORM, ...props }
   const nameId = React.useId()
@@ -131,23 +133,25 @@ function TransformSettings({
           onChange={(y) => update({ y })}
         />
       </SettingsRow>
-      <SettingsRow>
-        <NumberSetting
-          label="Width"
-          prefix="W"
-          value={merged.width}
-          min={MIN_ELEMENT_SIZE}
-          onChange={(width) => update({ width })}
-        />
-        <NumberSetting
-          label="Height"
-          prefix="H"
-          value={merged.height}
-          min={MIN_ELEMENT_SIZE}
-          disabled={autoHeight}
-          onChange={(height) => update({ height })}
-        />
-      </SettingsRow>
+      {resizable && (
+        <SettingsRow>
+          <NumberSetting
+            label="Width"
+            prefix="W"
+            value={merged.width}
+            min={MIN_ELEMENT_SIZE}
+            onChange={(width) => update({ width })}
+          />
+          <NumberSetting
+            label="Height"
+            prefix="H"
+            value={merged.height}
+            min={MIN_ELEMENT_SIZE}
+            disabled={autoHeight}
+            onChange={(height) => update({ height })}
+          />
+        </SettingsRow>
+      )}
       <SettingsRow>
         <NumberSetting
           label="Rotation"

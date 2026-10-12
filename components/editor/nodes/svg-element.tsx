@@ -44,8 +44,9 @@ function SvgElement({
     selected: node.events.selected,
     locked: Boolean(node.data.custom.locked),
   }))
-  const { actions, query, enabled } = useEditor((state) => ({
+  const { actions, query, enabled, nested } = useEditor((state) => ({
     enabled: state.options.enabled,
+    nested: Boolean(id && state.nodes[id]?.data.parent !== ROOT_NODE),
   }))
   const {
     toSlidePoint,
@@ -165,6 +166,20 @@ function SvgElement({
           mixBlendMode: blendMode !== "normal" ? blendMode : undefined,
         }
       : undefined
+
+  // Inside a group the wrapper is purely visual: the group's own SvgElement
+  // handles selection and dragging for the whole subtree.
+  if (nested) {
+    return (
+      <g
+        transform={`translate(${x} ${y}) rotate(${rotation} ${width / 2} ${height / 2})${flip}`}
+        opacity={opacity}
+        style={style}
+      >
+        {children}
+      </g>
+    )
+  }
 
   return (
     <g

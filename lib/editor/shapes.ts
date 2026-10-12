@@ -34,6 +34,15 @@ export type ShapeDefinition = {
 
 const round = (n: number) => Math.round(n * 100) / 100
 
+export type DashStyle = "solid" | "dashed" | "dotted"
+
+export function strokeDashArray(style: DashStyle, strokeWidth: number) {
+  const unit = Math.max(strokeWidth, 1)
+  if (style === "dashed") return `${unit * 3} ${unit * 2}`
+  if (style === "dotted") return `0.1 ${unit * 2}`
+  return undefined
+}
+
 function polygon(w: number, h: number, points: Array<[number, number]>) {
   return (
     points

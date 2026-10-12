@@ -84,7 +84,8 @@ function SelectionOverlay() {
         return {
           id,
           props: node.data.props as ElementTransformProps,
-          handles: (node.data.custom.handles ?? "all") as "all" | "horizontal",
+          handles: (node.data.custom.handles ?? "all") as
+            "all" | "horizontal" | "none",
           locked: Boolean(node.data.custom.locked),
         }
       }),
@@ -172,7 +173,11 @@ function SelectionOverlay() {
   }
 
   const visibleHandles =
-    handles === "all" ? HANDLES : HANDLES.filter((handle) => handle.sy === 0)
+    handles === "all"
+      ? HANDLES
+      : handles === "horizontal"
+        ? HANDLES.filter((handle) => handle.sy === 0)
+        : []
 
   return (
     <g
@@ -205,7 +210,7 @@ function SelectionOverlay() {
         r={size / 1.6}
         strokeWidth={1.5}
         vectorEffect="non-scaling-stroke"
-        className="cursor-grab fill-background stroke-primary active:cursor-grabbing"
+        className="cursor-grab fill-white stroke-primary active:cursor-grabbing"
         onPointerDown={startRotate}
       />
       {visibleHandles.map((handle) => (
@@ -218,7 +223,7 @@ function SelectionOverlay() {
           rx={size / 5}
           strokeWidth={1.5}
           vectorEffect="non-scaling-stroke"
-          className={cn("fill-background stroke-primary", handle.cursor)}
+          className={cn("fill-white stroke-primary", handle.cursor)}
           onPointerDown={startResize(handle)}
         />
       ))}

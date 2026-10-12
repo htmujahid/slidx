@@ -1,6 +1,7 @@
 "use client"
 
 import type { ImageBoxProps } from "@/components/editor/nodes/image-box"
+import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   NumberSetting,
   SettingsRow,
@@ -64,6 +65,7 @@ function ImageSettings() {
         ) : null}
       </SettingsSection>
       <TransformSettings props={props} update={update} />
+      <EffectsSettings props={props} update={update} />
     </>
   )
 }

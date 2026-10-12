@@ -53,7 +53,6 @@ function NumberSetting({
   prefix,
   value,
   onChange,
-  suffix,
   min,
   max,
   step = 1,
@@ -63,7 +62,6 @@ function NumberSetting({
   prefix?: React.ReactNode
   value: number
   onChange: (value: number) => void
-  suffix?: string
   min?: number
   max?: number
   step?: number
@@ -96,11 +94,6 @@ function NumberSetting({
             onChange(next)
           }}
         />
-        {suffix ? (
-          <InputGroupAddon align="inline-end">
-            <InputGroupText>{suffix}</InputGroupText>
-          </InputGroupAddon>
-        ) : null}
       </InputGroup>
     </Field>
   )

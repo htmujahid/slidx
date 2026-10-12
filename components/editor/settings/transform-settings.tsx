@@ -15,11 +15,15 @@ import {
 } from "lucide-react"
 
 import { alignToSlide, type Alignment } from "@/lib/editor/align"
-import type { ElementTransformProps } from "@/lib/editor/types"
+import { MIN_ELEMENT_SIZE } from "@/lib/editor/constants"
+import {
+  DEFAULT_TRANSFORM,
+  type ElementTransformProps,
+} from "@/lib/editor/types"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Field, FieldLabel } from "@/components/ui/field"
-import { Switch } from "@/components/ui/switch"
+import { Input } from "@/components/ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Tooltip,
@@ -30,7 +34,6 @@ import {
   NumberSetting,
   SettingsRow,
   SettingsSection,
-  SliderSetting,
 } from "@/components/editor/settings/fields"
 
 const HORIZONTAL: Array<[Alignment, string, LucideIcon]> = [
@@ -78,56 +81,53 @@ function AlignGroup({
   )
 }
 
-function ShadowSetting({
-  checked,
-  onChange,
-}: {
-  checked: boolean
-  onChange: (checked: boolean) => void
-}) {
-  const id = React.useId()
-  return (
-    <Field orientation="horizontal">
-      <FieldLabel htmlFor={id}>Shadow</FieldLabel>
-      <Switch id={id} checked={checked} onCheckedChange={onChange} />
-    </Field>
-  )
-}
-
 function TransformSettings({
   props,
   update,
   autoHeight,
 }: {
-  props: ElementTransformProps
+  props: Partial<ElementTransformProps>
   update: (patch: Partial<ElementTransformProps>) => void
   autoHeight?: boolean
 }) {
+  const merged = { ...DEFAULT_TRANSFORM, ...props }
+  const nameId = React.useId()
+
   return (
     <SettingsSection title="Layout">
+      <Field>
+        <FieldLabel htmlFor={nameId}>Name</FieldLabel>
+        <Input
+          id={nameId}
+          value={merged.name}
+          placeholder="Element name"
+          maxLength={80}
+          onChange={(event) => update({ name: event.target.value })}
+        />
+      </Field>
       <SettingsRow>
         <AlignGroup
           label="Align horizontally to slide"
           options={HORIZONTAL}
-          onAlign={(alignment) => update(alignToSlide(props, alignment))}
+          onAlign={(alignment) => update(alignToSlide(merged, alignment))}
         />
         <AlignGroup
           label="Align vertically to slide"
           options={VERTICAL}
-          onAlign={(alignment) => update(alignToSlide(props, alignment))}
+          onAlign={(alignment) => update(alignToSlide(merged, alignment))}
         />
       </SettingsRow>
       <SettingsRow>
         <NumberSetting
           label="X"
           prefix="X"
-          value={props.x}
+          value={merged.x}
           onChange={(x) => update({ x })}
         />
         <NumberSetting
           label="Y"
           prefix="Y"
-          value={props.y}
+          value={merged.y}
           onChange={(y) => update({ y })}
         />
       </SettingsRow>
@@ -135,15 +135,15 @@ function TransformSettings({
         <NumberSetting
           label="Width"
           prefix="W"
-          value={props.width}
-          min={16}
+          value={merged.width}
+          min={MIN_ELEMENT_SIZE}
           onChange={(width) => update({ width })}
         />
         <NumberSetting
           label="Height"
           prefix="H"
-          value={props.height}
-          min={16}
+          value={merged.height}
+          min={MIN_ELEMENT_SIZE}
           disabled={autoHeight}
           onChange={(height) => update({ height })}
         />
@@ -152,8 +152,7 @@ function TransformSettings({
         <NumberSetting
           label="Rotation"
           prefix={<RotateCwIcon />}
-          value={props.rotation}
-          suffix="°"
+          value={merged.rotation}
           min={-180}
           max={180}
           onChange={(rotation) => update({ rotation })}
@@ -165,8 +164,8 @@ function TransformSettings({
           multiple
           aria-label="Flip"
           value={[
-            ...(props.flipX ? ["flipX"] : []),
-            ...(props.flipY ? ["flipY"] : []),
+            ...(merged.flipX ? ["flipX"] : []),
+            ...(merged.flipY ? ["flipY"] : []),
           ]}
           onValueChange={(value) =>
             update({
@@ -191,16 +190,6 @@ function TransformSettings({
           </ToggleGroupItem>
         </ToggleGroup>
       </SettingsRow>
-      <ShadowSetting
-        checked={props.shadow}
-        onChange={(shadow) => update({ shadow })}
-      />
-      <SliderSetting
-        label="Opacity"
-        value={Math.round(props.opacity * 100)}
-        format={(v) => `${v}%`}
-        onChange={(v) => update({ opacity: v / 100 })}
-      />
     </SettingsSection>
   )
 }

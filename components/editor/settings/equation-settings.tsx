@@ -2,6 +2,7 @@
 
 import { FieldDescription } from "@/components/ui/field"
 import type { EquationProps } from "@/components/editor/nodes/equation"
+import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
   NumberSetting,
@@ -34,6 +35,7 @@ function EquationSettings() {
         />
       </SettingsSection>
       <TransformSettings props={props} update={update} />
+      <EffectsSettings props={props} update={update} />
     </>
   )
 }

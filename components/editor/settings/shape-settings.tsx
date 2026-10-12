@@ -3,6 +3,7 @@
 import { SHAPES_BY_KIND } from "@/lib/editor/shapes"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ShapeProps } from "@/components/editor/nodes/shape"
+import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
   NumberSetting,
@@ -59,7 +60,6 @@ function ShapeSettings() {
             <NumberSetting
               label="Angle"
               value={props.gradientAngle}
-              suffix="°"
               min={0}
               max={360}
               onChange={(gradientAngle) => update({ gradientAngle })}
@@ -107,6 +107,7 @@ function ShapeSettings() {
           />
         )}
       </SettingsSection>
+      <EffectsSettings props={props} update={update} />
     </>
   )
 }

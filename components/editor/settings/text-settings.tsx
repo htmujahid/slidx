@@ -14,6 +14,7 @@ import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { TextBoxProps } from "@/components/editor/nodes/text-box"
+import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
   NumberSetting,
@@ -119,6 +120,7 @@ function TextSettings() {
         />
       </SettingsSection>
       <TransformSettings props={props} update={update} autoHeight />
+      <EffectsSettings props={props} update={update} />
     </>
   )
 }

@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import type { CodeBlockProps } from "@/components/editor/nodes/code-block"
+import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   NumberSetting,
   SettingsRow,
@@ -122,6 +123,7 @@ function CodeSettings() {
         </Field>
       </SettingsSection>
       <TransformSettings props={props} update={update} autoHeight />
+      <EffectsSettings props={props} update={update} />
     </>
   )
 }

@@ -14,6 +14,8 @@ import { ShapePreview } from "@/components/editor/shape-preview"
 type NodeLike = { name: string; props: Record<string, unknown> }
 
 export function getElementLabel({ name, props }: NodeLike) {
+  const customName = typeof props.name === "string" ? props.name.trim() : ""
+  if (customName) return customName
   switch (name) {
     case "Shape":
       return SHAPES_BY_KIND[props.kind as ShapeKind]?.label ?? "Shape"

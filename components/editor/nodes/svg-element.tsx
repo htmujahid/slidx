@@ -11,29 +11,28 @@ import {
   swallowNextEvents,
   trackPointer,
 } from "@/lib/editor/geometry"
-import type { ElementTransformProps } from "@/lib/editor/types"
+import {
+  DEFAULT_TRANSFORM,
+  elementFilter,
+  type ElementTransformProps,
+} from "@/lib/editor/types"
 import { useSlide } from "@/components/editor/slide-context"
 
-type SvgElementProps = ElementTransformProps & {
+type SvgElementProps = Partial<ElementTransformProps> & {
   children: React.ReactNode
   editing?: boolean
   onStartEditing?: () => void
 }
 
 function SvgElement({
-  x,
-  y,
-  width,
-  height,
-  rotation,
-  opacity,
-  flipX = false,
-  flipY = false,
-  shadow = false,
   children,
   editing = false,
   onStartEditing,
+  ...transformProps
 }: SvgElementProps) {
+  const merged = { ...DEFAULT_TRANSFORM, ...transformProps }
+  const { x, y, width, height, rotation, opacity, flipX, flipY, blendMode } =
+    merged
   const {
     id,
     connectors: { connect },
@@ -80,17 +79,7 @@ function SvgElement({
     const dragIds = selectedIds.includes(id) ? selectedIds : [id]
     if (!selectedIds.includes(id)) actions.selectNode(id)
     const start = toSlidePoint(event.clientX, event.clientY)
-    const origin = {
-      x,
-      y,
-      width,
-      height,
-      rotation,
-      opacity,
-      flipX,
-      flipY,
-      shadow,
-    }
+    const origin = { ...merged }
     const origins = new Map(
       dragIds.map((dragId) => {
         const props = query.node(dragId).get().data.props
@@ -168,6 +157,15 @@ function SvgElement({
       ? ` translate(${width / 2} ${height / 2}) scale(${flipX ? -1 : 1} ${flipY ? -1 : 1}) translate(${-width / 2} ${-height / 2})`
       : ""
 
+  const filter = elementFilter(merged)
+  const style =
+    filter || blendMode !== "normal"
+      ? {
+          filter,
+          mixBlendMode: blendMode !== "normal" ? blendMode : undefined,
+        }
+      : undefined
+
   return (
     <g
       data-editor-node={id}
@@ -176,11 +174,7 @@ function SvgElement({
       }}
       transform={`translate(${x} ${y}) rotate(${rotation} ${width / 2} ${height / 2})${flip}`}
       opacity={opacity}
-      style={
-        shadow
-          ? { filter: "drop-shadow(0 10px 18px rgb(0 0 0 / 0.35))" }
-          : undefined
-      }
+      style={style}
       className={
         editing || !enabled || locked
           ? locked && enabled

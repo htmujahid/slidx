@@ -182,6 +182,7 @@ function PropertiesPanel() {
                   "Image",
                   "Equation",
                   "Code",
+                  "Effects",
                 ]}
                 className="px-4 pt-1 pb-4"
               >

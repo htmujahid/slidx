@@ -4,10 +4,12 @@ import * as React from "react"
 import { useNode, type UserComponent } from "@craftjs/core"
 
 import {
+  resolveShapeParams,
   SHAPES_BY_KIND,
   strokeDashArray,
   type DashStyle,
   type ShapeKind,
+  type ShapeParams,
 } from "@/lib/editor/shapes"
 import {
   DEFAULT_TRANSFORM,
@@ -16,6 +18,7 @@ import {
 import { SvgElement } from "@/components/editor/nodes/svg-element"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { ShapeSettings } from "@/components/editor/settings/shape-settings"
+import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 
 export type ShapeProps = ElementTransformProps & {
   kind: ShapeKind
@@ -28,6 +31,7 @@ export type ShapeProps = ElementTransformProps & {
   strokeWidth: number
   dashStyle: DashStyle
   cornerRadius: number
+  params: ShapeParams
   text: string
   textColor: string
   textSize: number
@@ -93,6 +97,7 @@ const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
     strokeWidth,
     dashStyle,
     cornerRadius,
+    params,
     text,
     textColor,
     textSize,
@@ -147,12 +152,15 @@ const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
           )}
         </defs>
       ) : null}
-      <path
-        d={definition.path(width, height, { cornerRadius })}
+      <ShapeGeometryElement
+        geometry={definition.geometry(
+          width,
+          height,
+          resolveShapeParams(definition, params, { cornerRadius })
+        )}
         fill={
           definition.filled ? (gradient ? `url(#${gradientId})` : fill) : "none"
         }
-        fillRule={definition.fillRule}
         stroke={definition.filled ? stroke : fill}
         strokeWidth={strokeWidth}
         strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
@@ -213,6 +221,7 @@ Shape.craft = {
     strokeWidth: 0,
     dashStyle: "solid",
     cornerRadius: 0,
+    params: {},
     text: "",
     textColor: "#ffffff",
     textSize: 32,

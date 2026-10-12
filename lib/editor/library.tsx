@@ -64,6 +64,22 @@ const center = (at: Point | undefined, width: number, height: number) => ({
 
 const SHAPE_SIZES: Partial<Record<ShapeKind, [number, number]>> = {
   line: [400, 24],
+  elbow: [360, 200],
+  bracket: [80, 300],
+  brace: [100, 300],
+  parenthesis: [70, 300],
+  "angle-bracket": [80, 300],
+  cylinder: [240, 300],
+  document: [320, 280],
+  "predefined-process": [360, 200],
+  callout: [380, 260],
+  "thought-bubble": [400, 320],
+  ribbon: [440, 180],
+  zigzag: [400, 120],
+  pill: [360, 120],
+  semicircle: [360, 180],
+  lightning: [220, 320],
+  frame: [380, 280],
   arrow: [400, 200],
   "double-arrow": [400, 200],
   chevron: [300, 240],
@@ -91,7 +107,7 @@ const shapeItems: LibraryItem[] = SHAPES.map((shape) => {
         width={width}
         height={height}
         {...center(at, width, height)}
-        {...(shape.kind === "line" ? { fill: "#0a0a0a", strokeWidth: 6 } : {})}
+        {...(shape.filled ? {} : { fill: "#0a0a0a", strokeWidth: 6 })}
       />
     ),
   }

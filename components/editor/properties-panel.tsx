@@ -195,6 +195,7 @@ function PropertiesPanel() {
                   "Icon",
                   "Emoji",
                   "Arrow",
+                  "Shape",
                   "Effects",
                 ]}
                 className="px-4 pt-1 pb-4"

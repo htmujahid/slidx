@@ -3,13 +3,18 @@
 import * as React from "react"
 import type { UserComponent } from "@craftjs/core"
 
-import { SHAPES_BY_KIND, type ShapeKind } from "@/lib/editor/shapes"
+import {
+  resolveShapeParams,
+  SHAPES_BY_KIND,
+  type ShapeKind,
+} from "@/lib/editor/shapes"
 import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
 import { SvgElement } from "@/components/editor/nodes/svg-element"
 import { ImageSettings } from "@/components/editor/settings/image-settings"
+import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 
 export type ImageBoxProps = ElementTransformProps & {
   src: string
@@ -56,9 +61,12 @@ const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
           <rect width={width} height={height} fill="transparent" />
           <clipPath id={clipId}>
             {maskDefinition ? (
-              <path
-                d={maskDefinition.path(width, height, { cornerRadius: 0 })}
-                clipRule={maskDefinition.fillRule}
+              <ShapeGeometryElement
+                geometry={maskDefinition.geometry(
+                  width,
+                  height,
+                  resolveShapeParams(maskDefinition)
+                )}
               />
             ) : (
               <rect width={width} height={height} rx={cornerRadius} />

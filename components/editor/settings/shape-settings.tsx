@@ -1,6 +1,6 @@
 "use client"
 
-import { SHAPES_BY_KIND } from "@/lib/editor/shapes"
+import { resolveShapeParams, SHAPES_BY_KIND } from "@/lib/editor/shapes"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ShapeProps } from "@/components/editor/nodes/shape"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
@@ -9,6 +9,7 @@ import {
   NumberSetting,
   SettingsRow,
   SettingsSection,
+  SliderSetting,
 } from "@/components/editor/settings/fields"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
@@ -17,10 +18,31 @@ function ShapeSettings() {
   const { props, update } = useNodeProps<ShapeProps>()
   const definition = SHAPES_BY_KIND[props.kind]
   const gradient = definition.filled && props.fillType === "gradient"
+  const values = resolveShapeParams(definition, props.params, {
+    cornerRadius: props.cornerRadius,
+  })
 
   return (
     <>
       <TransformSettings props={props} update={update} />
+      {definition.params?.length ? (
+        <SettingsSection title="Shape">
+          {definition.params.map((param) => (
+            <SliderSetting
+              key={param.key}
+              label={param.label}
+              value={values[param.key]}
+              min={param.min}
+              max={param.max}
+              step={param.step}
+              format={(value) => `${value}${param.unit ?? ""}`}
+              onChange={(value) =>
+                update({ params: { ...props.params, [param.key]: value } })
+              }
+            />
+          ))}
+        </SettingsSection>
+      ) : null}
       <SettingsSection title="Appearance">
         {definition.filled ? (
           <ToggleGroup
@@ -102,23 +124,13 @@ function ShapeSettings() {
               value={props.stroke}
               onChange={(stroke) => update({ stroke })}
             />
-            <SettingsRow>
-              <NumberSetting
-                label="Stroke width"
-                value={props.strokeWidth}
-                min={0}
-                max={64}
-                onChange={(strokeWidth) => update({ strokeWidth })}
-              />
-              {props.kind === "rectangle" ? (
-                <NumberSetting
-                  label="Radius"
-                  value={props.cornerRadius}
-                  min={0}
-                  onChange={(cornerRadius) => update({ cornerRadius })}
-                />
-              ) : null}
-            </SettingsRow>
+            <NumberSetting
+              label="Stroke width"
+              value={props.strokeWidth}
+              min={0}
+              max={64}
+              onChange={(strokeWidth) => update({ strokeWidth })}
+            />
           </>
         ) : (
           <NumberSetting

@@ -176,17 +176,15 @@ function TransitionSubmenu({
           <ContextMenuRadioItem value="none" closeOnClick>
             None
           </ContextMenuRadioItem>
-          {presetsFor(entry.name, side)
-            .filter((preset) => !preset.build || index === 0)
-            .map((preset) => (
-              <ContextMenuRadioItem
-                key={preset.id}
-                value={preset.id}
-                closeOnClick
-              >
-                {preset.label}
-              </ContextMenuRadioItem>
-            ))}
+          {presetsFor(entry.name, side).map((preset) => (
+            <ContextMenuRadioItem
+              key={preset.id}
+              value={preset.id}
+              closeOnClick
+            >
+              {preset.label}
+            </ContextMenuRadioItem>
+          ))}
         </ContextMenuRadioGroup>
       </ContextMenuSubContent>
     </ContextMenuSub>
@@ -341,12 +339,14 @@ function TimelineBar({
           index={index}
           onChange={(preset) => onTransition(entry, index, "enter", preset)}
         />
-        <TransitionSubmenu
-          side="exit"
-          entry={entry}
-          index={index}
-          onChange={(preset) => onTransition(entry, index, "exit", preset)}
-        />
+        {fixed ? null : (
+          <TransitionSubmenu
+            side="exit"
+            entry={entry}
+            index={index}
+            onChange={(preset) => onTransition(entry, index, "exit", preset)}
+          />
+        )}
         <ContextMenuSeparator />
         <ContextMenuItem
           disabled={fixed || entry.spans.length < 2}

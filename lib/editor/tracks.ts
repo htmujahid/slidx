@@ -223,6 +223,8 @@ export function elementValues(props: Record<string, unknown>): ElementValues {
  * keeps its own keyframes and easing. The element composes them into
  * `translate`, `scale`, `rotate`, `opacity` and `filter`, declared the same
  * way every time so they can sit beside the element's other animations.
+ * A transition that writes the same property (a fade, a blur) is an animation,
+ * so it takes precedence while it plays and the keyframes govern the rest.
  * Tracks run for the whole slide and hold their first and last values.
  */
 export function compileTracks(options: {

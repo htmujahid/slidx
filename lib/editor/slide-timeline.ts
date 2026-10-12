@@ -28,7 +28,9 @@ export function timelineElementIds(nodes: Nodes) {
 
 /**
  * The slide itself, first in the timeline. It is always there for the whole
- * slide, so only the entrance and exit of its first span count.
+ * slide, so only the entrance of its first span counts. It has no exit: CSS
+ * can't play one when a viewer moves on, and one timed to the slide's end
+ * would hide the slide for anyone still looking at it.
  */
 function slideInput(nodes: Nodes): TimelineInput {
   const timing = (nodes[ROOT_NODE]?.data.props as { timing?: ElementTiming })
@@ -37,7 +39,17 @@ function slideInput(nodes: Nodes): TimelineInput {
   return {
     id: ROOT_NODE,
     name: "Slide",
-    timing: { spans: [{ ...span, start: 0, end: null }], tracks: [] },
+    timing: {
+      spans: [
+        {
+          ...span,
+          start: 0,
+          end: null,
+          exit: { ...span.exit, preset: "none" },
+        },
+      ],
+      tracks: [],
+    },
   }
 }
 

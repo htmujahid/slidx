@@ -96,26 +96,14 @@ export const resolveSpan = (span?: Partial<ElementSpan>): ElementSpan => ({
   exit: { ...DEFAULT_EXIT, ...span?.exit },
 })
 
-/**
- * Fills in whatever a saved timing leaves out. Timing saved when an element
- * had a single span (`start`, `end`, `enter`, `exit` directly on it) becomes
- * one span.
- */
-export function resolveTiming(
-  timing?: Partial<ElementTiming> & Partial<ElementSpan>
-): ElementTiming {
-  const tracks = timing?.tracks ?? []
-  if (timing?.spans && timing.spans.length > 0) {
-    return { spans: timing.spans.map(resolveSpan), tracks }
-  }
-  const { start, end, enter, exit } = timing ?? {}
+/** Fills in whatever a saved timing leaves out. */
+export function resolveTiming(timing?: Partial<ElementTiming>): ElementTiming {
   return {
-    spans: [
-      start === undefined && end === undefined && !enter && !exit
-        ? DEFAULT_SPAN
-        : resolveSpan({ start, end, enter, exit }),
-    ],
-    tracks,
+    spans:
+      timing?.spans && timing.spans.length > 0
+        ? timing.spans.map(resolveSpan)
+        : [DEFAULT_SPAN],
+    tracks: timing?.tracks ?? [],
   }
 }
 
@@ -339,21 +327,15 @@ export type TimelineEntry = {
 export function buildTimeline(inputs: TimelineInput[], durationMs: number) {
   const entries: TimelineEntry[] = inputs.map((input) => {
     const timing = resolveTiming(input.timing)
-    // A preset that doesn't suit this element at this edge does nothing. A
-    // chart's build can only play once, so only its first span keeps it.
-    const valid = (
-      side: TransitionSide,
-      transition: Transition,
-      first: boolean
-    ) => {
+    // A preset that doesn't suit this element at this edge does nothing.
+    const valid = (side: TransitionSide, transition: Transition) => {
       const definition =
         transition.preset === "none"
           ? undefined
           : PRESETS_BY_ID[transition.preset]
       return definition &&
         definition.group === side &&
-        (!definition.only || definition.only.includes(input.name)) &&
-        (!definition.build || first)
+        (!definition.only || definition.only.includes(input.name))
         ? transition
         : { ...transition, preset: "none" as const }
     }
@@ -373,8 +355,8 @@ export function buildTimeline(inputs: TimelineInput[], durationMs: number) {
         start,
         end,
         toEnd: span.end === null || end >= durationMs,
-        enter: valid("enter", span.enter, spans.length === 0),
-        exit: valid("exit", span.exit, spans.length === 0),
+        enter: valid("enter", span.enter),
+        exit: valid("exit", span.exit),
       })
       floor = end
     }
@@ -415,79 +397,122 @@ const FADE_LATE = "0%,60%{opacity:0}to{opacity:1}"
  * parts. Bars grow in turn from their baseline, lines draw themselves, areas
  * wipe in, a pie sweeps round and a radar opens out from its centre.
  */
+/** One part of a chart's build: what to style, and the animation that plays on it. */
+type ChartPiece = {
+  selector: string
+  /** Declarations that stay as they are, whatever animation plays. */
+  declarations?: string
+  animation?: string
+}
+
 function chartBuildCss(
   scope: string,
+  /** Tells apart the builds of one chart's parts, which each need their own keyframes. */
+  buildId: string,
   selector: string,
   meta: ChartMeta,
-  timing: { duration: number; easing: string; start: number; paused: string }
+  timing: {
+    duration: number
+    easing: string
+    start: number
+    fill: "backwards" | "none"
+  }
 ) {
-  const { duration, easing, start, paused } = timing
+  const { duration, easing, start, fill } = timing
   const keyframes = new Map<string, string>()
-  const rules: string[] = []
+  const pieces: ChartPiece[] = []
   const run = (name: string, ms: number, delay: number) =>
-    `${name} ${ms}ms ${easing} ${delay}ms 1 backwards`
+    `${name} ${ms}ms ${easing} ${delay}ms 1 ${fill}`
   const key = (name: string, body: string) => {
     const full = `vx-${scope}-${name}`
     keyframes.set(full, body)
     return full
   }
+  const late = () => key("fade-late", FADE_LATE)
 
   if (meta.kind === "bar" || meta.kind === "bar-horizontal") {
     const horizontal = meta.kind === "bar-horizontal"
-    const grow = key(
-      horizontal ? "grow-x" : "grow-y",
-      horizontal
-        ? "from{transform:scaleX(0)}to{transform:scaleX(1)}"
-        : "from{transform:scaleY(0)}to{transform:scaleY(1)}"
-    )
     const count = Math.max(1, meta.categories)
-    // Bars start spread over the first half and each grows for the second.
+    // Bars start spread over the first half and each grows for the second. The
+    // stagger is inside each bar's keyframes, so every bar starts with the part
+    // and waits at its first frame, even where nothing holds that frame for it.
     const barMs = count > 1 ? duration / 2 : duration
     const step = count > 1 ? (duration - barMs) / (count - 1) : 0
+    const percent = (ms: number) => +((ms / duration) * 100).toFixed(4)
     const origin = horizontal ? "0% 50%" : "50% 100%"
-    rules.push(
-      `${selector} .recharts-bar-rectangle{transform-box:fill-box;transform-origin:${origin}}`,
-      `${selector} .recharts-label-list{animation:${run(key("fade-late", FADE_LATE), duration, start)}${paused}}`
+    const axis = horizontal ? "X" : "Y"
+    pieces.push(
+      {
+        selector: `${selector} .recharts-bar-rectangle`,
+        declarations: `transform-box:fill-box;transform-origin:${origin}`,
+      },
+      {
+        selector: `${selector} .recharts-label-list`,
+        animation: run(late(), duration, start),
+      }
     )
     for (let index = 0; index < count; index++) {
-      rules.push(
-        `${selector} .recharts-bar-rectangle:nth-child(${index + 1}){animation:${run(grow, barMs, start + index * step)}${paused}}`
+      const from = percent(index * step)
+      const to = percent(index * step + barMs)
+      const grow = key(
+        `${buildId}-grow-${index}`,
+        `0%${from > 0 ? `,${from}%` : ""}{transform:scale${axis}(0);animation-timing-function:${easing}}${to}%,100%{transform:scale${axis}(1)}`
       )
+      pieces.push({
+        selector: `${selector} .recharts-bar-rectangle:nth-child(${index + 1})`,
+        animation: `${grow} ${duration}ms linear ${start}ms 1 ${fill}`,
+      })
     }
   } else if (meta.kind === "line") {
     const draw = key(
       "draw-stroke",
       "from{stroke-dasharray:var(--vx-len) calc(var(--vx-len)*2);stroke-dashoffset:var(--vx-len)}to{stroke-dasharray:var(--vx-len) calc(var(--vx-len)*2);stroke-dashoffset:0}"
     )
-    const late = key("fade-late", FADE_LATE)
-    rules.push(
-      `${selector} .recharts-line-curve{animation:${run(draw, duration, start)}${paused}}`,
-      `${selector} :is(.recharts-line-dots,.recharts-label-list){animation:${run(late, duration, start)}${paused}}`
+    pieces.push(
+      {
+        selector: `${selector} .recharts-line-curve`,
+        animation: run(draw, duration, start),
+      },
+      {
+        selector: `${selector} :is(.recharts-line-dots,.recharts-label-list)`,
+        animation: run(late(), duration, start),
+      }
     )
   } else if (meta.kind === "area") {
     const wipe = key("wipe-in", WIPE_FRAMES)
-    rules.push(
-      `${selector} .recharts-area{animation:${run(wipe, duration, start)}${paused}}`,
-      `${selector} .recharts-label-list{animation:${run(key("fade-late", FADE_LATE), duration, start)}${paused}}`
+    pieces.push(
+      {
+        selector: `${selector} .recharts-area`,
+        animation: run(wipe, duration, start),
+      },
+      {
+        selector: `${selector} .recharts-label-list`,
+        animation: run(late(), duration, start),
+      }
     )
   } else if (meta.kind === "pie") {
     const sweep = key("sweep", "from{--vx-sweep:0deg}to{--vx-sweep:360deg}")
     // The mask is permanent but the angle returns to 360deg when the
     // animation ends, so the finished chart is whole.
-    rules.push(
-      `${selector} .recharts-surface{mask-image:conic-gradient(from 0deg at 50% 50%,#000 var(--vx-sweep),transparent var(--vx-sweep));animation:${run(sweep, duration, start)}${paused}}`
-    )
+    pieces.push({
+      selector: `${selector} .recharts-surface`,
+      declarations:
+        "mask-image:conic-gradient(from 0deg at 50% 50%,#000 var(--vx-sweep),transparent var(--vx-sweep))",
+      animation: run(sweep, duration, start),
+    })
   } else {
     const open = key(
       "radar-open",
       "from{opacity:0;transform:scale(0)}to{opacity:1;transform:none}"
     )
-    rules.push(
-      `${selector} .recharts-radar{transform-box:view-box;transform-origin:50% 50%;animation:${run(open, duration, start)}${paused}}`
-    )
+    pieces.push({
+      selector: `${selector} .recharts-radar`,
+      declarations: "transform-box:view-box;transform-origin:50% 50%",
+      animation: run(open, duration, start),
+    })
   }
 
-  return { rules, keyframes }
+  return { pieces, keyframes }
 }
 
 /**
@@ -540,7 +565,12 @@ export function buildAnimationCss(
   const drawn = new Map<string, string[]>()
   const declared = new Map<string, string[]>()
   const strokes = new Map<string, string[]>()
-  const chartRules: string[] = []
+  // A chart's pieces can be built by several parts, so each piece's animations
+  // are gathered into one list before its rule is written.
+  const chartPieces = new Map<
+    string,
+    { declarations: Set<string>; animations: string[] }
+  >()
   const push = (map: Map<string, string[]>, id: string, value: string) =>
     map.set(id, [...(map.get(id) ?? []), value])
   const paused = pausedAt === undefined ? "" : ";animation-play-state:paused"
@@ -626,11 +656,25 @@ export function buildAnimationCss(
         if (definition.build && entry.chart) {
           const built = chartBuildCss(
             scope,
+            `${entry.id}-${index}`,
             `.vx-${scope} .${className}`,
             entry.chart,
-            { duration, easing, start: at(start), paused }
+            {
+              duration,
+              easing,
+              start: at(start),
+              fill: fill as "backwards" | "none",
+            }
           )
-          chartRules.push(...built.rules)
+          for (const piece of built.pieces) {
+            const merged = chartPieces.get(piece.selector) ?? {
+              declarations: new Set<string>(),
+              animations: [] as string[],
+            }
+            if (piece.declarations) merged.declarations.add(piece.declarations)
+            if (piece.animation) merged.animations.push(piece.animation)
+            chartPieces.set(piece.selector, merged)
+          }
           for (const [name, body] of built.keyframes) keyframes.set(name, body)
         }
         if (definition.draw) {
@@ -667,7 +711,16 @@ export function buildAnimationCss(
       `.vx-${scope} .${classes[id]} :is(${DRAWN_ELEMENTS}){animation:${list.join(",")}${paused}}`
     )
   }
-  rules.push(...chartRules)
+  for (const [selector, piece] of chartPieces) {
+    const declarations = [...piece.declarations]
+      .map((value) => `${value};`)
+      .join("")
+    const animation =
+      piece.animations.length > 0
+        ? `animation:${piece.animations.join(",")}${paused}`
+        : ""
+    rules.push(`${selector}{${declarations}${animation}}`)
+  }
 
   if (rules.length === 0) return { css: "", classes }
 

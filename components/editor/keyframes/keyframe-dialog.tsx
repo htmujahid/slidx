@@ -167,6 +167,15 @@ function KeyframeEditor({ id }: { id: string }) {
         </div>
       </div>
 
+      {tracks.some((track) =>
+        ["opacity", "blur", "brightness", "grayscale"].includes(track.property)
+      ) ? (
+        <p className="text-xs text-muted-foreground">
+          Fade and blur transitions from the timeline take precedence over
+          opacity, blur, brightness and grayscale keyframes while they play.
+        </p>
+      ) : null}
+
       <div className="flex min-h-8 items-center gap-2 text-xs text-muted-foreground">
         {selection && selected ? (
           <>

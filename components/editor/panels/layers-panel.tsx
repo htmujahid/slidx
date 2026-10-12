@@ -93,7 +93,8 @@ function LayersPanel() {
           hidden: Boolean(hidden),
           locked: Boolean(custom.locked),
           label: getElementLabel({ name, props }),
-          children: state.nodes[id].data.nodes.map((childId) => {
+          // Topmost first, like the layers around them.
+          children: [...state.nodes[id].data.nodes].reverse().map((childId) => {
             const child = state.nodes[childId].data
             return {
               id: childId,

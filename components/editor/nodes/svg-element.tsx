@@ -1,0 +1,210 @@
+"use client"
+
+import * as React from "react"
+import { ROOT_NODE, useEditor, useNode } from "@craftjs/core"
+
+import { snapToAlignment } from "@/lib/editor/alignment-guides"
+import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
+import {
+  roundTo,
+  swallowNextClick,
+  swallowNextEvents,
+  trackPointer,
+} from "@/lib/editor/geometry"
+import type { ElementTransformProps } from "@/lib/editor/types"
+import { useSlide } from "@/components/editor/slide-context"
+
+type SvgElementProps = ElementTransformProps & {
+  children: React.ReactNode
+  editing?: boolean
+  onStartEditing?: () => void
+}
+
+function SvgElement({
+  x,
+  y,
+  width,
+  height,
+  rotation,
+  opacity,
+  flipX = false,
+  flipY = false,
+  shadow = false,
+  children,
+  editing = false,
+  onStartEditing,
+}: SvgElementProps) {
+  const {
+    id,
+    connectors: { connect },
+    hovered,
+    selected,
+    locked,
+  } = useNode((node) => ({
+    hovered: node.events.hovered,
+    selected: node.events.selected,
+    locked: Boolean(node.data.custom.locked),
+  }))
+  const { actions, query, enabled } = useEditor((state) => ({
+    enabled: state.options.enabled,
+  }))
+  const {
+    toSlidePoint,
+    grid,
+    scale,
+    setGuides,
+    snapToAlignment: alignmentEnabled,
+  } = useSlide()
+  const endDrag = React.useRef<(() => void) | null>(null)
+  React.useEffect(() => () => endDrag.current?.(), [])
+
+  const handlePointerDown = (event: React.PointerEvent) => {
+    if (event.button !== 0 || editing || !enabled || locked) return
+    if (event.shiftKey || event.metaKey || event.ctrlKey) {
+      swallowNextEvents(["mousedown", "click"])
+      const selectedIds = query
+        .getEvent("selected")
+        .all()
+        .filter((selectedId) => selectedId !== ROOT_NODE)
+      const next = selectedIds.includes(id)
+        ? selectedIds.filter((selectedId) => selectedId !== id)
+        : [...selectedIds, id]
+      actions.selectNode(next.length > 0 ? next : undefined)
+      return
+    }
+    endDrag.current?.()
+    const selectedIds = query
+      .getEvent("selected")
+      .all()
+      .filter((selectedId) => selectedId !== ROOT_NODE)
+    const dragIds = selectedIds.includes(id) ? selectedIds : [id]
+    if (!selectedIds.includes(id)) actions.selectNode(id)
+    const start = toSlidePoint(event.clientX, event.clientY)
+    const origin = {
+      x,
+      y,
+      width,
+      height,
+      rotation,
+      opacity,
+      flipX,
+      flipY,
+      shadow,
+    }
+    const origins = new Map(
+      dragIds.map((dragId) => {
+        const props = query.node(dragId).get().data.props
+        return [dragId, { ...(props as ElementTransformProps) }]
+      })
+    )
+    const peers = query
+      .node(ROOT_NODE)
+      .get()
+      .data.nodes.filter((peerId) => !dragIds.includes(peerId))
+      .map(
+        (peerId) => query.node(peerId).get().data.props as ElementTransformProps
+      )
+    let moved = false
+    let last = { x, y }
+    endDrag.current = trackPointer(
+      (move) => {
+        if (
+          !moved &&
+          Math.hypot(
+            move.clientX - event.clientX,
+            move.clientY - event.clientY
+          ) < 3
+        )
+          return
+        const point = toSlidePoint(move.clientX, move.clientY)
+        let dx = point.x - start.x
+        let dy = point.y - start.y
+        const lock = move.shiftKey
+          ? Math.abs(dx) >= Math.abs(dy)
+            ? "x"
+            : "y"
+          : null
+        if (lock === "x") dy = 0
+        if (lock === "y") dx = 0
+        const next = snapToAlignment(
+          { ...origin, x: origin.x + dx, y: origin.y + dy },
+          peers,
+          { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, scale },
+          grid,
+          move.altKey,
+          alignmentEnabled
+        )
+        setGuides(next.guides)
+        const position = {
+          x: lock === "y" ? origin.x : roundTo(next.x, 3),
+          y: lock === "x" ? origin.y : roundTo(next.y, 3),
+        }
+        if (position.x === last.x && position.y === last.y) return
+        const deltaX = position.x - origin.x
+        const deltaY = position.y - origin.y
+        let merge = moved
+        for (const [dragId, from] of origins) {
+          const history = merge ? actions.history.merge() : actions
+          history.setProp(dragId, (props) => {
+            props.x = roundTo(from.x + deltaX, 3)
+            props.y = roundTo(from.y + deltaY, 3)
+          })
+          merge = true
+        }
+        last = position
+        moved = true
+      },
+      () => {
+        if (moved) swallowNextClick()
+        setGuides([])
+        endDrag.current = null
+      },
+      event.pointerId
+    )
+  }
+
+  const flip =
+    flipX || flipY
+      ? ` translate(${width / 2} ${height / 2}) scale(${flipX ? -1 : 1} ${flipY ? -1 : 1}) translate(${-width / 2} ${-height / 2})`
+      : ""
+
+  return (
+    <g
+      data-editor-node={id}
+      ref={(element) => {
+        if (element) connect(element as unknown as HTMLElement)
+      }}
+      transform={`translate(${x} ${y}) rotate(${rotation} ${width / 2} ${height / 2})${flip}`}
+      opacity={opacity}
+      style={
+        shadow
+          ? { filter: "drop-shadow(0 10px 18px rgb(0 0 0 / 0.35))" }
+          : undefined
+      }
+      className={
+        editing || !enabled || locked
+          ? locked && enabled
+            ? "pointer-events-none"
+            : undefined
+          : "cursor-move"
+      }
+      onPointerDown={handlePointerDown}
+      onDoubleClick={enabled && !locked ? onStartEditing : undefined}
+    >
+      {children}
+      {hovered && !selected ? (
+        <rect
+          data-export-ignore=""
+          width={width}
+          height={height}
+          fill="none"
+          strokeWidth={2}
+          vectorEffect="non-scaling-stroke"
+          className="pointer-events-none stroke-primary"
+        />
+      ) : null}
+    </g>
+  )
+}
+
+export { SvgElement }

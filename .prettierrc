@@ -5,7 +5,26 @@
   "tabWidth": 2,
   "trailingComma": "es5",
   "printWidth": 80,
-  "plugins": ["prettier-plugin-tailwindcss"],
-  "tailwindStylesheet": "src/index.css",
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
+  "importOrder": [
+    "^(react/(.*)$)|^(react$)|^(react-dom/(.*)$)|^(react-dom$)",
+    "^(next/(.*)$)|^(next$)",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "^@/lib/(.*)$",
+    "^@/hooks/(.*)$",
+    "^@/components/ui/(.*)$",
+    "^@/components/reui/(.*)$",
+    "^@/components/(.*)$",
+    "^@/app/(.*)$",
+    "",
+    "^[./]"
+  ],
+  "importOrderParserPlugins": ["typescript", "jsx"],
+  "importOrderTypeScriptVersion": "5.0.0",
+  "tailwindStylesheet": "app/globals.css",
   "tailwindFunctions": ["cn", "cva"]
 }

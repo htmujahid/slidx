@@ -1,55 +1,21 @@
-# visx
+# Next.js template
 
-visx is a browser-based SVG animation editor. The editing surface is a live SVG document — shapes, filter/gradient definitions, and SMIL animations are all nodes in the same [craft.js](https://craft.js.org/) tree, so what you build in the canvas is the SVG you export.
+This is a Next.js template with shadcn/ui.
 
-<picture>
-  <source media="(prefers-color-scheme: dark)" srcset="public/dark-theme.png">
-  <source media="(prefers-color-scheme: light)" srcset="public/light-theme.png">
-  <img alt="visx editor screenshot" src="public/light-theme.png">
-</picture>
+## Adding components
 
-## Features
-
-- **Shape toolbox** — rect, circle, ellipse, line, polyline, polygon, path, text, textPath, image, group, and `<use>`, dragged straight onto the canvas.
-- **Properties panel** — per-shape attribute editing driven by field definitions.
-- **Timeline** — SMIL `<animate>`, `<animateTransform>`, `<animateMotion>`, and `<set>` clips per shape, with a scrubbable playhead, transport controls, and playback driven by the SVG's native animation clock.
-- **Filters & defs** — the full set of SVG filter primitives (`feGaussianBlur`, `feColorMatrix`, `feComposite`, lighting primitives, etc.), linear/radial gradients, clip paths, masks, patterns, and markers, with presets and drag-to-apply onto shapes or timeline tracks.
-- **Share links** — the current document state is compressed and encoded into the URL hash so a design can be shared without a backend.
-
-## Tech stack
-
-- [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- [Vite](https://vite.dev/) for dev/build tooling
-- [@craftjs/core](https://craft.js.org/) as the editor/node-tree engine
-- [Tailwind CSS v4](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
-
-## Getting started
-
-Install dependencies and start the dev server:
+To add components to your app, run the following command:
 
 ```bash
-npm install
-npm run dev
+npx shadcn@latest add button
 ```
 
-Other scripts:
+This will place the ui components in the `components` directory.
 
-```bash
-npm run build      # type-check and build for production
-npm run preview    # preview the production build
-npm run lint        # eslint
-npm run format       # prettier --write
-npm run typecheck   # tsc --noEmit
-```
+## Using components
 
-## Project structure
+To use the components in your app, import them as follows:
 
-```
-src/components/editor/
-  canvas/       # canvas panel, grid, transport bar
-  craft/        # craft.js node components: shapes, defs/filters, animations
-  elements/     # left-side toolbox (shapes, filters)
-  header/       # top bar, share button
-  properties/   # right-side properties panel
-  timeline/     # bottom timeline (tracks, clips, playhead)
+```tsx
+import { Button } from "@/components/ui/button"
 ```

@@ -1,3 +1,5 @@
+import { DEFAULT_SLIDE_DURATION } from "@/lib/editor/animation"
+
 export type BackgroundType = "solid" | "gradient" | "image"
 export type GradientType = "linear" | "radial"
 export type ImageFit = "cover" | "contain"
@@ -15,8 +17,8 @@ export type SlideProps = {
   gridSize: number
   snapToGrid: boolean
   snapToAlignment: boolean
-  /** Element ids in animation order; unlisted elements follow in layer order. */
-  animationOrder: string[]
+  /** How long the slide plays, in milliseconds. Elements are on it throughout unless trimmed. */
+  duration: number
 }
 
 export const SLIDE_DEFAULTS: SlideProps = {
@@ -32,7 +34,7 @@ export const SLIDE_DEFAULTS: SlideProps = {
   gridSize: 40,
   snapToGrid: false,
   snapToAlignment: true,
-  animationOrder: [],
+  duration: DEFAULT_SLIDE_DURATION,
 }
 
 /**

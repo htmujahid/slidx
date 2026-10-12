@@ -7,7 +7,6 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import type { ChartBoxProps } from "@/components/editor/nodes/chart-box"
-import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
@@ -137,7 +136,6 @@ function ChartSettings() {
 
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
-      <AnimationSettings props={props} update={update} />
     </>
   )
 }

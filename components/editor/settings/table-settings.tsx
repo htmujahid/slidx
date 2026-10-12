@@ -13,7 +13,6 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { TableProps } from "@/components/editor/nodes/table"
-import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
@@ -138,7 +137,6 @@ function TableSettings() {
 
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
-      <AnimationSettings props={props} update={update} />
     </>
   )
 }

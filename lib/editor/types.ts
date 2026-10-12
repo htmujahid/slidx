@@ -1,7 +1,4 @@
-import {
-  DEFAULT_ANIMATION,
-  type ElementAnimation,
-} from "@/lib/editor/animation"
+import { DEFAULT_TIMING, type ElementTiming } from "@/lib/editor/animation"
 
 export const BLEND_MODES = [
   "normal",
@@ -42,7 +39,7 @@ export type ElementTransformProps = {
   blur: number
   grayscale: number
   brightness: number
-  animation: ElementAnimation
+  timing: ElementTiming
 }
 
 export const DEFAULT_TRANSFORM: ElementTransformProps = {
@@ -65,7 +62,7 @@ export const DEFAULT_TRANSFORM: ElementTransformProps = {
   blur: 0,
   grayscale: 0,
   brightness: 100,
-  animation: DEFAULT_ANIMATION,
+  timing: DEFAULT_TIMING,
 }
 
 const HEX_COLOR = /^#([0-9a-f]{6})$/i

@@ -6,7 +6,6 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ArrowLineProps } from "@/components/editor/nodes/arrow-line"
-import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
@@ -87,7 +86,6 @@ function ArrowLineSettings() {
       </SettingsSection>
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
-      <AnimationSettings props={props} update={update} />
     </>
   )
 }

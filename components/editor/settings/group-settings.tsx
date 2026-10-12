@@ -9,7 +9,6 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Kbd } from "@/components/ui/kbd"
 import { Switch } from "@/components/ui/switch"
 import type { GroupProps } from "@/components/editor/nodes/group"
-import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import { SettingsSection } from "@/components/editor/settings/fields"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
@@ -39,7 +38,6 @@ function GroupSettings() {
       </SettingsSection>
       <TransformSettings props={props} update={update} resizable={false} />
       <EffectsSettings props={props} update={update} />
-      <AnimationSettings props={props} update={update} />
     </>
   )
 }

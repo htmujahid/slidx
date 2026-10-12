@@ -2,15 +2,13 @@
 
 import * as React from "react"
 
-import { Sortable } from "@/components/reui/sortable"
+import { isTimed, MIN_VISIBLE_MS } from "@/lib/editor/animation"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 import {
   DEFAULT_ZOOM,
   LABEL_WIDTH,
-  MIN_LENGTH_MS,
   ROW_HEIGHT,
   RULER_HEIGHT,
-  TAIL_MS,
   ZOOMS,
 } from "@/components/editor/timeline/constants"
 import { TimelineHeader } from "@/components/editor/timeline/timeline-header"
@@ -21,30 +19,33 @@ import { useTimelineEditing } from "@/components/editor/timeline/use-timeline-ed
 import { useTimelinePlayback } from "@/components/editor/timeline/use-timeline-playback"
 
 /**
- * Every animation on the slide laid out in time: a row per element, bars to
- * move and resize, a ruler to scrub, and a playhead to place new animations.
+ * The slide laid out in time: a row per element showing when it is on the
+ * slide, trim handles at each end, and the entrance and exit at the edges.
  */
 function TimelinePanel() {
   const { setTimelineOpen } = useEditorLayout()
   const { rows, entries, timeline, selected } = useTimelineData()
   const [zoomIndex, setZoomIndex] = React.useState(DEFAULT_ZOOM)
 
+  const { durationMs } = timeline
   const pxPerMs = ZOOMS[zoomIndex] / 1000
-  const lengthMs = Math.max(timeline.totalMs + TAIL_MS, MIN_LENGTH_MS)
-  const trackWidth = lengthMs * pxPerMs
+  const trackWidth = durationMs * pxPerMs
 
-  const playback = useTimelinePlayback({
-    totalMs: timeline.totalMs,
-    lengthMs,
-    pxPerMs,
-  })
-  const editing = useTimelineEditing({
-    pxPerMs,
-    playhead: playback.playhead,
-    rowIds: rows.map((row) => row.id),
-  })
+  const playback = useTimelinePlayback({ durationMs, pxPerMs })
+  const editing = useTimelineEditing({ pxPerMs, durationMs })
 
   const hasRows = rows.length > 0
+  const selectedEntries = selected
+    .map((id) => entries.get(id))
+    .filter((entry): entry is NonNullable<typeof entry> => Boolean(entry))
+  const splittable = selectedEntries.filter((entry) =>
+    entry.spans.some(
+      (span) =>
+        playback.playhead >= span.start + MIN_VISIBLE_MS &&
+        playback.playhead <= span.end - MIN_VISIBLE_MS
+    )
+  )
+  const canPlay = timeline.entries.some((entry) => isTimed(entry, durationMs))
 
   return (
     <section
@@ -53,13 +54,16 @@ function TimelinePanel() {
     >
       <TimelineHeader
         playing={playback.playing}
-        canPlay={timeline.entries.length > 0}
+        canPlay={canPlay}
+        canSplit={splittable.length > 0}
+        onSplit={() => editing.split(splittable, playback.playhead)}
         playheadMs={playback.playhead}
-        totalMs={timeline.totalMs}
+        durationMs={durationMs}
         canZoomOut={zoomIndex > 0}
         canZoomIn={zoomIndex < ZOOMS.length - 1}
         onTogglePlay={playback.togglePlay}
         onReset={playback.reset}
+        onDurationChange={editing.setDuration}
         onZoomOut={() => setZoomIndex((index) => index - 1)}
         onZoomIn={() => setZoomIndex((index) => index + 1)}
         onClose={() => setTimelineOpen(false)}
@@ -74,7 +78,7 @@ function TimelinePanel() {
             rulerRef={playback.rulerRef}
             trackWidth={trackWidth}
             pxPerMs={pxPerMs}
-            lengthMs={lengthMs}
+            lengthMs={durationMs}
             playheadMs={playback.playhead}
             showPlayhead={hasRows}
             onPointerDown={playback.startScrub}
@@ -82,40 +86,45 @@ function TimelinePanel() {
           />
 
           {hasRows ? (
-            <Sortable
-              value={rows}
-              getItemValue={(row) => row.id}
-              onValueChange={() => {}}
-              onMove={editing.reorder}
-              render={<div role="list" aria-label="Animation order" />}
-            >
-              {rows.map((row) => (
-                <TimelineRow
-                  key={row.id}
-                  row={row}
-                  entry={entries.get(row.id)}
-                  selected={selected.includes(row.id)}
-                  pxPerMs={pxPerMs}
-                  trackWidth={trackWidth}
-                  gridWidth={ZOOMS[zoomIndex]}
-                  onSelect={() => editing.selectElement(row.id)}
-                  onAdd={(preset) => editing.addAnimation(row.id, preset)}
-                  onRemove={() => editing.removeAnimation(row.id)}
-                  onEditBar={editing.startEdit}
-                  onNudgeBar={editing.nudge}
-                />
-              ))}
-            </Sortable>
+            <div role="list" aria-label="Elements">
+              {rows.map((row) => {
+                const entry = entries.get(row.id)
+                if (!entry) return null
+                return (
+                  <TimelineRow
+                    key={row.id}
+                    row={row}
+                    entry={entry}
+                    timed={isTimed(entry, durationMs)}
+                    selected={selected.includes(row.id)}
+                    pxPerMs={pxPerMs}
+                    trackWidth={trackWidth}
+                    gridWidth={ZOOMS[zoomIndex]}
+                    onSelect={() => editing.selectElement(row.id)}
+                    onReset={() => editing.resetTiming(row.id)}
+                    onMove={editing.startMove}
+                    onNudgeSpan={editing.nudgeSpan}
+                    onTrim={editing.startTrim}
+                    onNudge={editing.nudgeEdge}
+                    onTransition={editing.setTransition}
+                    onEasing={editing.setEasing}
+                    onTransitionDrag={editing.startTransitionDrag}
+                    onRemove={editing.remove}
+                  />
+                )
+              })}
+            </div>
           ) : (
             <p className="p-4 text-sm text-muted-foreground">
-              This slide has no elements to animate.
+              This slide has no elements yet.
             </p>
           )}
 
-          {hasRows && timeline.entries.length === 0 ? (
-            <p className="px-3 py-2 text-xs text-muted-foreground">
-              Press + on a row to add an animation, or pick a preset in the
-              Animation section.
+          {hasRows ? (
+            <p className="sticky left-0 w-fit px-3 py-2 text-xs text-muted-foreground">
+              Drag a bar to move it and its ends to trim it. Right-click it to
+              set an entrance or exit, then click that label to set its easing.
+              Split cuts it in two.
             </p>
           ) : null}
 

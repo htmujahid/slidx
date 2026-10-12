@@ -3,7 +3,6 @@
 import { resolveShapeParams, SHAPES_BY_KIND } from "@/lib/editor/shapes"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ShapeProps } from "@/components/editor/nodes/shape"
-import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
@@ -184,7 +183,6 @@ function ShapeSettings() {
         </SettingsSection>
       ) : null}
       <EffectsSettings props={props} update={update} />
-      <AnimationSettings props={props} update={update} />
     </>
   )
 }

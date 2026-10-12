@@ -1,97 +1,118 @@
 import * as React from "react"
-import { GripVerticalIcon } from "lucide-react"
 
-import type { AnimationPreset, TimelineEntry } from "@/lib/editor/animation"
+import type {
+  AnimationEasing,
+  AnimationPreset,
+  TimelineEntry,
+  TransitionSide,
+} from "@/lib/editor/animation"
 import { ElementIcon } from "@/lib/editor/labels"
-import type { BarEditMode } from "@/lib/editor/timeline-edit"
+import type { SpanEdge } from "@/lib/editor/timeline-edit"
 import { cn } from "@/lib/utils"
-import { SortableItem, SortableItemHandle } from "@/components/reui/sortable"
 import { LABEL_WIDTH, ROW_HEIGHT } from "@/components/editor/timeline/constants"
-import { RowAction } from "@/components/editor/timeline/row-action"
+import { RowReset } from "@/components/editor/timeline/row-reset"
 import { TimelineBar } from "@/components/editor/timeline/timeline-bar"
 import type { TimelineRowData } from "@/components/editor/timeline/use-timeline-data"
 
-/** One element: its label and action on the left, its animation on the right. */
+/** One element: its label on the left, when it is on the slide on the right. */
 function TimelineRow({
   row,
   entry,
+  timed,
   selected,
   pxPerMs,
   trackWidth,
   gridWidth,
   onSelect,
-  onAdd,
+  onReset,
+  onMove,
+  onNudgeSpan,
+  onTrim,
+  onNudge,
+  onTransition,
+  onEasing,
+  onTransitionDrag,
   onRemove,
-  onEditBar,
-  onNudgeBar,
 }: {
   row: TimelineRowData
-  /** The element's animation, if it has one. */
-  entry?: TimelineEntry
+  entry: TimelineEntry
+  /** Whether it has been trimmed or given a transition. */
+  timed: boolean
   selected: boolean
   pxPerMs: number
   trackWidth: number
   /** Width of one second, for the lane's grid lines. */
   gridWidth: number
   onSelect: () => void
-  onAdd: (preset: AnimationPreset) => void
-  onRemove: () => void
-  onEditBar: (
+  onReset: () => void
+  onMove: (
     event: React.PointerEvent,
     entry: TimelineEntry,
-    mode: BarEditMode
+    index: number
   ) => void
-  onNudgeBar: (event: React.KeyboardEvent, entry: TimelineEntry) => void
+  onNudgeSpan: (
+    event: React.KeyboardEvent,
+    entry: TimelineEntry,
+    index: number
+  ) => void
+  onTrim: (
+    event: React.PointerEvent,
+    entry: TimelineEntry,
+    index: number,
+    edge: SpanEdge
+  ) => void
+  onNudge: (
+    event: React.KeyboardEvent,
+    entry: TimelineEntry,
+    index: number,
+    edge: SpanEdge
+  ) => void
+  onTransition: (
+    entry: TimelineEntry,
+    index: number,
+    side: TransitionSide,
+    preset: AnimationPreset
+  ) => void
+  onEasing: (
+    entry: TimelineEntry,
+    index: number,
+    side: TransitionSide,
+    easing: AnimationEasing
+  ) => void
+  onTransitionDrag: (
+    event: React.PointerEvent,
+    entry: TimelineEntry,
+    index: number,
+    side: TransitionSide
+  ) => void
+  onRemove: (entry: TimelineEntry, index: number) => void
 }) {
   return (
-    <SortableItem
-      value={row.id}
+    <div
       role="listitem"
-      tabIndex={-1}
-      className="group/row flex data-[dragging=true]:bg-accent"
+      className="flex cursor-pointer"
       style={{ height: ROW_HEIGHT }}
-      render={<div />}
+      onClick={onSelect}
     >
       <div
         className={cn(
-          "sticky left-0 z-10 flex shrink-0 items-center gap-1 border-r border-b bg-background pr-1 pl-1",
+          "sticky left-0 z-10 flex shrink-0 items-center gap-1 border-r border-b bg-background pr-1 pl-2",
           selected && "bg-muted"
         )}
         style={{ width: LABEL_WIDTH }}
       >
-        <SortableItemHandle
-          cursor={false}
-          render={
-            <button
-              type="button"
-              aria-label={`Reorder ${row.label}`}
-              className="flex size-5 shrink-0 cursor-grab items-center justify-center rounded-sm text-muted-foreground hover:bg-muted"
-            />
-          }
-        >
-          <GripVerticalIcon className="size-3.5" />
-        </SortableItemHandle>
         <button
           type="button"
           className="flex min-w-0 flex-1 items-center gap-2 text-left text-xs"
-          onClick={onSelect}
         >
           <ElementIcon
             name={row.name}
             props={row.props}
             className="size-3.5 shrink-0"
           />
-          <span className={cn("truncate", !entry && "text-muted-foreground")}>
-            {row.label}
-          </span>
+          <span className="truncate">{row.label}</span>
         </button>
-        <RowAction
-          name={row.name}
-          label={row.label}
-          animated={Boolean(entry)}
-          onAdd={onAdd}
-          onRemove={onRemove}
-        />
+        <RowReset label={row.label} timed={timed} onReset={onReset} />
       </div>
       <div
         data-timeline-lane={row.id}
@@ -103,21 +124,25 @@ function TimelineRow({
           backgroundSize: `${gridWidth}px 100%`,
         }}
       >
-        {entry ? (
+        {entry.spans.map((_, index) => (
           <TimelineBar
+            key={index}
             entry={entry}
+            index={index}
+            label={row.label}
             pxPerMs={pxPerMs}
-            selected={selected}
-            onEdit={onEditBar}
-            onKeyDown={onNudgeBar}
+            onMove={onMove}
+            onNudgeSpan={onNudgeSpan}
+            onTrim={onTrim}
+            onNudge={onNudge}
+            onTransition={onTransition}
+            onEasing={onEasing}
+            onTransitionDrag={onTransitionDrag}
+            onRemove={onRemove}
           />
-        ) : (
-          <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-xs text-muted-foreground/70">
-            No animation
-          </span>
-        )}
+        ))}
       </div>
-    </SortableItem>
+    </div>
   )
 }
 

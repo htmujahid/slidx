@@ -14,14 +14,11 @@ import {
  * scrubbing the ruler with the mouse or keyboard.
  */
 export function useTimelinePlayback({
-  totalMs,
-  lengthMs,
+  durationMs,
   pxPerMs,
 }: {
-  /** When the last animation ends. */
-  totalMs: number
-  /** How long the ruler is drawn. */
-  lengthMs: number
+  /** How long the slide plays, which is also how long the ruler is drawn. */
+  durationMs: number
   pxPerMs: number
 }) {
   const {
@@ -44,13 +41,13 @@ export function useTimelinePlayback({
     let frame = 0
     const tick = () => {
       setClock(
-        Math.min(performance.now() - animationPreview.startedAt, totalMs)
+        Math.min(performance.now() - animationPreview.startedAt, durationMs)
       )
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [animationPreview.mode, animationPreview.startedAt, totalMs])
+  }, [animationPreview.mode, animationPreview.startedAt, durationMs])
 
   // A preview belongs to one slide, and to the open panel.
   React.useEffect(() => {
@@ -69,11 +66,11 @@ export function useTimelinePlayback({
       return
     }
     setClock(0)
-    playAnimationPreview(totalMs + PLAY_TAIL_MS)
+    playAnimationPreview(durationMs + PLAY_TAIL_MS)
   }
 
   const scrubToMs = (ms: number) => {
-    const clamped = Math.min(Math.max(ms, 0), lengthMs)
+    const clamped = Math.min(Math.max(ms, 0), durationMs)
     setClock(clamped)
     scrubAnimationPreview(clamped)
   }
@@ -100,7 +97,7 @@ export function useTimelinePlayback({
           : event.key === "Home"
             ? 0
             : event.key === "End"
-              ? totalMs
+              ? durationMs
               : null
     if (next === null) return
     event.preventDefault()

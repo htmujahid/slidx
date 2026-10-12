@@ -4,6 +4,7 @@ import * as React from "react"
 import { ROOT_NODE, useEditor, useNode } from "@craftjs/core"
 
 import { snapToAlignment } from "@/lib/editor/alignment-guides"
+import { resolveTiming } from "@/lib/editor/animation"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import {
   roundTo,
@@ -177,11 +178,14 @@ function SvgElement({
   // re-create its content and break anything measuring it); its class only
   // exists while the slide plays.
   const wrapperRef = React.useRef<SVGGElement | null>(null)
-  const drawing = merged.animation.preset === "draw"
+  const enters = resolveTiming(merged.timing).spans.map(
+    (span) => span.enter.preset
+  )
+  const drawing = enters.includes("draw") || enters.includes("chart-build")
 
   // Draw-on needs each outline's true length; the keyframes read it from here,
   // so playback itself stays pure CSS.
-  const typing = merged.animation.preset === "typewriter"
+  const typing = enters.includes("typewriter")
   React.useLayoutEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper || (!drawing && !typing)) return

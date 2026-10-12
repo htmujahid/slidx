@@ -28,7 +28,8 @@ import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function FileMenu() {
   const { setDialog } = useEditorLayout()
-  const { save, open, exportPng, exportPdf, exportHtml } = useFileActions()
+  const { save, open, exportPng, exportSlideHtml, exportPdf, exportHtml } =
+    useFileActions()
   const { actions, canUndo, canRedo } = useEditor((_, query) => ({
     canUndo: query.history.canUndo(),
     canRedo: query.history.canRedo(),
@@ -68,13 +69,17 @@ function FileMenu() {
             <ImageIcon />
             Export slide as PNG
           </MenubarItem>
+          <MenubarItem onClick={exportSlideHtml}>
+            <GlobeIcon />
+            Export slide as HTML
+          </MenubarItem>
           <MenubarItem onClick={exportPdf}>
             <FileTextIcon />
-            Export as PDF
+            Export presentation as PDF
           </MenubarItem>
           <MenubarItem onClick={exportHtml}>
             <GlobeIcon />
-            Export as HTML
+            Export presentation as HTML
           </MenubarItem>
         </MenubarGroup>
         <MenubarSeparator />

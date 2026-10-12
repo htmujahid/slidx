@@ -167,8 +167,22 @@ function slideSection(
 </section>`
 }
 
-/** One self-contained HTML file: every slide inline, navigable without script. */
-export async function slidesToHtml(slides: string[], title: string) {
+/** A lone slide, with no navigation: just the slide, centred and animated. */
+function singleSection(svg: string, size: SlideSize) {
+  return `<section class="slide">
+<div class="frame" style="--w:${size.width};--h:${size.height}">${svg}</div>
+</section>`
+}
+
+/** Where a lone slide has the whole window, rather than leaving room for controls. */
+const SINGLE_CSS =
+  ".frame{width:min(100%,calc((100dvh - 32px) * var(--w) / var(--h)))}"
+
+async function buildHtml(
+  slides: string[],
+  title: string,
+  { single }: { single: boolean }
+) {
   const svgs = await renderSlides(slides, svgToHtml, { animate: true })
   const sizes = slides.map(slideSizeFromJson)
   const fonts = await embeddedFontCss(svgs.join(""))
@@ -180,6 +194,16 @@ export async function slidesToHtml(slides: string[], title: string) {
     ? `${stack}, system-ui, sans-serif`
     : "system-ui, sans-serif"
 
+  const body = single
+    ? `<main class="deck">
+${singleSection(svgs[0], sizes[0])}
+</main>`
+    : `<i id="overview"></i><i id="scroll"></i>
+<nav class="modes" aria-label="View"><a href="#slide-1">Present</a><a href="#overview">Overview</a><a href="#scroll">Scroll</a></nav>
+<main class="deck">
+${svgs.map((svg, index) => slideSection(svg, sizes[index], index, svgs.length)).join("\n")}
+</main>`
+
   const html = `<!doctype html>
 <html lang="en">
 <head>
@@ -189,16 +213,20 @@ export async function slidesToHtml(slides: string[], title: string) {
 <title>${escapeHtml(title)}</title>
 <style>
 ${fonts}
-:root{--deck-font:${family}}${deckCss(sizes[0])}</style>
+:root{--deck-font:${family}}${deckCss(sizes[0])}${single ? SINGLE_CSS : ""}</style>
 </head>
 <body>
-<i id="overview"></i><i id="scroll"></i>
-<nav class="modes" aria-label="View"><a href="#slide-1">Present</a><a href="#overview">Overview</a><a href="#scroll">Scroll</a></nav>
-<main class="deck">
-${svgs.map((svg, index) => slideSection(svg, sizes[index], index, svgs.length)).join("\n")}
-</main>
+${body}
 </body>
 </html>
 `
   return new Blob([html], { type: "text/html;charset=utf-8" })
 }
+
+/** One self-contained HTML file: every slide inline, navigable without script. */
+export const slidesToHtml = (slides: string[], title: string) =>
+  buildHtml(slides, title, { single: false })
+
+/** One slide as its own HTML file, playing its animations when it opens. */
+export const slideToHtml = (slide: string, title: string) =>
+  buildHtml([slide], title, { single: true })

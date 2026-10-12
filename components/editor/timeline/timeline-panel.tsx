@@ -23,7 +23,7 @@ import { useTimelinePlayback } from "@/components/editor/timeline/use-timeline-p
  * slide, trim handles at each end, and the entrance and exit at the edges.
  */
 function TimelinePanel() {
-  const { setTimelineOpen } = useEditorLayout()
+  const { setTimelineOpen, setKeyframeTarget } = useEditorLayout()
   const { rows, entries, timeline, selected } = useTimelineData()
   const [zoomIndex, setZoomIndex] = React.useState(DEFAULT_ZOOM)
 
@@ -102,6 +102,7 @@ function TimelinePanel() {
                     gridWidth={ZOOMS[zoomIndex]}
                     onSelect={() => editing.selectElement(row.id)}
                     onReset={() => editing.resetTiming(row.id)}
+                    onEditKeyframes={() => setKeyframeTarget(row.id)}
                     onMove={editing.startMove}
                     onNudgeSpan={editing.nudgeSpan}
                     onTrim={editing.startTrim}
@@ -124,7 +125,8 @@ function TimelinePanel() {
             <p className="sticky left-0 w-fit px-3 py-2 text-xs text-muted-foreground">
               Drag a bar to move it and its ends to trim it. Right-click it to
               set an entrance or exit, then click that label to set its easing.
-              Split cuts it in two.
+              Split cuts it in two. The diamond opens an element&apos;s property
+              keyframes.
             </p>
           ) : null}
 

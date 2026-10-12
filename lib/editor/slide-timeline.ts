@@ -7,6 +7,7 @@ import {
   type TimelineInput,
 } from "@/lib/editor/animation"
 import type { ChartKind } from "@/lib/editor/chart"
+import { elementValues } from "@/lib/editor/tracks"
 
 /** How long the slide plays, in milliseconds. */
 export function slideDuration(nodes: Nodes) {
@@ -39,6 +40,7 @@ export function slideTimeline(nodes: Nodes) {
       name: node.data.name,
       timing: props.timing,
       text: props.text,
+      values: elementValues(node.data.props),
       chart:
         node.data.name === "ChartBox" && props.kind
           ? { kind: props.kind, categories: props.rows?.length ?? 0 }

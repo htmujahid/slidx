@@ -3,6 +3,7 @@ import { ROOT_NODE, useEditor } from "@craftjs/core"
 
 import {
   DEFAULT_TIMING,
+  resolveTiming,
   type AnimationEasing,
   type AnimationPreset,
   type ElementSpan,
@@ -39,7 +40,7 @@ export function useTimelineEditing({
   // Dragging produces a stream of changes, merged into one undo step.
   const writeSpans = (id: string, spans: ElementSpan[], merge = true) =>
     (merge ? actions.history.throttle(400) : actions).setProp(id, (props) => {
-      props.timing = { spans }
+      props.timing = { ...resolveTiming(props.timing), spans }
     })
 
   const trimmed = (

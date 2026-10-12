@@ -1,5 +1,10 @@
 import type { ChartKind } from "@/lib/editor/chart"
 import { EASINGS, type AnimationEasing } from "@/lib/editor/easing"
+import {
+  compileTracks,
+  type AnimationTrack,
+  type ElementValues,
+} from "@/lib/editor/tracks"
 
 export { EASINGS, type AnimationEasing }
 
@@ -53,7 +58,11 @@ export type ElementSpan = {
  * span. Trimming a span hides the element outside it; splitting one into two
  * and trimming between them shows the element, hides it, and shows it again.
  */
-export type ElementTiming = { spans: ElementSpan[] }
+export type ElementTiming = {
+  spans: ElementSpan[]
+  /** Property keyframes, at slide milliseconds; they run alongside the spans. */
+  tracks: AnimationTrack[]
+}
 
 export const DEFAULT_SLIDE_DURATION = 5000
 /** The shortest an element can be on the slide in one go. */
@@ -73,7 +82,10 @@ export const DEFAULT_SPAN: ElementSpan = {
   exit: DEFAULT_EXIT,
 }
 
-export const DEFAULT_TIMING: ElementTiming = { spans: [DEFAULT_SPAN] }
+export const DEFAULT_TIMING: ElementTiming = {
+  spans: [DEFAULT_SPAN],
+  tracks: [],
+}
 
 export const resolveSpan = (span?: Partial<ElementSpan>): ElementSpan => ({
   ...DEFAULT_SPAN,
@@ -90,8 +102,9 @@ export const resolveSpan = (span?: Partial<ElementSpan>): ElementSpan => ({
 export function resolveTiming(
   timing?: Partial<ElementTiming> & Partial<ElementSpan>
 ): ElementTiming {
+  const tracks = timing?.tracks ?? []
   if (timing?.spans && timing.spans.length > 0) {
-    return { spans: timing.spans.map(resolveSpan) }
+    return { spans: timing.spans.map(resolveSpan), tracks }
   }
   const { start, end, enter, exit } = timing ?? {}
   return {
@@ -100,6 +113,7 @@ export function resolveTiming(
         ? DEFAULT_SPAN
         : resolveSpan({ start, end, enter, exit }),
     ],
+    tracks,
   }
 }
 
@@ -298,6 +312,8 @@ export type TimelineInput = {
   text?: string
   /** A chart's kind and how many categories it has, which shape its build. */
   chart?: ChartMeta
+  /** The element's own position, size, rotation and stroke, which keyframes are measured from. */
+  values?: ElementValues
 }
 
 /** A span settled within the slide: `end` is always a time. */
@@ -311,6 +327,8 @@ export type TimelineEntry = {
   id: string
   name: string
   spans: ResolvedSpan[]
+  tracks: AnimationTrack[]
+  values?: ElementValues
   text?: string
   chart?: ChartMeta
 }
@@ -362,6 +380,8 @@ export function buildTimeline(inputs: TimelineInput[], durationMs: number) {
       id: input.id,
       name: input.name,
       spans,
+      tracks: timing.tracks,
+      values: input.values,
       text: input.text,
       chart: input.chart,
     }
@@ -373,6 +393,7 @@ export type Timeline = ReturnType<typeof buildTimeline>
 
 /** Whether an element's timing changes anything about how it plays. */
 export const isTimed = (entry: TimelineEntry, durationMs: number) =>
+  entry.tracks.length > 0 ||
   entry.spans.length !== 1 ||
   entry.spans[0].start > 0 ||
   entry.spans[0].end < durationMs ||
@@ -515,6 +536,8 @@ export function buildAnimationCss(
   const registrations = new Map<string, string>()
   const wrapper = new Map<string, string[]>()
   const drawn = new Map<string, string[]>()
+  const declared = new Map<string, string[]>()
+  const strokes = new Map<string, string[]>()
   const chartRules: string[] = []
   const push = (map: Map<string, string[]>, id: string, value: string) =>
     map.set(id, [...(map.get(id) ?? []), value])
@@ -527,6 +550,23 @@ export function buildAnimationCss(
     if (!isTimed(entry, durationMs)) continue
     const className = `a-${entry.id}-${run}`
     classes[entry.id] = className
+
+    if (entry.tracks.length > 0) {
+      const compiled = compileTracks({
+        scope,
+        id: entry.id,
+        tracks: entry.tracks,
+        values: entry.values ?? {},
+        durationMs,
+        delay: at(0),
+      })
+      for (const [name, body] of compiled.keyframes) keyframes.set(name, body)
+      for (const [name, body] of compiled.registrations)
+        registrations.set(name, body)
+      for (const value of compiled.animations) push(wrapper, entry.id, value)
+      for (const value of compiled.declarations) push(declared, entry.id, value)
+      for (const value of compiled.drawn) push(strokes, entry.id, value)
+    }
 
     const visible =
       entry.spans.length === 1 &&
@@ -603,8 +643,16 @@ export function buildAnimationCss(
 
   const rules: string[] = []
   for (const [id, list] of wrapper) {
+    const extra = [...new Set(declared.get(id) ?? [])]
+      .map((declaration) => `${declaration};`)
+      .join("")
     rules.push(
-      `.vx-${scope} .${classes[id]}{transform-box:fill-box;transform-origin:center;animation:${list.join(",")}${paused}}`
+      `.vx-${scope} .${classes[id]}{transform-box:fill-box;transform-origin:center;${extra}animation:${list.join(",")}${paused}}`
+    )
+  }
+  for (const [id, list] of strokes) {
+    rules.push(
+      `.vx-${scope} .${classes[id]} :is(${DRAWN_ELEMENTS}){${[...new Set(list)].join(";")}}`
     )
   }
   for (const [id, list] of drawn) {

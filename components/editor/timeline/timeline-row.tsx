@@ -1,4 +1,5 @@
 import * as React from "react"
+import { DiamondIcon } from "lucide-react"
 
 import type {
   AnimationEasing,
@@ -9,6 +10,7 @@ import type {
 import { ElementIcon } from "@/lib/editor/labels"
 import type { SpanEdge } from "@/lib/editor/timeline-edit"
 import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button"
 import { LABEL_WIDTH, ROW_HEIGHT } from "@/components/editor/timeline/constants"
 import { RowReset } from "@/components/editor/timeline/row-reset"
 import { TimelineBar } from "@/components/editor/timeline/timeline-bar"
@@ -25,6 +27,7 @@ function TimelineRow({
   gridWidth,
   onSelect,
   onReset,
+  onEditKeyframes,
   onMove,
   onNudgeSpan,
   onTrim,
@@ -45,6 +48,7 @@ function TimelineRow({
   gridWidth: number
   onSelect: () => void
   onReset: () => void
+  onEditKeyframes: () => void
   onMove: (
     event: React.PointerEvent,
     entry: TimelineEntry,
@@ -112,6 +116,18 @@ function TimelineRow({
           />
           <span className="truncate">{row.label}</span>
         </button>
+        <Button
+          variant="ghost"
+          size="icon-xs"
+          className="size-5 text-muted-foreground"
+          aria-label={`Edit keyframes of ${row.label}`}
+          onClick={(event) => {
+            event.stopPropagation()
+            onEditKeyframes()
+          }}
+        >
+          <DiamondIcon />
+        </Button>
         <RowReset label={row.label} timed={timed} onReset={onReset} />
       </div>
       <div
@@ -124,6 +140,21 @@ function TimelineRow({
           backgroundSize: `${gridWidth}px 100%`,
         }}
       >
+        {[
+          ...new Set(
+            entry.tracks.flatMap((track) =>
+              track.keyframes.map((point) => point.at)
+            )
+          ),
+        ].map((at) => (
+          <span
+            key={at}
+            data-timeline-keyframe-mark=""
+            aria-hidden="true"
+            className="pointer-events-none absolute bottom-0.5 z-[1] size-1.5 -translate-x-1/2 rotate-45 bg-foreground/70"
+            style={{ left: at * pxPerMs }}
+          />
+        ))}
         {entry.spans.map((_, index) => (
           <TimelineBar
             key={index}

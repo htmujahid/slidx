@@ -27,6 +27,7 @@ import {
 } from "@/components/editor/editor-layout"
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
 import { EditorSidebar } from "@/components/editor/editor-sidebar"
+import { KeyframeDialog } from "@/components/editor/keyframes/keyframe-dialog"
 import { PresentationProvider } from "@/components/editor/presentation-mode"
 import {
   PropertiesPanel,
@@ -95,6 +96,7 @@ function EditorShell() {
           <PresentationProvider>
             <EditorShortcuts />
             <RenameDialog />
+            <KeyframeDialog />
             <NewPresentationDialog />
             <ResetPresentationDialog />
             <Toaster />

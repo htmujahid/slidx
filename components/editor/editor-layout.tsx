@@ -42,6 +42,9 @@ type EditorLayoutContextValue = {
   timelineOpen: boolean
   setTimelineOpen: (open: boolean) => void
   toggleTimeline: () => void
+  /** The element whose keyframes the dialog is editing. */
+  keyframeTarget: string | null
+  setKeyframeTarget: (id: string | null) => void
   animationPreview: AnimationPreview
   /** Runs the slide's animations once, ending after `durationMs`. */
   playAnimationPreview: (durationMs: number) => void
@@ -67,6 +70,9 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
   const zoomOut = React.useCallback(() => zoomBy(1 / ZOOM_STEP), [zoomBy])
   const zoomReset = React.useCallback(() => setZoom(1), [])
   const [timelineOpen, setTimelineOpen] = React.useState(false)
+  const [keyframeTarget, setKeyframeTarget] = React.useState<string | null>(
+    null
+  )
   const [animationPreview, setAnimationPreview] =
     React.useState<AnimationPreview>(NO_PREVIEW)
   const previewTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
@@ -119,6 +125,8 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       timelineOpen,
       setTimelineOpen,
       toggleTimeline: () => setTimelineOpen((open) => !open),
+      keyframeTarget,
+      setKeyframeTarget,
       animationPreview,
       playAnimationPreview,
       scrubAnimationPreview,
@@ -135,6 +143,7 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       zoomOut,
       zoomReset,
       timelineOpen,
+      keyframeTarget,
       animationPreview,
       playAnimationPreview,
       scrubAnimationPreview,

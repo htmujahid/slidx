@@ -1,6 +1,8 @@
 /** Width of the sticky label column, in pixels. */
-export const LABEL_WIDTH = 200
+export const LABEL_WIDTH = 224
 export const ROW_HEIGHT = 32
+/** A property's keyframe lane in the keyframe dialog. */
+export const LANE_HEIGHT = 28
 export const RULER_HEIGHT = 28
 
 /** Pixels per second at each zoom step. */

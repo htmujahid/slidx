@@ -22,18 +22,18 @@ import {
 } from "@/lib/editor/types"
 import { useSlide } from "@/components/editor/slide-context"
 
-type SvgElementProps = Partial<ElementTransformProps> & {
+type ElementBoxProps = Partial<ElementTransformProps> & {
   children: React.ReactNode
   editing?: boolean
   onStartEditing?: () => void
 }
 
-function SvgElement({
+function ElementBox({
   children,
   editing = false,
   onStartEditing,
   ...transformProps
-}: SvgElementProps) {
+}: ElementBoxProps) {
   const merged = { ...DEFAULT_TRANSFORM, ...transformProps }
   const { x, y, width, height, rotation, opacity, flipX, flipY, blendMode } =
     merged
@@ -160,25 +160,34 @@ function SvgElement({
     )
   }
 
-  const flip =
-    flipX || flipY
-      ? ` translate(${width / 2} ${height / 2}) scale(${flipX ? -1 : 1} ${flipY ? -1 : 1}) translate(${-width / 2} ${-height / 2})`
-      : ""
-
   const filter = elementFilter(merged)
-  const style =
-    filter || blendMode !== "normal"
-      ? {
-          filter,
-          mixBlendMode: blendMode !== "normal" ? blendMode : undefined,
-        }
-      : undefined
+
+  // The element's own box, turned about its centre; the same placement an SVG
+  // `translate rotate flip` gave, now in CSS.
+  const transform =
+    [
+      rotation ? `rotate(${rotation}deg)` : "",
+      flipX || flipY ? `scale(${flipX ? -1 : 1}, ${flipY ? -1 : 1})` : "",
+    ]
+      .filter(Boolean)
+      .join(" ") || undefined
+  const box: React.CSSProperties = {
+    position: "absolute",
+    left: x,
+    top: y,
+    width,
+    height,
+    transform,
+    opacity: opacity === 1 ? undefined : opacity,
+    filter,
+    mixBlendMode: blendMode !== "normal" ? blendMode : undefined,
+  }
 
   // The wrapper is what the animation CSS targets. It is always rendered, so
   // adding an animation never changes the element's structure (that would
   // re-create its content and break anything measuring it); its class only
   // exists while the slide plays.
-  const wrapperRef = React.useRef<SVGGElement | null>(null)
+  const wrapperRef = React.useRef<HTMLDivElement | null>(null)
   const enters = resolveTiming(merged.timing).spans.map(
     (span) => span.enter.preset
   )
@@ -208,58 +217,73 @@ function SvgElement({
   })
 
   const body = (
-    <g ref={wrapperRef} className={animationClasses[id]}>
+    <div
+      ref={wrapperRef}
+      className={animationClasses[id]}
+      style={{ position: "absolute", inset: 0 }}
+    >
       {children}
-    </g>
+    </div>
   )
 
-  // Inside a group the wrapper is purely visual: the group's own SvgElement
-  // handles selection and dragging for the whole subtree.
-  if (nested) {
-    return (
-      <g
-        transform={`translate(${x} ${y}) rotate(${rotation} ${width / 2} ${height / 2})${flip}`}
-        opacity={opacity}
-        style={style}
-      >
-        {children}
-      </g>
-    )
-  }
+  // Inside a group the box is purely visual: the group's own element handles
+  // selection and dragging for the whole subtree.
+  if (nested) return <div style={box}>{body}</div>
 
   return (
-    <g
+    <div
       data-editor-node={id}
       ref={(element) => {
-        if (element) connect(element as unknown as HTMLElement)
+        if (element) connect(element)
       }}
-      transform={`translate(${x} ${y}) rotate(${rotation} ${width / 2} ${height / 2})${flip}`}
-      opacity={opacity}
-      style={style}
-      className={
-        editing || !enabled || locked
-          ? locked && enabled
-            ? "pointer-events-none"
-            : undefined
-          : "cursor-move"
-      }
+      style={{
+        ...box,
+        cursor: editing || !enabled || locked ? undefined : "move",
+        pointerEvents: locked && enabled ? "none" : undefined,
+      }}
       onPointerDown={handlePointerDown}
       onDoubleClick={enabled && !locked ? onStartEditing : undefined}
     >
       {body}
       {hovered && !selected ? (
-        <rect
+        <div
           data-export-ignore=""
-          width={width}
-          height={height}
-          fill="none"
-          strokeWidth={2}
-          vectorEffect="non-scaling-stroke"
-          className="pointer-events-none stroke-primary"
+          style={{
+            position: "absolute",
+            inset: 0,
+            pointerEvents: "none",
+            outline: "calc(2px / var(--vx-zoom, 1)) solid var(--primary)",
+          }}
         />
       ) : null}
-    </g>
+    </div>
   )
 }
 
-export { SvgElement }
+/**
+ * The drawing surface of a graphic element: an SVG the size of its box, whose
+ * strokes may run past the edge.
+ */
+function ElementSvg({
+  width,
+  height,
+  children,
+}: {
+  width: number
+  height: number
+  children: React.ReactNode
+}) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      overflow="visible"
+      style={{ position: "absolute", left: 0, top: 0, display: "block" }}
+    >
+      {children}
+    </svg>
+  )
+}
+
+export { ElementBox, ElementSvg }

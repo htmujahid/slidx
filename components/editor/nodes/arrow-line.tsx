@@ -7,7 +7,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
 import { ArrowLineSettings } from "@/components/editor/settings/arrow-line-settings"
 
 export type ArrowLineProps = ElementTransformProps & {
@@ -44,32 +44,34 @@ const ArrowLine: UserComponent<Partial<ArrowLineProps>> = (props) => {
   const arrowSize = Math.max(strokeWidth * 3.5, 12)
 
   return (
-    <SvgElement {...transform}>
-      <line
-        x1={p1.x}
-        y1={p1.y}
-        x2={p2.x}
-        y2={p2.y}
-        stroke="transparent"
-        strokeWidth={Math.max(strokeWidth, 24)}
-      />
-      <line
-        x1={p1.x}
-        y1={p1.y}
-        x2={p2.x}
-        y2={p2.y}
-        stroke={color}
-        strokeWidth={strokeWidth}
-        strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
-        strokeLinecap="round"
-      />
-      {arrowStart ? (
-        <polygon points={arrowPoints(p1, p2, arrowSize)} fill={color} />
-      ) : null}
-      {arrowEnd ? (
-        <polygon points={arrowPoints(p2, p1, arrowSize)} fill={color} />
-      ) : null}
-    </SvgElement>
+    <ElementBox {...transform}>
+      <ElementSvg width={width} height={height}>
+        <line
+          x1={p1.x}
+          y1={p1.y}
+          x2={p2.x}
+          y2={p2.y}
+          stroke="transparent"
+          strokeWidth={Math.max(strokeWidth, 24)}
+        />
+        <line
+          x1={p1.x}
+          y1={p1.y}
+          x2={p2.x}
+          y2={p2.y}
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
+          strokeLinecap="round"
+        />
+        {arrowStart ? (
+          <polygon points={arrowPoints(p1, p2, arrowSize)} fill={color} />
+        ) : null}
+        {arrowEnd ? (
+          <polygon points={arrowPoints(p2, p1, arrowSize)} fill={color} />
+        ) : null}
+      </ElementSvg>
+    </ElementBox>
   )
 }
 

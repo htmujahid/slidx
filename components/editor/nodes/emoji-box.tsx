@@ -6,7 +6,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { EmojiSettings } from "@/components/editor/settings/emoji-settings"
 
 export type EmojiBoxProps = ElementTransformProps & {
@@ -21,19 +21,22 @@ const EmojiBox: UserComponent<Partial<EmojiBoxProps>> = (props) => {
   const { width, height } = transform
 
   return (
-    <SvgElement {...transform}>
-      <rect width={width} height={height} fill="transparent" />
-      <text
-        x={width / 2}
-        y={height / 2}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={Math.min(width, height) * 0.8}
-        className="select-none"
+    <ElementBox {...transform}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          fontSize: Math.min(width, height) * 0.8,
+          lineHeight: 1,
+          userSelect: "none",
+        }}
       >
         {emoji}
-      </text>
-    </SvgElement>
+      </div>
+    </ElementBox>
   )
 }
 

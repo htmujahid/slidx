@@ -15,7 +15,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { ShapeSettings } from "@/components/editor/settings/shape-settings"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
@@ -128,81 +128,80 @@ const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
   }
 
   return (
-    <SvgElement
+    <ElementBox
       {...transform}
       editing={editing}
       onStartEditing={definition.filled ? start : undefined}
     >
-      <rect width={width} height={height} fill="transparent" />
-      {gradient ? (
-        <defs>
-          {gradientType === "radial" ? (
-            <radialGradient id={gradientId}>
-              <stop offset="0" stopColor={fill} />
-              <stop offset="1" stopColor={fill2} />
-            </radialGradient>
-          ) : (
-            <linearGradient
-              id={gradientId}
-              gradientTransform={`rotate(${gradientAngle} 0.5 0.5)`}
-            >
-              <stop offset="0" stopColor={fill} />
-              <stop offset="1" stopColor={fill2} />
-            </linearGradient>
-          )}
-        </defs>
-      ) : null}
-      <ShapeGeometryElement
-        geometry={definition.geometry(
-          width,
-          height,
-          resolveShapeParams(definition, params, { cornerRadius })
-        )}
-        fill={
-          definition.filled ? (gradient ? `url(#${gradientId})` : fill) : "none"
-        }
-        stroke={definition.filled ? stroke : fill}
-        strokeWidth={strokeWidth}
-        strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
-        strokeLinejoin="round"
-        strokeLinecap="round"
-      />
-      {withText ? (
-        <foreignObject
-          width={width}
-          height={height}
-          overflow="visible"
-          className={editing ? undefined : "pointer-events-none select-none"}
-        >
-          <div
-            style={{
-              width: "100%",
-              height: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              boxSizing: "border-box",
-              padding: 12,
-            }}
-          >
-            {editing ? (
-              <ShapeTextEditor
-                initial={text}
-                style={textStyle}
-                onCommit={(next) =>
-                  setProp((draft: ShapeProps) => {
-                    draft.text = next
-                  }, 400)
-                }
-                onDone={stop}
-              />
+      <ElementSvg width={width} height={height}>
+        {gradient ? (
+          <defs>
+            {gradientType === "radial" ? (
+              <radialGradient id={gradientId}>
+                <stop offset="0" stopColor={fill} />
+                <stop offset="1" stopColor={fill2} />
+              </radialGradient>
             ) : (
-              <div style={textStyle}>{text}</div>
+              <linearGradient
+                id={gradientId}
+                gradientTransform={`rotate(${gradientAngle} 0.5 0.5)`}
+              >
+                <stop offset="0" stopColor={fill} />
+                <stop offset="1" stopColor={fill2} />
+              </linearGradient>
             )}
-          </div>
-        </foreignObject>
+          </defs>
+        ) : null}
+        <ShapeGeometryElement
+          geometry={definition.geometry(
+            width,
+            height,
+            resolveShapeParams(definition, params, { cornerRadius })
+          )}
+          fill={
+            definition.filled
+              ? gradient
+                ? `url(#${gradientId})`
+                : fill
+              : "none"
+          }
+          stroke={definition.filled ? stroke : fill}
+          strokeWidth={strokeWidth}
+          strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
+          strokeLinejoin="round"
+          strokeLinecap="round"
+        />
+      </ElementSvg>
+      {withText ? (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            boxSizing: "border-box",
+            padding: 12,
+            userSelect: editing ? undefined : "none",
+          }}
+        >
+          {editing ? (
+            <ShapeTextEditor
+              initial={text}
+              style={textStyle}
+              onCommit={(next) =>
+                setProp((draft: ShapeProps) => {
+                  draft.text = next
+                }, 400)
+              }
+              onDone={stop}
+            />
+          ) : (
+            <div style={textStyle}>{text}</div>
+          )}
+        </div>
       ) : null}
-    </SvgElement>
+    </ElementBox>
   )
 }
 

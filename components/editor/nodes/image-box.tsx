@@ -12,7 +12,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
 import { ImageSettings } from "@/components/editor/settings/image-settings"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 
@@ -55,64 +55,65 @@ const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
   const layerY = -(layerHeight - height) * (focusY / 100)
 
   return (
-    <SvgElement {...transform}>
-      {src ? (
-        <>
-          <rect width={width} height={height} fill="transparent" />
-          <clipPath id={clipId}>
-            {maskDefinition ? (
-              <ShapeGeometryElement
-                geometry={maskDefinition.geometry(
-                  width,
-                  height,
-                  resolveShapeParams(maskDefinition)
-                )}
+    <ElementBox {...transform}>
+      <ElementSvg width={width} height={height}>
+        {src ? (
+          <>
+            <clipPath id={clipId}>
+              {maskDefinition ? (
+                <ShapeGeometryElement
+                  geometry={maskDefinition.geometry(
+                    width,
+                    height,
+                    resolveShapeParams(maskDefinition)
+                  )}
+                />
+              ) : (
+                <rect width={width} height={height} rx={cornerRadius} />
+              )}
+            </clipPath>
+            <g clipPath={`url(#${clipId})`}>
+              <image
+                href={src}
+                aria-label={alt || undefined}
+                role={alt ? "img" : undefined}
+                x={layerX}
+                y={layerY}
+                width={layerWidth}
+                height={layerHeight}
+                preserveAspectRatio={
+                  fit === "cover" ? "xMidYMid slice" : "xMidYMid meet"
+                }
               />
-            ) : (
-              <rect width={width} height={height} rx={cornerRadius} />
-            )}
-          </clipPath>
-          <g clipPath={`url(#${clipId})`}>
-            <image
-              href={src}
-              aria-label={alt || undefined}
-              role={alt ? "img" : undefined}
-              x={layerX}
-              y={layerY}
-              width={layerWidth}
-              height={layerHeight}
-              preserveAspectRatio={
-                fit === "cover" ? "xMidYMid slice" : "xMidYMid meet"
-              }
+            </g>
+          </>
+        ) : (
+          <>
+            <rect
+              width={width}
+              height={height}
+              rx={12}
+              fill="#f4f4f5"
+              stroke="#a1a1aa"
+              strokeWidth={3}
+              strokeDasharray="14 10"
             />
-          </g>
-        </>
-      ) : (
-        <>
-          <rect
-            width={width}
-            height={height}
-            rx={12}
-            fill="#f4f4f5"
-            stroke="#a1a1aa"
-            strokeWidth={3}
-            strokeDasharray="14 10"
-          />
-          <text
-            x={width / 2}
-            y={height / 2}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={36}
-            fill="#71717a"
-            fontFamily="var(--font-sans), system-ui, sans-serif"
-            className="pointer-events-none select-none"
-          >
-            Add an image
-          </text>
-        </>
-      )}
-    </SvgElement>
+            <text
+              x={width / 2}
+              y={height / 2}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={36}
+              fill="#71717a"
+              fontFamily="var(--font-sans), system-ui, sans-serif"
+              className="pointer-events-none select-none"
+            >
+              Add an image
+            </text>
+          </>
+        )}
+      </ElementSvg>
+    </ElementBox>
   )
 }
 

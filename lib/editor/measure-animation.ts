@@ -18,17 +18,17 @@ export function measureDrawLengths(root: Element) {
 
 /**
  * Stores where the text starts and ends inside its box as `--vx-text-l` and
- * `--vx-text-r` (user units), so the typewriter reveals the text rather than
- * the whole box. Left unset, the reveal falls back to sweeping the box.
+ * `--vx-text-r` (the element's own pixels), so the typewriter reveals the text
+ * rather than the whole box. Left unset, the reveal falls back to sweeping the
+ * box.
  */
-export function measureTextExtent(wrapper: SVGGElement) {
-  const box = wrapper.querySelector("foreignObject")
-  const matrix = box?.getScreenCTM()
-  if (!box || !matrix) return
+export function measureTextExtent(wrapper: HTMLElement) {
+  const box = wrapper.getBoundingClientRect()
+  // The slide is scaled to fit, so a pixel on screen is not a pixel of the box.
+  const scale = wrapper.offsetWidth ? box.width / wrapper.offsetWidth : 0
+  if (!scale) return
 
-  const scale = Math.hypot(matrix.a, matrix.b)
-  const origin = box.getBoundingClientRect().left
-  const walker = document.createTreeWalker(box, NodeFilter.SHOW_TEXT)
+  const walker = document.createTreeWalker(wrapper, NodeFilter.SHOW_TEXT)
   let left = Infinity
   let right = -Infinity
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
@@ -40,8 +40,11 @@ export function measureTextExtent(wrapper: SVGGElement) {
     left = Math.min(left, rect.left)
     right = Math.max(right, rect.right)
   }
-  if (!scale || left === Infinity) return
+  if (left === Infinity) return
 
-  wrapper.style.setProperty("--vx-text-l", `${(left - origin) / scale}px`)
-  wrapper.style.setProperty("--vx-text-r", `${(right - origin) / scale + 2}px`)
+  wrapper.style.setProperty("--vx-text-l", `${(left - box.left) / scale}px`)
+  wrapper.style.setProperty(
+    "--vx-text-r",
+    `${(right - box.left) / scale + 2}px`
+  )
 }

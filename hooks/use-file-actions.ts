@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { slideToSvg, svgToPng } from "@/lib/editor/export"
+import { slideToImageMarkup, svgToPng } from "@/lib/editor/export"
 import { downloadBlob, pickFile, toFilename } from "@/lib/editor/files"
 import { slidesToHtml, slideToHtml } from "@/lib/editor/html-export"
 import { slidesToPdf } from "@/lib/editor/pdf"
@@ -44,7 +44,7 @@ function useFileActions() {
   }, [loadPresentation])
 
   const exportPng = React.useCallback(async () => {
-    const markup = slideToSvg()
+    const markup = await slideToImageMarkup()
     if (!markup) return fail("Nothing to export", undefined)
     try {
       downloadBlob(

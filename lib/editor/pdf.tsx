@@ -2,7 +2,7 @@
 
 import { PDFDocument } from "pdf-lib"
 
-import { markupSize, svgToMarkup, svgToPng } from "@/lib/editor/export"
+import { markupSize, sectionToImageMarkup, svgToPng } from "@/lib/editor/export"
 import { renderSlides } from "@/lib/editor/render-slides"
 
 const PDF_SCALE = 2
@@ -10,7 +10,7 @@ const PDF_SCALE = 2
 const PAGE_SCALE = 0.5
 
 export async function slidesToPdf(slides: string[], title: string) {
-  const markups = await renderSlides(slides, svgToMarkup)
+  const markups = await renderSlides(slides, sectionToImageMarkup)
   const doc = await PDFDocument.create()
   doc.setTitle(title)
   for (const markup of markups) {

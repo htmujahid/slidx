@@ -59,24 +59,24 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     nodes: state.nodes,
   }))
   const uid = React.useId().replace(/\W/g, "")
-  const CLIP_ID = `${uid}-clip`
   const GRID_ID = `${uid}-grid`
   const GRADIENT_ID = `${uid}-gradient`
   const line = linearGradientPoints(gradientAngle, SLIDE_WIDTH, SLIDE_HEIGHT)
   const { addLibraryItem } = useEditorActions()
-  const svgRef = React.useRef<SVGSVGElement | null>(null)
+  const sectionRef = React.useRef<HTMLElement | null>(null)
+  const surfaceRef = React.useRef<HTMLDivElement | null>(null)
   const [scale, setScale] = React.useState(1)
   const [guides, setGuides] = React.useState<AlignmentGuide[]>([])
   const layout = useOptionalEditorLayout()
   const setCanvasScale = layout?.setCanvasScale
 
   React.useEffect(() => {
-    const svg = svgRef.current
-    if (!svg) return
+    const section = sectionRef.current
+    if (!section) return
     const observer = new ResizeObserver(([entry]) => {
       setScale(entry.contentRect.width / SLIDE_WIDTH || 1)
     })
-    observer.observe(svg)
+    observer.observe(section)
     return () => observer.disconnect()
   }, [SLIDE_WIDTH])
 
@@ -86,8 +86,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
 
   const toSlidePoint = React.useCallback(
     (clientX: number, clientY: number) => {
-      const svg = svgRef.current
-      const rect = svg?.getBoundingClientRect()
+      const rect = surfaceRef.current?.getBoundingClientRect()
       if (!rect) return { x: 0, y: 0 }
       return {
         x: ((clientX - rect.left) / rect.width) * SLIDE_WIDTH,
@@ -151,9 +150,9 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   } | null>(null)
 
   const handleCanvasPointerDown = (event: React.PointerEvent) => {
-    if (event.target === event.currentTarget) actions.clearEvents()
-    if (!editable || event.button !== 0) return
-    if ((event.target as Element).closest("[data-editor-node]")) return
+    const onElement = (event.target as Element).closest("[data-editor-node]")
+    if (!onElement) actions.clearEvents()
+    if (!editable || event.button !== 0 || onElement) return
     const start = toSlidePoint(event.clientX, event.clientY)
     const base =
       event.shiftKey || event.metaKey || event.ctrlKey
@@ -218,73 +217,95 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   return (
     <SlideContext.Provider value={context}>
       <section
+        ref={sectionRef}
         data-slide-root=""
-        className={cn(
-          "block size-full",
-          `vx-${uid}`,
-          animation.classes[ROOT_NODE]
-        )}
+        className={cn(`vx-${uid}`, animation.classes[ROOT_NODE])}
+        style={{
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          containerType: "inline-size",
+        }}
       >
-        <svg
+        {animation.css ? <style>{animation.css}</style> : null}
+        {/* The slide is drawn at its own size and scaled to fit by CSS alone, so
+            an exported slide fits its frame without a script. */}
+        <div
           ref={(element) => {
-            svgRef.current = element
-            if (element) connect(element as unknown as HTMLElement)
+            surfaceRef.current = element
+            if (element) connect(element)
           }}
+          data-slide-surface=""
           data-slide-canvas={editable ? "" : undefined}
-          viewBox={`0 0 ${SLIDE_WIDTH} ${SLIDE_HEIGHT}`}
-          className="block size-full touch-none overflow-visible select-none"
+          style={
+            {
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: SLIDE_WIDTH,
+              height: SLIDE_HEIGHT,
+              overflow: "hidden",
+              transformOrigin: "0 0",
+              scale: `tan(atan2(100cqw, ${SLIDE_WIDTH}px))`,
+              touchAction: "none",
+              userSelect: "none",
+              "--vx-zoom": scale,
+            } as React.CSSProperties
+          }
           onPointerDown={handleCanvasPointerDown}
           onDragOver={handleDragOver}
           onDrop={handleDrop}
         >
-          <defs>
-            <clipPath id={CLIP_ID}>
-              <rect width={SLIDE_WIDTH} height={SLIDE_HEIGHT} />
-            </clipPath>
-            {backgroundType === "gradient" ? (
-              gradientType === "radial" ? (
-                <radialGradient
-                  id={GRADIENT_ID}
-                  gradientUnits="userSpaceOnUse"
-                  cx={SLIDE_WIDTH / 2}
-                  cy={SLIDE_HEIGHT / 2}
-                  r={Math.hypot(SLIDE_WIDTH, SLIDE_HEIGHT) / 2}
-                >
-                  <stop offset="0" stopColor={gradientFrom} />
-                  <stop offset="1" stopColor={gradientTo} />
-                </radialGradient>
-              ) : (
-                <linearGradient
-                  id={GRADIENT_ID}
-                  gradientUnits="userSpaceOnUse"
-                  x1={line.x1}
-                  y1={line.y1}
-                  x2={line.x2}
-                  y2={line.y2}
-                >
-                  <stop offset="0" stopColor={gradientFrom} />
-                  <stop offset="1" stopColor={gradientTo} />
-                </linearGradient>
-              )
-            ) : null}
-            <pattern
-              id={GRID_ID}
-              width={gridSize}
-              height={gridSize}
-              patternUnits="userSpaceOnUse"
-            >
-              <path
-                d={`M${gridSize} 0H0V${gridSize}`}
-                fill="none"
-                stroke="#737373"
-                strokeOpacity={0.35}
-                strokeWidth={1}
-                vectorEffect="non-scaling-stroke"
-              />
-            </pattern>
-          </defs>
-          {animation.css ? <style>{animation.css}</style> : null}
-          <g clipPath={`url(#${CLIP_ID})`}>
+          <svg
+            aria-hidden="true"
+            width={SLIDE_WIDTH}
+            height={SLIDE_HEIGHT}
+            viewBox={`0 0 ${SLIDE_WIDTH} ${SLIDE_HEIGHT}`}
+            style={{ position: "absolute", left: 0, top: 0, display: "block" }}
+          >
+            <defs>
+              {backgroundType === "gradient" ? (
+                gradientType === "radial" ? (
+                  <radialGradient
+                    id={GRADIENT_ID}
+                    gradientUnits="userSpaceOnUse"
+                    cx={SLIDE_WIDTH / 2}
+                    cy={SLIDE_HEIGHT / 2}
+                    r={Math.hypot(SLIDE_WIDTH, SLIDE_HEIGHT) / 2}
+                  >
+                    <stop offset="0" stopColor={gradientFrom} />
+                    <stop offset="1" stopColor={gradientTo} />
+                  </radialGradient>
+                ) : (
+                  <linearGradient
+                    id={GRADIENT_ID}
+                    gradientUnits="userSpaceOnUse"
+                    x1={line.x1}
+                    y1={line.y1}
+                    x2={line.x2}
+                    y2={line.y2}
+                  >
+                    <stop offset="0" stopColor={gradientFrom} />
+                    <stop offset="1" stopColor={gradientTo} />
+                  </linearGradient>
+                )
+              ) : null}
+              <pattern
+                id={GRID_ID}
+                width={gridSize}
+                height={gridSize}
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d={`M${gridSize} 0H0V${gridSize}`}
+                  fill="none"
+                  stroke="#737373"
+                  strokeOpacity={0.35}
+                  strokeWidth={1}
+                  vectorEffect="non-scaling-stroke"
+                />
+              </pattern>
+            </defs>
             <rect
               width={SLIDE_WIDTH}
               height={SLIDE_HEIGHT}
@@ -313,43 +334,59 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
                 className="pointer-events-none"
               />
             ) : null}
-            {children}
-          </g>
-          {editable && guides.length > 0 && (
-            <g
-              data-export-ignore=""
-              aria-hidden="true"
-              clipPath={`url(#${CLIP_ID})`}
-              className="pointer-events-none stroke-primary"
-            >
-              {guides.map((guide) => (
-                <line
-                  key={guide.axis}
-                  x1={guide.axis === "x" ? guide.position : guide.start}
-                  x2={guide.axis === "x" ? guide.position : guide.end}
-                  y1={guide.axis === "y" ? guide.position : guide.start}
-                  y2={guide.axis === "y" ? guide.position : guide.end}
-                  strokeWidth={1}
-                  vectorEffect="non-scaling-stroke"
-                />
-              ))}
-            </g>
-          )}
-          <SelectionOverlay />
-          {marquee ? (
-            <rect
-              data-export-ignore=""
-              aria-hidden="true"
-              x={marquee.x}
-              y={marquee.y}
-              width={marquee.width}
-              height={marquee.height}
-              strokeWidth={1}
-              vectorEffect="non-scaling-stroke"
-              className="pointer-events-none fill-primary/10 stroke-primary"
-            />
-          ) : null}
-        </svg>
+          </svg>
+          {children}
+        </div>
+        {editable ? (
+          <svg
+            data-export-ignore=""
+            aria-hidden="true"
+            viewBox={`0 0 ${SLIDE_WIDTH} ${SLIDE_HEIGHT}`}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: "100%",
+              height: "100%",
+              overflow: "visible",
+              pointerEvents: "none",
+            }}
+          >
+            {editable && guides.length > 0 && (
+              <g
+                data-export-ignore=""
+                aria-hidden="true"
+                className="pointer-events-none stroke-primary"
+              >
+                {guides.map((guide) => (
+                  <line
+                    key={guide.axis}
+                    x1={guide.axis === "x" ? guide.position : guide.start}
+                    x2={guide.axis === "x" ? guide.position : guide.end}
+                    y1={guide.axis === "y" ? guide.position : guide.start}
+                    y2={guide.axis === "y" ? guide.position : guide.end}
+                    strokeWidth={1}
+                    vectorEffect="non-scaling-stroke"
+                  />
+                ))}
+              </g>
+            )}
+            <SelectionOverlay />
+            {marquee ? (
+              <rect
+                data-export-ignore=""
+                aria-hidden="true"
+                x={marquee.x}
+                y={marquee.y}
+                width={marquee.width}
+                height={marquee.height}
+                strokeWidth={1}
+                vectorEffect="non-scaling-stroke"
+                className="pointer-events-none fill-primary/10 stroke-primary"
+              />
+            ) : null}
+          </svg>
+        ) : null}
       </section>
     </SlideContext.Provider>
   )

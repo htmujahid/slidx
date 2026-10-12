@@ -9,7 +9,7 @@ import {
   type ElementTransformProps,
   type TextAlign,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { TableSettings } from "@/components/editor/settings/table-settings"
 
@@ -47,7 +47,6 @@ const Table: UserComponent<Partial<TableProps>> = (props) => {
     align,
     ...transform
   } = { ...Table.craft!.props, ...props } as TableProps
-  const { width, height } = transform
   const { editing, start, stop } = useElementEditing()
   const {
     actions: { setProp },
@@ -84,90 +83,91 @@ const Table: UserComponent<Partial<TableProps>> = (props) => {
   }
 
   return (
-    <SvgElement {...transform} editing={editing} onStartEditing={start}>
-      <foreignObject width={width} height={height}>
-        <table
-          style={{
-            width: "100%",
-            height: "100%",
-            borderCollapse: "collapse",
-            tableLayout: "fixed",
-            fontFamily: FONT_FAMILY,
-            fontSize,
-            userSelect: editing ? undefined : "none",
-          }}
-        >
-          <tbody>
-            {Array.from({ length: rows }, (_, r) => (
-              <tr key={r} style={{ height: `${100 / rows}%` }}>
-                {Array.from({ length: columns }, (_, c) => {
-                  const isHeader = headerRow && r === 0
-                  const isActive =
-                    editing && r === activeRow && c === activeColumn
-                  return (
-                    <td
-                      key={c}
-                      onDoubleClick={(event) => {
-                        event.stopPropagation()
-                        setActive([r, c])
-                        start()
-                      }}
-                      onClick={() => editing && setActive([r, c])}
-                      style={{
-                        background: isHeader ? headerFill : cellFill,
-                        border: `${borderWidth}px solid ${borderColor}`,
-                        color: isHeader ? headerColor : textColor,
-                        fontWeight: isHeader ? 700 : 400,
-                        textAlign: align,
-                        verticalAlign: "middle",
-                        padding: isActive ? 0 : `0 ${PADDING}px`,
-                        overflow: "hidden",
-                        overflowWrap: "break-word",
-                      }}
-                    >
-                      {isActive ? (
-                        <input
-                          autoFocus
-                          spellCheck={false}
-                          aria-label={`Row ${r + 1}, column ${c + 1}`}
-                          value={cells[r]?.[c] ?? ""}
-                          onFocus={(event) => event.currentTarget.select()}
-                          onBlur={stop}
-                          onKeyDown={handleKeyDown}
-                          onChange={(event) => {
-                            const next = event.target.value
-                            setProp((draft: TableProps) => {
-                              draft.cells[r][c] = next
-                            }, 400)
-                          }}
-                          style={{
-                            display: "block",
-                            boxSizing: "border-box",
-                            width: "100%",
-                            height: "100%",
-                            margin: 0,
-                            padding: `0 ${PADDING}px`,
-                            border: "3px solid var(--primary)",
-                            outline: 0,
-                            background: isHeader ? headerFill : cellFill,
-                            color: "inherit",
-                            textAlign: align,
-                            fontWeight: "inherit",
-                            font: "inherit",
-                          }}
-                        />
-                      ) : (
-                        (cells[r]?.[c] ?? "")
-                      )}
-                    </td>
-                  )
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </foreignObject>
-    </SvgElement>
+    <ElementBox {...transform} editing={editing} onStartEditing={start}>
+      <table
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: "100%",
+          height: "100%",
+          borderCollapse: "collapse",
+          tableLayout: "fixed",
+          fontFamily: FONT_FAMILY,
+          fontSize,
+          userSelect: editing ? undefined : "none",
+        }}
+      >
+        <tbody>
+          {Array.from({ length: rows }, (_, r) => (
+            <tr key={r} style={{ height: `${100 / rows}%` }}>
+              {Array.from({ length: columns }, (_, c) => {
+                const isHeader = headerRow && r === 0
+                const isActive =
+                  editing && r === activeRow && c === activeColumn
+                return (
+                  <td
+                    key={c}
+                    onDoubleClick={(event) => {
+                      event.stopPropagation()
+                      setActive([r, c])
+                      start()
+                    }}
+                    onClick={() => editing && setActive([r, c])}
+                    style={{
+                      background: isHeader ? headerFill : cellFill,
+                      border: `${borderWidth}px solid ${borderColor}`,
+                      color: isHeader ? headerColor : textColor,
+                      fontWeight: isHeader ? 700 : 400,
+                      textAlign: align,
+                      verticalAlign: "middle",
+                      padding: isActive ? 0 : `0 ${PADDING}px`,
+                      overflow: "hidden",
+                      overflowWrap: "break-word",
+                    }}
+                  >
+                    {isActive ? (
+                      <input
+                        autoFocus
+                        spellCheck={false}
+                        aria-label={`Row ${r + 1}, column ${c + 1}`}
+                        value={cells[r]?.[c] ?? ""}
+                        onFocus={(event) => event.currentTarget.select()}
+                        onBlur={stop}
+                        onKeyDown={handleKeyDown}
+                        onChange={(event) => {
+                          const next = event.target.value
+                          setProp((draft: TableProps) => {
+                            draft.cells[r][c] = next
+                          }, 400)
+                        }}
+                        style={{
+                          display: "block",
+                          boxSizing: "border-box",
+                          width: "100%",
+                          height: "100%",
+                          margin: 0,
+                          padding: `0 ${PADDING}px`,
+                          border: "3px solid var(--primary)",
+                          outline: 0,
+                          background: isHeader ? headerFill : cellFill,
+                          color: "inherit",
+                          textAlign: align,
+                          fontWeight: "inherit",
+                          font: "inherit",
+                        }}
+                      />
+                    ) : (
+                      (cells[r]?.[c] ?? "")
+                    )}
+                  </td>
+                )
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </ElementBox>
   )
 }
 

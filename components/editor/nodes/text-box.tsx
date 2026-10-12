@@ -13,7 +13,7 @@ import {
   type ElementTransformProps,
   type TextAlign,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { TextSettings } from "@/components/editor/settings/text-settings"
 
@@ -102,7 +102,7 @@ const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {
     background,
     ...transform
   } = { ...TextBox.craft!.props, ...props } as TextBoxProps
-  const { width, height } = transform
+  const { height } = transform
   const { editing, start, stop } = useElementEditing()
   const {
     actions: { setProp },
@@ -151,37 +151,39 @@ const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {
   }, [setProp, editing])
 
   return (
-    <SvgElement {...transform} editing={editing} onStartEditing={start}>
-      <rect width={width} height={height} fill="transparent" />
-      <foreignObject
-        width={width}
-        height={height}
-        overflow="visible"
-        className={editing ? undefined : "pointer-events-none select-none"}
+    <ElementBox {...transform} editing={editing} onStartEditing={start}>
+      <div
+        ref={measureRef}
+        className="rich-text"
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width: "100%",
+          userSelect: editing ? undefined : "none",
+        }}
       >
-        <div ref={measureRef} className="rich-text">
-          <style>{RICH_TEXT_STYLE}</style>
-          {editing ? (
-            <RichTextEditor
-              initialHtml={content}
-              style={containerStyle}
-              onCommit={(nextHtml, nextText) =>
-                setProp((draft: TextBoxProps) => {
-                  draft.html = nextHtml
-                  draft.text = nextText
-                }, 400)
-              }
-              onDone={stop}
-            />
-          ) : (
-            <div
-              style={containerStyle}
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-          )}
-        </div>
-      </foreignObject>
-    </SvgElement>
+        <style>{RICH_TEXT_STYLE}</style>
+        {editing ? (
+          <RichTextEditor
+            initialHtml={content}
+            style={containerStyle}
+            onCommit={(nextHtml, nextText) =>
+              setProp((draft: TextBoxProps) => {
+                draft.html = nextHtml
+                draft.text = nextText
+              }, 400)
+            }
+            onDone={stop}
+          />
+        ) : (
+          <div
+            style={containerStyle}
+            dangerouslySetInnerHTML={{ __html: content }}
+          />
+        )}
+      </div>
+    </ElementBox>
   )
 }
 

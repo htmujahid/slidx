@@ -19,7 +19,7 @@ import {
   useHighlightedCode,
   type HighlightedToken,
 } from "@/hooks/use-highlighted-code"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { CodeSettings } from "@/components/editor/settings/code-settings"
 
@@ -37,22 +37,6 @@ const FONT_FAMILY = "var(--font-mono), ui-monospace, monospace"
 const CHAR_WIDTH = 0.6
 
 function Tokens({ tokens }: { tokens: HighlightedToken[] }) {
-  return tokens.map((token, index) => (
-    <tspan
-      key={index}
-      fill={token.color}
-      fontStyle={token.fontStyle && token.fontStyle & 1 ? "italic" : undefined}
-      fontWeight={token.fontStyle && token.fontStyle & 2 ? 700 : undefined}
-      textDecoration={
-        token.fontStyle && token.fontStyle & 4 ? "underline" : undefined
-      }
-    >
-      {token.content}
-    </tspan>
-  ))
-}
-
-function HtmlTokens({ tokens }: { tokens: HighlightedToken[] }) {
   return tokens.map((token, index) => (
     <span
       key={index}
@@ -81,7 +65,6 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
     cornerRadius,
     ...transform
   } = { ...CodeBlock.craft!.props, ...props } as CodeBlockProps
-  const { width, height } = transform
   const highlighted = useHighlightedCode(code, language, theme)
   const { editing, start, stop } = useElementEditing()
   const {
@@ -122,148 +105,96 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
   }
 
   return (
-    <SvgElement {...transform} editing={editing} onStartEditing={start}>
-      <svg width={width} height={height} overflow="hidden">
-        <rect
-          width={width}
-          height={height}
-          rx={cornerRadius}
-          fill={background}
-        />
-        {editing ? (
-          <foreignObject width={width} height={height}>
+    <ElementBox {...transform} editing={editing} onStartEditing={start}>
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          overflow: "hidden",
+          borderRadius: cornerRadius,
+          background,
+          fontFamily: FONT_FAMILY,
+          fontSize,
+          lineHeight: `${lineSize}px`,
+        }}
+      >
+        <div
+          aria-hidden={editing || undefined}
+          style={{
+            position: "absolute",
+            inset: 0,
+            padding: `${CODE_PADDING}px 0`,
+            color: foreground,
+            whiteSpace: "pre",
+            userSelect: "none",
+            pointerEvents: "none",
+          }}
+        >
+          {lines.map((tokens, index) => (
             <div
+              key={index}
               style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                fontFamily: FONT_FAMILY,
-                fontSize,
-                lineHeight: `${lineSize}px`,
+                display: "flex",
+                height: lineSize,
+                paddingLeft: CODE_PADDING,
+                background: emphasized.has(index + 1)
+                  ? `color-mix(in srgb, ${foreground} 14%, transparent)`
+                  : undefined,
               }}
             >
-              <div
-                aria-hidden
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  padding: `${CODE_PADDING}px 0`,
-                  color: foreground,
-                  whiteSpace: "pre",
-                }}
-              >
-                {lines.map((tokens, index) => (
-                  <div
-                    key={index}
-                    style={{
-                      display: "flex",
-                      height: lineSize,
-                      paddingLeft: CODE_PADDING,
-                      background: emphasized.has(index + 1)
-                        ? `color-mix(in srgb, ${foreground} 14%, transparent)`
-                        : undefined,
-                    }}
-                  >
-                    {lineNumbers ? (
-                      <span
-                        style={{
-                          width: gutter,
-                          paddingRight: CODE_PADDING / 2,
-                          boxSizing: "border-box",
-                          textAlign: "right",
-                          opacity: 0.4,
-                        }}
-                      >
-                        {index + 1}
-                      </span>
-                    ) : null}
-                    <span>
-                      <HtmlTokens tokens={tokens} />
-                    </span>
-                  </div>
-                ))}
-              </div>
-              <textarea
-                autoFocus
-                wrap="off"
-                spellCheck={false}
-                aria-label="Code"
-                value={code}
-                onBlur={stop}
-                onKeyDown={handleKeyDown}
-                onChange={(event) => updateCode(event.target.value)}
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  boxSizing: "border-box",
-                  width: "100%",
-                  height: "100%",
-                  margin: 0,
-                  padding: `${CODE_PADDING}px ${CODE_PADDING}px ${CODE_PADDING}px ${textX}px`,
-                  border: 0,
-                  outline: 0,
-                  resize: "none",
-                  overflow: "hidden",
-                  background: "transparent",
-                  color: "transparent",
-                  caretColor: foreground,
-                  whiteSpace: "pre",
-                  tabSize: 2,
-                  font: "inherit",
-                  lineHeight: `${lineSize}px`,
-                }}
-              />
+              {lineNumbers ? (
+                <span
+                  style={{
+                    width: gutter,
+                    paddingRight: CODE_PADDING / 2,
+                    boxSizing: "border-box",
+                    textAlign: "right",
+                    opacity: emphasized.has(index + 1) ? 0.9 : 0.4,
+                  }}
+                >
+                  {index + 1}
+                </span>
+              ) : null}
+              <span>
+                <Tokens tokens={tokens} />
+              </span>
             </div>
-          </foreignObject>
-        ) : (
-          <>
-            {lines.map((_, index) =>
-              emphasized.has(index + 1) ? (
-                <rect
-                  key={index}
-                  y={CODE_PADDING + index * lineSize}
-                  width={width}
-                  height={lineSize}
-                  fill={foreground}
-                  fillOpacity={0.14}
-                />
-              ) : null
-            )}
-            <text
-              fontSize={fontSize}
-              fontFamily={FONT_FAMILY}
-              fill={foreground}
-              style={{ whiteSpace: "pre" }}
-              className="pointer-events-none select-none"
-            >
-              {lines.map((tokens, index) => {
-                const y =
-                  CODE_PADDING +
-                  index * lineSize +
-                  (lineSize + fontSize * 0.7) / 2
-                return (
-                  <React.Fragment key={index}>
-                    {lineNumbers ? (
-                      <tspan
-                        x={CODE_PADDING + gutter - CODE_PADDING / 2}
-                        y={y}
-                        textAnchor="end"
-                        fillOpacity={emphasized.has(index + 1) ? 0.9 : 0.4}
-                      >
-                        {index + 1}
-                      </tspan>
-                    ) : null}
-                    <tspan x={textX} y={y}>
-                      <Tokens tokens={tokens} />
-                    </tspan>
-                  </React.Fragment>
-                )
-              })}
-            </text>
-          </>
-        )}
-      </svg>
-    </SvgElement>
+          ))}
+        </div>
+        {editing ? (
+          <textarea
+            autoFocus
+            wrap="off"
+            spellCheck={false}
+            aria-label="Code"
+            value={code}
+            onBlur={stop}
+            onKeyDown={handleKeyDown}
+            onChange={(event) => updateCode(event.target.value)}
+            style={{
+              position: "absolute",
+              inset: 0,
+              boxSizing: "border-box",
+              width: "100%",
+              height: "100%",
+              margin: 0,
+              padding: `${CODE_PADDING}px ${CODE_PADDING}px ${CODE_PADDING}px ${textX}px`,
+              border: 0,
+              outline: 0,
+              resize: "none",
+              overflow: "hidden",
+              background: "transparent",
+              color: "transparent",
+              caretColor: foreground,
+              whiteSpace: "pre",
+              tabSize: 2,
+              font: "inherit",
+              lineHeight: `${lineSize}px`,
+            }}
+          />
+        ) : null}
+      </div>
+    </ElementBox>
   )
 }
 

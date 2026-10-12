@@ -1,9 +1,11 @@
+import { embeddedFontCss } from "@/lib/editor/fonts"
 import { slideSizeOf, type SlideSize } from "@/lib/editor/slide-size"
 
-const SVG_NS = "http://www.w3.org/2000/svg"
-
-const getCanvasSvg = () =>
-  document.querySelector<SVGSVGElement>("svg[data-slide-canvas]")
+/** The slide being edited, as the section that holds it. */
+const getCanvasSection = () =>
+  document
+    .querySelector<HTMLElement>("[data-slide-canvas]")
+    ?.closest<HTMLElement>("[data-slide-root]") ?? null
 
 /** Resolves the app's font variables to concrete families for standalone files. */
 function resolveFontVars(markup: string) {
@@ -16,59 +18,92 @@ function resolveFontVars(markup: string) {
   return result
 }
 
-/** A copy of the slide without any editor-only chrome. */
-function cleanSlideClone(svg: SVGSVGElement) {
-  const clone = svg.cloneNode(true) as SVGSVGElement
+/** The slide's own size: the layout size of its surface, before it is scaled to fit. */
+function sectionSize(section: HTMLElement): SlideSize {
+  const surface = section.querySelector<HTMLElement>("[data-slide-surface]")
+  return slideSizeOf({
+    width: surface?.offsetWidth,
+    height: surface?.offsetHeight,
+  })
+}
+
+/**
+ * A copy of the slide without editor-only chrome and without its playback:
+ * what is left is the slide at rest.
+ */
+function cleanSlideClone(section: HTMLElement) {
+  const clone = section.cloneNode(true) as HTMLElement
   clone
     .querySelectorAll("[data-export-ignore]")
     .forEach((node) => node.remove())
-  clone.removeAttribute("class")
-  clone.removeAttribute("style")
-  clone.removeAttribute("data-slide-canvas")
+  clone.querySelectorAll("[data-editor-node]").forEach((node) => {
+    node.removeAttribute("data-editor-node")
+  })
+  clone
+    .querySelector("[data-slide-canvas]")
+    ?.removeAttribute("data-slide-canvas")
   return clone
 }
 
-/** A slide svg's size, from its viewBox. */
-export const svgSize = (svg: SVGSVGElement): SlideSize =>
-  slideSizeOf({
-    width: svg.viewBox.baseVal.width,
-    height: svg.viewBox.baseVal.height,
+/**
+ * The slide as a fragment to inline in an HTML page. It keeps its animation
+ * CSS and classes, and is scaled to its frame by CSS alone.
+ */
+export function sectionToHtml(section: HTMLElement) {
+  const clone = cleanSlideClone(section)
+  clone
+    .querySelector<HTMLElement>("[data-slide-surface]")
+    ?.style.removeProperty("--vx-zoom")
+  return resolveFontVars(clone.outerHTML)
+}
+
+const escapeCss = (css: string) =>
+  css.replaceAll("&", "&amp;").replaceAll("<", "&lt;")
+
+/**
+ * The slide as an image-ready `<svg>`: the slide at its own size, as HTML in a
+ * single `foreignObject`, with its fonts embedded. Playback is stripped, so
+ * it shows the slide at rest.
+ */
+export async function sectionToImageMarkup(section: HTMLElement) {
+  const size = sectionSize(section)
+  const clone = cleanSlideClone(section)
+  // The slide is drawn at its own size here, so there is nothing to scale.
+  clone.removeAttribute("class")
+  clone.style.cssText = `position:relative;width:${size.width}px;height:${size.height}px;overflow:hidden`
+  const surface = clone.querySelector<HTMLElement>("[data-slide-surface]")
+  if (surface) {
+    surface.style.scale = "none"
+    surface.style.removeProperty("--vx-zoom")
+  }
+  clone.querySelectorAll("style").forEach((style) => {
+    if (style.textContent?.includes("@keyframes")) style.remove()
+  })
+  clone.querySelectorAll("[class]").forEach((node) => {
+    node.setAttribute(
+      "class",
+      (node.getAttribute("class") ?? "")
+        .split(/\s+/)
+        .filter((name) => !name.startsWith("a-"))
+        .join(" ")
+    )
   })
 
-/** The size of slide markup made by `svgToMarkup`. */
+  const html = resolveFontVars(new XMLSerializer().serializeToString(clone))
+  const fonts = await embeddedFontCss(html)
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${size.width}" height="${size.height}" viewBox="0 0 ${size.width} ${size.height}"><foreignObject width="${size.width}" height="${size.height}"><style xmlns="http://www.w3.org/1999/xhtml">${escapeCss(fonts)}</style>${html}</foreignObject></svg>`
+}
+
+/** The size of slide markup made by `sectionToImageMarkup`. */
 export const markupSize = (markup: string): SlideSize => {
   const [, width, height] = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(markup) ?? []
   return slideSizeOf({ width: Number(width), height: Number(height) })
 }
 
-export function svgToMarkup(svg: SVGSVGElement) {
-  const clone = cleanSlideClone(svg)
-  const { width, height } = svgSize(svg)
-  clone.setAttribute("xmlns", SVG_NS)
-  clone.setAttribute("width", String(width))
-  clone.setAttribute("height", String(height))
-  const markup = resolveFontVars(new XMLSerializer().serializeToString(clone))
-  return `<?xml version="1.0" encoding="UTF-8"?>\n${markup}`
-}
-
-/** The slide as a fragment to inline in an HTML page; sized by CSS. */
-export function svgToHtml(svg: SVGSVGElement) {
-  const clone = cleanSlideClone(svg)
-  clone.removeAttribute("width")
-  clone.removeAttribute("height")
-  // The slide's section carries its own entrance and exit, so it goes along.
-  const section = svg.closest("[data-slide-root]")
-  if (!section) return resolveFontVars(clone.outerHTML)
-  const wrapper = section.cloneNode(false) as HTMLElement
-  wrapper.removeAttribute("data-slide-root")
-  wrapper.setAttribute("class", section.getAttribute("class") ?? "")
-  wrapper.append(clone)
-  return resolveFontVars(wrapper.outerHTML)
-}
-
-export function slideToSvg() {
-  const svg = getCanvasSvg()
-  return svg ? svgToMarkup(svg) : null
+/** The slide being edited, ready to be drawn into an image. */
+export async function slideToImageMarkup() {
+  const section = getCanvasSection()
+  return section ? sectionToImageMarkup(section) : null
 }
 
 export function svgToPng(markup: string, scale = 1) {

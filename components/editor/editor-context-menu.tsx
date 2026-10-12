@@ -109,12 +109,13 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
             const selected = query.getEvent("selected").all()
             if (!selected.includes(id)) actions.selectNode(id)
           } else if (event.button !== 0) actions.clearEvents()
-          const svg = event.currentTarget.querySelector<SVGSVGElement>(
+          const surface = event.currentTarget.querySelector<HTMLElement>(
             "[data-slide-canvas]"
           )
-          const rect = svg?.getBoundingClientRect()
-          const SLIDE_WIDTH = svg?.viewBox.baseVal.width ?? 0
-          const SLIDE_HEIGHT = svg?.viewBox.baseVal.height ?? 0
+          const rect = surface?.getBoundingClientRect()
+          // The surface is laid out at the slide's own size, then scaled to fit.
+          const SLIDE_WIDTH = surface?.offsetWidth ?? 0
+          const SLIDE_HEIGHT = surface?.offsetHeight ?? 0
           insertAt.current =
             rect && rect.width && rect.height && event.button !== 0
               ? {

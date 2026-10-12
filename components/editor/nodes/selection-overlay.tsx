@@ -210,7 +210,7 @@ function SelectionOverlay() {
         r={size / 1.6}
         strokeWidth={1.5}
         vectorEffect="non-scaling-stroke"
-        className="cursor-grab fill-white stroke-primary active:cursor-grabbing"
+        className="pointer-events-auto cursor-grab fill-white stroke-primary active:cursor-grabbing"
         onPointerDown={startRotate}
       />
       {visibleHandles.map((handle) => (
@@ -223,7 +223,10 @@ function SelectionOverlay() {
           rx={size / 5}
           strokeWidth={1.5}
           vectorEffect="non-scaling-stroke"
-          className={cn("fill-white stroke-primary", handle.cursor)}
+          className={cn(
+            "pointer-events-auto fill-white stroke-primary",
+            handle.cursor
+          )}
           onPointerDown={startResize(handle)}
         />
       ))}

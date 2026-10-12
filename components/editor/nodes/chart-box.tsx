@@ -34,7 +34,7 @@ import {
   type ElementTransformProps,
 } from "@/lib/editor/types"
 import { ChartDataDialog } from "@/components/editor/dialogs/chart-data-dialog"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { ChartSettings } from "@/components/editor/settings/chart-settings"
 
@@ -385,34 +385,31 @@ const ChartBox: UserComponent<Partial<ChartBoxProps>> = (props) => {
   }
 
   return (
-    <SvgElement {...transform} editing={editing} onStartEditing={start}>
+    <ElementBox {...transform} editing={editing} onStartEditing={start}>
       <ChartDataDialog open={editing} onClose={stop} />
-      <rect width={width} height={height} fill="transparent" />
-      <foreignObject
-        width={width}
-        height={height}
-        className="pointer-events-none"
+      <div
+        style={{
+          position: "absolute",
+          left: 0,
+          top: 0,
+          width,
+          height,
+          display: "flex",
+          flexDirection: "column",
+          fontFamily: FONT_FAMILY,
+          pointerEvents: "none",
+        }}
       >
-        <div
-          style={{
-            width,
-            height,
-            display: "flex",
-            flexDirection: "column",
-            fontFamily: FONT_FAMILY,
-          }}
-        >
-          {chart}
-          {showLegend ? (
-            <ChartLegend
-              items={legendItems}
-              fontSize={fontSize}
-              textColor={textColor}
-            />
-          ) : null}
-        </div>
-      </foreignObject>
-    </SvgElement>
+        {chart}
+        {showLegend ? (
+          <ChartLegend
+            items={legendItems}
+            fontSize={fontSize}
+            textColor={textColor}
+          />
+        ) : null}
+      </div>
+    </ElementBox>
   )
 }
 

@@ -654,7 +654,7 @@ export function buildAnimationCss(
       .map((declaration) => `${declaration};`)
       .join("")
     rules.push(
-      `${target(id)}{transform-box:fill-box;transform-origin:center;${extra}animation:${list.join(",")}${paused}}`
+      `${target(id)}{transform-origin:center;${extra}animation:${list.join(",")}${paused}}`
     )
   }
   for (const [id, list] of strokes) {

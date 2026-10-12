@@ -7,7 +7,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { IconSettings } from "@/components/editor/settings/icon-settings"
 
 export type IconBoxProps = ElementTransformProps & {
@@ -25,15 +25,15 @@ const IconBox: UserComponent<Partial<IconBoxProps>> = (props) => {
   const Icon = ICONS[icon] ?? ICONS[DEFAULT_ICON]
 
   return (
-    <SvgElement {...transform}>
-      <rect width={width} height={height} fill="transparent" />
+    <ElementBox {...transform}>
       <Icon
         width={width}
         height={height}
         color={color}
         strokeWidth={strokeWidth}
+        style={{ position: "absolute", left: 0, top: 0, display: "block" }}
       />
-    </SvgElement>
+    </ElementBox>
   )
 }
 

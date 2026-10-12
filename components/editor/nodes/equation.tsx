@@ -8,7 +8,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { SvgElement } from "@/components/editor/nodes/svg-element"
+import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { EquationSettings } from "@/components/editor/settings/equation-settings"
 
@@ -25,7 +25,6 @@ const Equation: UserComponent<Partial<EquationProps>> = (props) => {
     ...Equation.craft!.props,
     ...props,
   } as EquationProps
-  const { width, height } = transform
   const mathml = React.useMemo(() => latexToMathML(latex), [latex])
   const { editing, start, stop } = useElementEditing()
   const {
@@ -33,90 +32,82 @@ const Equation: UserComponent<Partial<EquationProps>> = (props) => {
   } = useNode()
 
   return (
-    <SvgElement {...transform} editing={editing} onStartEditing={start}>
-      <rect width={width} height={height} fill="transparent" />
+    <ElementBox {...transform} editing={editing} onStartEditing={start}>
       {editing ? (
-        <foreignObject width={width} height={height}>
-          <div
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            flexDirection: "column",
+            boxSizing: "border-box",
+            padding: 20,
+            gap: 8,
+            background: "var(--popover)",
+            border: "3px solid var(--primary)",
+            borderRadius: "calc(var(--radius) * 1.4)",
+          }}
+        >
+          <textarea
+            autoFocus
+            spellCheck={false}
+            aria-label="LaTeX source"
+            value={latex}
+            onFocus={(event) => event.currentTarget.select()}
+            onBlur={stop}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") stop()
+            }}
+            onChange={(event) => {
+              const next = event.target.value
+              setProp((draft: EquationProps) => {
+                draft.latex = next
+              }, 400)
+            }}
             style={{
-              display: "flex",
-              flexDirection: "column",
+              flex: 1,
+              minHeight: 0,
               width: "100%",
-              height: "100%",
-              boxSizing: "border-box",
-              padding: 20,
-              gap: 8,
-              background: "var(--popover)",
-              border: "3px solid var(--primary)",
-              borderRadius: "calc(var(--radius) * 1.4)",
+              margin: 0,
+              padding: 0,
+              border: 0,
+              outline: 0,
+              resize: "none",
+              background: "transparent",
+              color: "var(--popover-foreground)",
+              fontSize: 32,
+              lineHeight: 1.4,
+              fontFamily: "var(--font-mono), ui-monospace, monospace",
+            }}
+          />
+          <span
+            style={{
+              fontSize: 20,
+              color: "var(--muted-foreground)",
+              fontFamily: "var(--font-sans), system-ui, sans-serif",
             }}
           >
-            <textarea
-              autoFocus
-              spellCheck={false}
-              aria-label="LaTeX source"
-              value={latex}
-              onFocus={(event) => event.currentTarget.select()}
-              onBlur={stop}
-              onKeyDown={(event) => {
-                if (event.key === "Escape") stop()
-              }}
-              onChange={(event) => {
-                const next = event.target.value
-                setProp((draft: EquationProps) => {
-                  draft.latex = next
-                }, 400)
-              }}
-              style={{
-                flex: 1,
-                minHeight: 0,
-                width: "100%",
-                margin: 0,
-                padding: 0,
-                border: 0,
-                outline: 0,
-                resize: "none",
-                background: "transparent",
-                color: "var(--popover-foreground)",
-                fontSize: 32,
-                lineHeight: 1.4,
-                fontFamily: "var(--font-mono), ui-monospace, monospace",
-              }}
-            />
-            <span
-              style={{
-                fontSize: 20,
-                color: "var(--muted-foreground)",
-                fontFamily: "var(--font-sans), system-ui, sans-serif",
-              }}
-            >
-              LaTeX · click outside or press Esc to finish
-            </span>
-          </div>
-        </foreignObject>
+            LaTeX · click outside or press Esc to finish
+          </span>
+        </div>
       ) : (
-        <foreignObject
-          width={width}
-          height={height}
-          className="pointer-events-none"
-        >
-          <div
-            style={{
-              display: "flex",
-              width: "100%",
-              height: "100%",
-              alignItems: "center",
-              justifyContent: "center",
-              overflow: "hidden",
-              whiteSpace: "nowrap",
-              fontSize,
-              color: fill,
-            }}
-            dangerouslySetInnerHTML={{ __html: mathml }}
-          />
-        </foreignObject>
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            whiteSpace: "nowrap",
+            fontSize,
+            color: fill,
+            pointerEvents: "none",
+          }}
+          dangerouslySetInnerHTML={{ __html: mathml }}
+        />
       )}
-    </SvgElement>
+    </ElementBox>
   )
 }
 

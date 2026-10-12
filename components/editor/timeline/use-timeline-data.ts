@@ -1,5 +1,5 @@
 import * as React from "react"
-import { useEditor } from "@craftjs/core"
+import { ROOT_NODE, useEditor } from "@craftjs/core"
 
 import { getElementLabel } from "@/lib/editor/labels"
 import { slideTimeline, timelineElementIds } from "@/lib/editor/slide-timeline"
@@ -24,11 +24,18 @@ export function useTimelineData() {
     [timeline]
   )
   const rows = React.useMemo<TimelineRowData[]>(
-    () =>
-      timelineElementIds(nodes).map((id) => {
+    () => [
+      {
+        id: ROOT_NODE,
+        name: "Slide",
+        props: (nodes[ROOT_NODE]?.data.props ?? {}) as Record<string, unknown>,
+        label: "Slide",
+      },
+      ...timelineElementIds(nodes).map((id) => {
         const { name, props } = nodes[id].data
         return { id, name, props, label: getElementLabel({ name, props }) }
       }),
+    ],
     [nodes]
   )
 

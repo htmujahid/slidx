@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useEditor } from "@craftjs/core"
+import { ROOT_NODE, useEditor } from "@craftjs/core"
 
 import {
   DEFAULT_TITLE,
@@ -9,6 +9,12 @@ import {
   PRESENTATION_VERSION,
   type PresentationFile,
 } from "@/lib/editor/presentation"
+import {
+  resizeSlideJson,
+  slideSizeOf,
+  type ResizeMode,
+  type SlideSize,
+} from "@/lib/editor/slide-size"
 import {
   BLANK_SLIDE_JSON,
   createSlideId,
@@ -29,6 +35,8 @@ type SlidesContextValue = {
   duplicateSlide: (id: string) => void
   deleteSlide: (id: string) => void
   moveSlide: (id: string, index: number) => void
+  /** Gives every slide a new size, scaling what is on them or leaving it be. */
+  resizeSlides: (size: SlideSize, mode: ResizeMode) => void
   getPresentation: () => PresentationFile
   loadPresentation: (title: string, slides: string[]) => void
   newPresentation: () => void
@@ -109,9 +117,16 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
 
   const addSlideFrom = React.useCallback(
     (json: string) => {
-      insertAfter(slides[slides.length - 1].id, json)
+      // New slides and templates join the deck at its size.
+      const size = slideSizeOf(
+        query.node(ROOT_NODE).get().data.props as Partial<SlideSize>
+      )
+      insertAfter(
+        slides[slides.length - 1].id,
+        resizeSlideJson(json, size, "scale")
+      )
     },
-    [insertAfter, slides]
+    [insertAfter, slides, query]
   )
 
   const addSlide = React.useCallback(
@@ -157,6 +172,26 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
       return next
     })
   }, [])
+
+  const resizeSlides = React.useCallback(
+    (size: SlideSize, mode: ResizeMode) => {
+      const currentJson = query.serialize()
+      const next = slides.map((slide) => ({
+        ...slide,
+        json: resizeSlideJson(
+          slide.id === activeIdRef.current ? currentJson : slide.json,
+          size,
+          mode
+        ),
+        version: slide.version + 1,
+      }))
+      setSlides(next)
+      const active = next.find((slide) => slide.id === activeIdRef.current)
+      if (active) actions.deserialize(active.json)
+      actions.history.clear()
+    },
+    [actions, query, slides]
+  )
 
   const getPresentation = React.useCallback((): PresentationFile => {
     const currentJson = query.serialize()
@@ -237,6 +272,7 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
       duplicateSlide,
       deleteSlide,
       moveSlide,
+      resizeSlides,
       getPresentation,
       loadPresentation,
       newPresentation,
@@ -252,6 +288,7 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
       duplicateSlide,
       deleteSlide,
       moveSlide,
+      resizeSlides,
       getPresentation,
       loadPresentation,
       newPresentation,

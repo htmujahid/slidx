@@ -2,8 +2,6 @@
 
 import { useEditor } from "@craftjs/core"
 import {
-  DownloadIcon,
-  FileCodeIcon,
   FilePlusIcon,
   FileTextIcon,
   FolderOpenIcon,
@@ -23,9 +21,6 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
-  MenubarSub,
-  MenubarSubContent,
-  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { useEditorLayout } from "@/components/editor/editor-layout"
@@ -33,7 +28,7 @@ import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function FileMenu() {
   const { setDialog } = useEditorLayout()
-  const { save, open, exportSlide, exportPdf, exportHtml } = useFileActions()
+  const { save, open, exportPng, exportPdf, exportHtml } = useFileActions()
   const { actions, canUndo, canRedo } = useEditor((_, query) => ({
     canUndo: query.history.canUndo(),
     canRedo: query.history.canRedo(),
@@ -69,22 +64,10 @@ function FileMenu() {
             Save to file
             <Shortcut keys="S" />
           </MenubarItem>
-          <MenubarSub>
-            <MenubarSubTrigger>
-              <DownloadIcon />
-              Export slide
-            </MenubarSubTrigger>
-            <MenubarSubContent>
-              <MenubarItem onClick={() => exportSlide("svg")}>
-                <FileCodeIcon />
-                SVG image
-              </MenubarItem>
-              <MenubarItem onClick={() => exportSlide("png")}>
-                <ImageIcon />
-                PNG image
-              </MenubarItem>
-            </MenubarSubContent>
-          </MenubarSub>
+          <MenubarItem onClick={exportPng}>
+            <ImageIcon />
+            Export slide as PNG
+          </MenubarItem>
           <MenubarItem onClick={exportPdf}>
             <FileTextIcon />
             Export as PDF

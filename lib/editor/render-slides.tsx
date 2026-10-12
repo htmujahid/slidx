@@ -43,7 +43,9 @@ export async function renderSlides<T>(
     await document.fonts.ready
     await new Promise((resolve) => setTimeout(resolve, RENDER_SETTLE_MS))
     const svgs = Array.from(
-      host.querySelectorAll<SVGSVGElement>("[data-render-slide] > svg")
+      host.querySelectorAll<SVGSVGElement>(
+        "[data-render-slide] section[data-slide-root] > svg"
+      )
     )
     if (svgs.length !== slides.length) {
       throw new Error("Some slides could not be rendered.")

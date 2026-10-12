@@ -29,9 +29,10 @@ function ViewMenu() {
     timelineOpen,
     toggleTimeline,
     zoom,
+    fitMode,
+    fit,
     zoomIn,
     zoomOut,
-    zoomReset,
   } = useEditorLayout()
   const { theme = "system", setTheme } = useTheme()
   const { actions, slide } = useEditor((state) => ({
@@ -84,9 +85,18 @@ function ViewMenu() {
             Zoom out
             <Shortcut keys="-" />
           </MenubarItem>
-          <MenubarItem disabled={zoom === 1} onClick={zoomReset}>
-            Zoom to fit
+          <MenubarItem
+            disabled={fitMode === "view" && zoom === 1}
+            onClick={() => fit("view")}
+          >
+            Fit to view
             <Shortcut keys="0" />
+          </MenubarItem>
+          <MenubarItem
+            disabled={fitMode === "width" && zoom === 1}
+            onClick={() => fit("width")}
+          >
+            Fit to width
           </MenubarItem>
         </MenubarGroup>
         <MenubarSeparator />

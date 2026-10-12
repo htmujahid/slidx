@@ -37,6 +37,10 @@ export function useTimelineEditing({
 }) {
   const { actions } = useEditor()
 
+  // The slide has no selection of its own: choosing it clears the selection.
+  const select = (id: string) =>
+    id === ROOT_NODE ? actions.clearEvents() : actions.selectNode(id)
+
   // Dragging produces a stream of changes, merged into one undo step.
   const writeSpans = (id: string, spans: ElementSpan[], merge = true) =>
     (merge ? actions.history.throttle(400) : actions).setProp(id, (props) => {
@@ -62,7 +66,7 @@ export function useTimelineEditing({
     if (event.button !== 0) return
     event.preventDefault()
     event.stopPropagation()
-    actions.selectNode(entry.id)
+    select(entry.id)
     const origin = event.clientX
     const span = entry.spans[index]
     const from = edge === "start" ? span.start : span.end
@@ -85,7 +89,7 @@ export function useTimelineEditing({
   ) => {
     if (event.button !== 0) return
     event.preventDefault()
-    actions.selectNode(entry.id)
+    select(entry.id)
     const origin = event.clientX
     const from = entry.spans[index].start
     trackPointer(
@@ -149,7 +153,7 @@ export function useTimelineEditing({
     side: TransitionSide,
     preset: AnimationPreset
   ) => {
-    actions.selectNode(entry.id)
+    select(entry.id)
     writeSpans(entry.id, withTransition(entry, index, side, { preset }), false)
   }
 
@@ -171,7 +175,7 @@ export function useTimelineEditing({
     if (event.button !== 0) return
     event.preventDefault()
     event.stopPropagation()
-    actions.selectNode(entry.id)
+    select(entry.id)
     const origin = event.clientX
     const span = entry.spans[index]
     const from =
@@ -220,7 +224,7 @@ export function useTimelineEditing({
     })
 
   return {
-    selectElement: (id: string) => actions.selectNode(id),
+    selectElement: select,
     startTrim,
     startMove,
     nudgeSpan,

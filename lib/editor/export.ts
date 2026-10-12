@@ -1,4 +1,4 @@
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
+import { slideSizeOf, type SlideSize } from "@/lib/editor/slide-size"
 
 const SVG_NS = "http://www.w3.org/2000/svg"
 
@@ -28,21 +28,42 @@ function cleanSlideClone(svg: SVGSVGElement) {
   return clone
 }
 
+/** A slide svg's size, from its viewBox. */
+export const svgSize = (svg: SVGSVGElement): SlideSize =>
+  slideSizeOf({
+    width: svg.viewBox.baseVal.width,
+    height: svg.viewBox.baseVal.height,
+  })
+
+/** The size of slide markup made by `svgToMarkup`. */
+export const markupSize = (markup: string): SlideSize => {
+  const [, width, height] = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(markup) ?? []
+  return slideSizeOf({ width: Number(width), height: Number(height) })
+}
+
 export function svgToMarkup(svg: SVGSVGElement) {
   const clone = cleanSlideClone(svg)
+  const { width, height } = svgSize(svg)
   clone.setAttribute("xmlns", SVG_NS)
-  clone.setAttribute("width", String(SLIDE_WIDTH))
-  clone.setAttribute("height", String(SLIDE_HEIGHT))
+  clone.setAttribute("width", String(width))
+  clone.setAttribute("height", String(height))
   const markup = resolveFontVars(new XMLSerializer().serializeToString(clone))
   return `<?xml version="1.0" encoding="UTF-8"?>\n${markup}`
 }
 
-/** The slide as an `<svg>` fragment to inline in an HTML page; sized by CSS. */
+/** The slide as a fragment to inline in an HTML page; sized by CSS. */
 export function svgToHtml(svg: SVGSVGElement) {
   const clone = cleanSlideClone(svg)
   clone.removeAttribute("width")
   clone.removeAttribute("height")
-  return resolveFontVars(clone.outerHTML)
+  // The slide's section carries its own entrance and exit, so it goes along.
+  const section = svg.closest("[data-slide-root]")
+  if (!section) return resolveFontVars(clone.outerHTML)
+  const wrapper = section.cloneNode(false) as HTMLElement
+  wrapper.removeAttribute("data-slide-root")
+  wrapper.setAttribute("class", section.getAttribute("class") ?? "")
+  wrapper.append(clone)
+  return resolveFontVars(wrapper.outerHTML)
 }
 
 export function slideToSvg() {
@@ -50,17 +71,15 @@ export function slideToSvg() {
   return svg ? svgToMarkup(svg) : null
 }
 
-export const svgToBlob = (markup: string) =>
-  new Blob([markup], { type: "image/svg+xml;charset=utf-8" })
-
 export function svgToPng(markup: string, scale = 1) {
+  const size = markupSize(markup)
   return new Promise<Blob>((resolve, reject) => {
     const image = new Image()
     image.onload = () => {
       try {
         const canvas = document.createElement("canvas")
-        canvas.width = SLIDE_WIDTH * scale
-        canvas.height = SLIDE_HEIGHT * scale
+        canvas.width = size.width * scale
+        canvas.height = size.height * scale
         const context = canvas.getContext("2d")
         if (!context) throw new Error("Canvas is not available.")
         context.drawImage(image, 0, 0, canvas.width, canvas.height)

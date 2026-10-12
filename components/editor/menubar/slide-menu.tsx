@@ -5,6 +5,7 @@ import {
   ChevronRightIcon,
   CopyIcon,
   PlusIcon,
+  RulerDimensionLineIcon,
   Trash2Icon,
 } from "lucide-react"
 
@@ -16,6 +17,7 @@ import {
   MenubarSeparator,
   MenubarTrigger,
 } from "@/components/ui/menubar"
+import { useEditorLayout } from "@/components/editor/editor-layout"
 import { useSlides } from "@/components/editor/slides-context"
 
 function SlideMenu() {
@@ -28,6 +30,7 @@ function SlideMenu() {
     deleteSlide,
     selectSlide,
   } = useSlides()
+  const { setDialog } = useEditorLayout()
 
   return (
     <MenubarMenu>
@@ -66,6 +69,13 @@ function SlideMenu() {
           >
             <ChevronRightIcon />
             Next slide
+          </MenubarItem>
+        </MenubarGroup>
+        <MenubarSeparator />
+        <MenubarGroup>
+          <MenubarItem onClick={() => setDialog("size")}>
+            <RulerDimensionLineIcon />
+            Slide size…
           </MenubarItem>
         </MenubarGroup>
       </MenubarContent>

@@ -1,3 +1,5 @@
+import { ROOT_NODE } from "@craftjs/core"
+
 import type { ChartKind } from "@/lib/editor/chart"
 import { EASINGS, type AnimationEasing } from "@/lib/editor/easing"
 import {
@@ -545,6 +547,11 @@ export function buildAnimationCss(
   // Held at a moment: every animation is paused at its start with its delay
   // shifted, which leaves it exactly `pausedAt` into the slide.
   const at = (ms: number) => ms - (pausedAt ?? 0)
+  // The slide's own class sits on the element that carries the scope.
+  const target = (id: string) =>
+    id === ROOT_NODE
+      ? `.vx-${scope}.${classes[id]}`
+      : `.vx-${scope} .${classes[id]}`
 
   for (const entry of timeline.entries) {
     if (!isTimed(entry, durationMs)) continue
@@ -647,7 +654,7 @@ export function buildAnimationCss(
       .map((declaration) => `${declaration};`)
       .join("")
     rules.push(
-      `.vx-${scope} .${classes[id]}{transform-box:fill-box;transform-origin:center;${extra}animation:${list.join(",")}${paused}}`
+      `${target(id)}{transform-box:fill-box;transform-origin:center;${extra}animation:${list.join(",")}${paused}}`
     )
   }
   for (const [id, list] of strokes) {

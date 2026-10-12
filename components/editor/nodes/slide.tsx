@@ -10,7 +10,6 @@ import {
 
 import type { AlignmentGuide } from "@/lib/editor/alignment-guides"
 import { buildAnimationCss } from "@/lib/editor/animation"
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import {
   elementBounds,
   swallowNextClick,
@@ -23,8 +22,10 @@ import {
   SLIDE_DEFAULTS,
   type SlideProps,
 } from "@/lib/editor/slide-props"
+import { slideSizeOf } from "@/lib/editor/slide-size"
 import { slideTimeline } from "@/lib/editor/slide-timeline"
 import type { ElementTransformProps } from "@/lib/editor/types"
+import { cn } from "@/lib/utils"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { usePlayback } from "@/components/editor/animation-playback"
 import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
@@ -49,6 +50,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     snapToGrid,
     snapToAlignment,
   } = { ...SLIDE_DEFAULTS, ...props }
+  const { width: SLIDE_WIDTH, height: SLIDE_HEIGHT } = slideSizeOf(props)
   const {
     connectors: { connect },
   } = useNode()
@@ -76,21 +78,24 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     })
     observer.observe(svg)
     return () => observer.disconnect()
-  }, [])
+  }, [SLIDE_WIDTH])
 
   React.useEffect(() => {
     if (editable) setCanvasScale?.(scale)
   }, [editable, scale, setCanvasScale])
 
-  const toSlidePoint = React.useCallback((clientX: number, clientY: number) => {
-    const svg = svgRef.current
-    const rect = svg?.getBoundingClientRect()
-    if (!rect) return { x: 0, y: 0 }
-    return {
-      x: ((clientX - rect.left) / rect.width) * SLIDE_WIDTH,
-      y: ((clientY - rect.top) / rect.height) * SLIDE_HEIGHT,
-    }
-  }, [])
+  const toSlidePoint = React.useCallback(
+    (clientX: number, clientY: number) => {
+      const svg = svgRef.current
+      const rect = svg?.getBoundingClientRect()
+      if (!rect) return { x: 0, y: 0 }
+      return {
+        x: ((clientX - rect.left) / rect.width) * SLIDE_WIDTH,
+        y: ((clientY - rect.top) / rect.height) * SLIDE_HEIGHT,
+      }
+    },
+    [SLIDE_WIDTH, SLIDE_HEIGHT]
+  )
 
   const playback = usePlayback()
   const preview = editable ? layout?.animationPreview : undefined
@@ -112,6 +117,8 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const context = React.useMemo(
     () => ({
       scale,
+      width: SLIDE_WIDTH,
+      height: SLIDE_HEIGHT,
       setGuides,
       snapToAlignment,
       toSlidePoint,
@@ -120,6 +127,8 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     }),
     [
       scale,
+      SLIDE_WIDTH,
+      SLIDE_HEIGHT,
       toSlidePoint,
       snapToGrid,
       gridSize,
@@ -208,131 +217,140 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
 
   return (
     <SlideContext.Provider value={context}>
-      <svg
-        ref={(element) => {
-          svgRef.current = element
-          if (element) connect(element as unknown as HTMLElement)
-        }}
-        data-slide-canvas={editable ? "" : undefined}
-        viewBox={`0 0 ${SLIDE_WIDTH} ${SLIDE_HEIGHT}`}
-        className="block size-full touch-none overflow-visible select-none"
-        onPointerDown={handleCanvasPointerDown}
-        onDragOver={handleDragOver}
-        onDrop={handleDrop}
+      <section
+        data-slide-root=""
+        className={cn(
+          "block size-full",
+          `vx-${uid}`,
+          animation.classes[ROOT_NODE]
+        )}
       >
-        <defs>
-          <clipPath id={CLIP_ID}>
-            <rect width={SLIDE_WIDTH} height={SLIDE_HEIGHT} />
-          </clipPath>
-          {backgroundType === "gradient" ? (
-            gradientType === "radial" ? (
-              <radialGradient
-                id={GRADIENT_ID}
-                gradientUnits="userSpaceOnUse"
-                cx={SLIDE_WIDTH / 2}
-                cy={SLIDE_HEIGHT / 2}
-                r={Math.hypot(SLIDE_WIDTH, SLIDE_HEIGHT) / 2}
-              >
-                <stop offset="0" stopColor={gradientFrom} />
-                <stop offset="1" stopColor={gradientTo} />
-              </radialGradient>
-            ) : (
-              <linearGradient
-                id={GRADIENT_ID}
-                gradientUnits="userSpaceOnUse"
-                x1={line.x1}
-                y1={line.y1}
-                x2={line.x2}
-                y2={line.y2}
-              >
-                <stop offset="0" stopColor={gradientFrom} />
-                <stop offset="1" stopColor={gradientTo} />
-              </linearGradient>
-            )
-          ) : null}
-          <pattern
-            id={GRID_ID}
-            width={gridSize}
-            height={gridSize}
-            patternUnits="userSpaceOnUse"
-          >
-            <path
-              d={`M${gridSize} 0H0V${gridSize}`}
-              fill="none"
-              stroke="#737373"
-              strokeOpacity={0.35}
-              strokeWidth={1}
-              vectorEffect="non-scaling-stroke"
-            />
-          </pattern>
-        </defs>
-        {animation.css ? <style>{animation.css}</style> : null}
-        <g clipPath={`url(#${CLIP_ID})`} className={`vx-${uid}`}>
-          <rect
-            width={SLIDE_WIDTH}
-            height={SLIDE_HEIGHT}
-            fill={
-              backgroundType === "gradient"
-                ? `url(#${GRADIENT_ID})`
-                : background
-            }
-          />
-          {backgroundType === "image" && backgroundImage ? (
-            <image
-              href={backgroundImage}
-              width={SLIDE_WIDTH}
-              height={SLIDE_HEIGHT}
-              preserveAspectRatio={
-                imageFit === "cover" ? "xMidYMid slice" : "xMidYMid meet"
-              }
-            />
-          ) : null}
-          {editable && showGrid ? (
-            <rect
-              width={SLIDE_WIDTH}
-              height={SLIDE_HEIGHT}
-              fill={`url(#${GRID_ID})`}
-              data-export-ignore=""
-              className="pointer-events-none"
-            />
-          ) : null}
-          {children}
-        </g>
-        {editable && guides.length > 0 && (
-          <g
-            data-export-ignore=""
-            aria-hidden="true"
-            clipPath={`url(#${CLIP_ID})`}
-            className="pointer-events-none stroke-primary"
-          >
-            {guides.map((guide) => (
-              <line
-                key={guide.axis}
-                x1={guide.axis === "x" ? guide.position : guide.start}
-                x2={guide.axis === "x" ? guide.position : guide.end}
-                y1={guide.axis === "y" ? guide.position : guide.start}
-                y2={guide.axis === "y" ? guide.position : guide.end}
+        <svg
+          ref={(element) => {
+            svgRef.current = element
+            if (element) connect(element as unknown as HTMLElement)
+          }}
+          data-slide-canvas={editable ? "" : undefined}
+          viewBox={`0 0 ${SLIDE_WIDTH} ${SLIDE_HEIGHT}`}
+          className="block size-full touch-none overflow-visible select-none"
+          onPointerDown={handleCanvasPointerDown}
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+        >
+          <defs>
+            <clipPath id={CLIP_ID}>
+              <rect width={SLIDE_WIDTH} height={SLIDE_HEIGHT} />
+            </clipPath>
+            {backgroundType === "gradient" ? (
+              gradientType === "radial" ? (
+                <radialGradient
+                  id={GRADIENT_ID}
+                  gradientUnits="userSpaceOnUse"
+                  cx={SLIDE_WIDTH / 2}
+                  cy={SLIDE_HEIGHT / 2}
+                  r={Math.hypot(SLIDE_WIDTH, SLIDE_HEIGHT) / 2}
+                >
+                  <stop offset="0" stopColor={gradientFrom} />
+                  <stop offset="1" stopColor={gradientTo} />
+                </radialGradient>
+              ) : (
+                <linearGradient
+                  id={GRADIENT_ID}
+                  gradientUnits="userSpaceOnUse"
+                  x1={line.x1}
+                  y1={line.y1}
+                  x2={line.x2}
+                  y2={line.y2}
+                >
+                  <stop offset="0" stopColor={gradientFrom} />
+                  <stop offset="1" stopColor={gradientTo} />
+                </linearGradient>
+              )
+            ) : null}
+            <pattern
+              id={GRID_ID}
+              width={gridSize}
+              height={gridSize}
+              patternUnits="userSpaceOnUse"
+            >
+              <path
+                d={`M${gridSize} 0H0V${gridSize}`}
+                fill="none"
+                stroke="#737373"
+                strokeOpacity={0.35}
                 strokeWidth={1}
                 vectorEffect="non-scaling-stroke"
               />
-            ))}
+            </pattern>
+          </defs>
+          {animation.css ? <style>{animation.css}</style> : null}
+          <g clipPath={`url(#${CLIP_ID})`}>
+            <rect
+              width={SLIDE_WIDTH}
+              height={SLIDE_HEIGHT}
+              fill={
+                backgroundType === "gradient"
+                  ? `url(#${GRADIENT_ID})`
+                  : background
+              }
+            />
+            {backgroundType === "image" && backgroundImage ? (
+              <image
+                href={backgroundImage}
+                width={SLIDE_WIDTH}
+                height={SLIDE_HEIGHT}
+                preserveAspectRatio={
+                  imageFit === "cover" ? "xMidYMid slice" : "xMidYMid meet"
+                }
+              />
+            ) : null}
+            {editable && showGrid ? (
+              <rect
+                width={SLIDE_WIDTH}
+                height={SLIDE_HEIGHT}
+                fill={`url(#${GRID_ID})`}
+                data-export-ignore=""
+                className="pointer-events-none"
+              />
+            ) : null}
+            {children}
           </g>
-        )}
-        <SelectionOverlay />
-        {marquee ? (
-          <rect
-            data-export-ignore=""
-            aria-hidden="true"
-            x={marquee.x}
-            y={marquee.y}
-            width={marquee.width}
-            height={marquee.height}
-            strokeWidth={1}
-            vectorEffect="non-scaling-stroke"
-            className="pointer-events-none fill-primary/10 stroke-primary"
-          />
-        ) : null}
-      </svg>
+          {editable && guides.length > 0 && (
+            <g
+              data-export-ignore=""
+              aria-hidden="true"
+              clipPath={`url(#${CLIP_ID})`}
+              className="pointer-events-none stroke-primary"
+            >
+              {guides.map((guide) => (
+                <line
+                  key={guide.axis}
+                  x1={guide.axis === "x" ? guide.position : guide.start}
+                  x2={guide.axis === "x" ? guide.position : guide.end}
+                  y1={guide.axis === "y" ? guide.position : guide.start}
+                  y2={guide.axis === "y" ? guide.position : guide.end}
+                  strokeWidth={1}
+                  vectorEffect="non-scaling-stroke"
+                />
+              ))}
+            </g>
+          )}
+          <SelectionOverlay />
+          {marquee ? (
+            <rect
+              data-export-ignore=""
+              aria-hidden="true"
+              x={marquee.x}
+              y={marquee.y}
+              width={marquee.width}
+              height={marquee.height}
+              strokeWidth={1}
+              vectorEffect="non-scaling-stroke"
+              className="pointer-events-none fill-primary/10 stroke-primary"
+            />
+          ) : null}
+        </svg>
+      </section>
     </SlideContext.Provider>
   )
 }

@@ -1,6 +1,6 @@
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import { svgToHtml } from "@/lib/editor/export"
 import { renderSlides } from "@/lib/editor/render-slides"
+import { slideSizeFromJson, type SlideSize } from "@/lib/editor/slide-size"
 
 const escapeHtml = (text: string) =>
   text
@@ -98,7 +98,7 @@ async function embeddedFontCss(markup: string) {
   return css.join("\n")
 }
 
-const DECK_CSS = `
+const deckCss = (page: SlideSize) => `
 *,*::before,*::after{box-sizing:border-box}
 html{background:#0a0a0a;color-scheme:dark}
 body{margin:0;min-height:100dvh;color:#fafafa;font:14px/1.4 var(--deck-font);-webkit-font-smoothing:antialiased}
@@ -107,7 +107,8 @@ i[id]{position:absolute;width:0;height:0}
 
 .slide{display:none;position:relative;min-height:100dvh;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:16px}
 .slide:target,.deck:not(:has(.slide:target)) .slide:first-child{display:flex}
-.frame{position:relative;width:min(100%,calc((100dvh - 96px) * ${SLIDE_WIDTH} / ${SLIDE_HEIGHT}));aspect-ratio:${SLIDE_WIDTH} / ${SLIDE_HEIGHT};background:#fff;box-shadow:0 20px 60px rgb(0 0 0 / .5);overflow:hidden}
+.frame{position:relative;width:min(100%,calc((100dvh - 96px) * var(--w) / var(--h)));aspect-ratio:var(--w) / var(--h);background:#fff;box-shadow:0 20px 60px rgb(0 0 0 / .5);overflow:hidden}
+.frame>section{display:block;width:100%;height:100%}
 .frame svg{display:block;width:100%;height:100%}
 .open{display:none}
 
@@ -133,19 +134,24 @@ body:has(#scroll:target) .slide{display:flex;scroll-snap-align:center}
 
 body:has(#overview:target) .slide *,body:has(#scroll:target) .slide *{animation:none!important}
 
-@page{size:${SLIDE_WIDTH}px ${SLIDE_HEIGHT}px;margin:0}
+@page{size:${page.width}px ${page.height}px;margin:0}
 @media print{
   html,body{background:#fff}
   .deck{display:block!important;padding:0!important}
   .slide{display:block!important;min-height:0!important;padding:0!important;break-after:page}
   .slide:last-child{break-after:auto}
-  .frame{width:${SLIDE_WIDTH}px!important;box-shadow:none}
+  .frame{width:calc(var(--w) * 1px)!important;box-shadow:none}
   .slide *{animation:none!important}
   .controls,.modes,.open{display:none!important}
 }
 `
 
-function slideSection(svg: string, index: number, total: number) {
+function slideSection(
+  svg: string,
+  size: SlideSize,
+  index: number,
+  total: number
+) {
   const number = index + 1
   const previous =
     index > 0
@@ -156,7 +162,7 @@ function slideSection(svg: string, index: number, total: number) {
       ? `<a href="#slide-${number + 1}" rel="next" accesskey="n">Next ›</a>`
       : `<span class="btn" aria-disabled="true">Next ›</span>`
   return `<section id="slide-${number}" class="slide" aria-label="Slide ${number} of ${total}">
-<div class="frame">${svg}<a class="open" href="#slide-${number}" aria-label="Open slide ${number}"></a></div>
+<div class="frame" style="--w:${size.width};--h:${size.height}">${svg}<a class="open" href="#slide-${number}" aria-label="Open slide ${number}"></a></div>
 <nav class="controls" aria-label="Slide navigation">${previous}<span class="count">${number} / ${total}</span>${next}<span class="gap"></span><a href="#overview">Overview</a><a href="#scroll">Scroll</a></nav>
 </section>`
 }
@@ -164,6 +170,7 @@ function slideSection(svg: string, index: number, total: number) {
 /** One self-contained HTML file: every slide inline, navigable without script. */
 export async function slidesToHtml(slides: string[], title: string) {
   const svgs = await renderSlides(slides, svgToHtml, { animate: true })
+  const sizes = slides.map(slideSizeFromJson)
   const fonts = await embeddedFontCss(svgs.join(""))
   const stack = getComputedStyle(document.documentElement)
     .getPropertyValue("--font-sans")
@@ -182,13 +189,13 @@ export async function slidesToHtml(slides: string[], title: string) {
 <title>${escapeHtml(title)}</title>
 <style>
 ${fonts}
-:root{--deck-font:${family}}${DECK_CSS}</style>
+:root{--deck-font:${family}}${deckCss(sizes[0])}</style>
 </head>
 <body>
 <i id="overview"></i><i id="scroll"></i>
 <nav class="modes" aria-label="View"><a href="#slide-1">Present</a><a href="#overview">Overview</a><a href="#scroll">Scroll</a></nav>
 <main class="deck">
-${svgs.map((svg, index) => slideSection(svg, index, svgs.length)).join("\n")}
+${svgs.map((svg, index) => slideSection(svg, sizes[index], index, svgs.length)).join("\n")}
 </main>
 </body>
 </html>

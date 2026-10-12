@@ -3,6 +3,7 @@ import { ROOT_NODE, type Nodes } from "@craftjs/core"
 import {
   buildTimeline,
   DEFAULT_SLIDE_DURATION,
+  resolveTiming,
   type ElementTiming,
   type TimelineInput,
 } from "@/lib/editor/animation"
@@ -23,6 +24,21 @@ export function timelineElementIds(nodes: Nodes) {
   return [...(nodes[ROOT_NODE]?.data.nodes ?? [])]
     .filter((id) => nodes[id] && !nodes[id].data.hidden)
     .reverse()
+}
+
+/**
+ * The slide itself, first in the timeline. It is always there for the whole
+ * slide, so only the entrance and exit of its first span count.
+ */
+function slideInput(nodes: Nodes): TimelineInput {
+  const timing = (nodes[ROOT_NODE]?.data.props as { timing?: ElementTiming })
+    ?.timing
+  const [span] = resolveTiming(timing).spans
+  return {
+    id: ROOT_NODE,
+    name: "Slide",
+    timing: { spans: [{ ...span, start: 0, end: null }], tracks: [] },
+  }
 }
 
 /** The slide's timeline: when each element is on the slide, and how it enters and leaves. */
@@ -47,5 +63,5 @@ export function slideTimeline(nodes: Nodes) {
           : undefined,
     }
   })
-  return buildTimeline(inputs, slideDuration(nodes))
+  return buildTimeline([slideInput(nodes), ...inputs], slideDuration(nodes))
 }

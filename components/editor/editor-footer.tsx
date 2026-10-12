@@ -4,13 +4,15 @@ import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 import { ChartGanttIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import { getElementLabel } from "@/lib/editor/labels"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
+import { aspectLabel } from "@/lib/editor/slide-size"
+import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 import { useSlides } from "@/components/editor/slides-context"
+import { ZoomMenu } from "@/components/editor/zoom-menu"
 
 type Transform = {
   x: number
@@ -41,7 +43,8 @@ function FooterSeparator() {
 
 function EditorFooter() {
   const { activeIndex, slides, selectSlide } = useSlides()
-  const { canvasScale, timelineOpen, toggleTimeline } = useEditorLayout()
+  const { timelineOpen, toggleTimeline, setDialog } = useEditorLayout()
+  const size = useSlideSize()
   const { selected, count, slide } = useEditor((state) => {
     const [id] = state.events.selected
     const node = id && id !== ROOT_NODE ? state.nodes[id] : undefined
@@ -138,13 +141,19 @@ function EditorFooter() {
           Timeline
         </Button>
         <FooterSeparator />
-        <span className="hidden sm:block">
-          <Stat>
-            16:9 · {SLIDE_WIDTH} × {SLIDE_HEIGHT}
-          </Stat>
-        </span>
+        <Button
+          variant="ghost"
+          size="xs"
+          className="hidden font-normal text-muted-foreground sm:inline-flex"
+          aria-label={`Slide size, ${aspectLabel(size)}, ${size.width} by ${size.height}`}
+          onClick={() => setDialog("size")}
+        >
+          <span className="tabular-nums">
+            {aspectLabel(size)} · {size.width} × {size.height}
+          </span>
+        </Button>
         <FooterSeparator />
-        <Stat label="Zoom">{Math.round(canvasScale * 100)}%</Stat>
+        <ZoomMenu />
       </div>
     </footer>
   )

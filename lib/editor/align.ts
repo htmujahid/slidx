@@ -1,5 +1,5 @@
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import { roundTo, toRadians } from "@/lib/editor/geometry"
+import type { SlideSize } from "@/lib/editor/slide-size"
 import type { ElementTransformProps } from "@/lib/editor/types"
 
 export type Alignment =
@@ -7,7 +7,8 @@ export type Alignment =
 
 export function alignToSlide(
   { width, height, rotation }: ElementTransformProps,
-  alignment: Alignment
+  alignment: Alignment,
+  { width: SLIDE_WIDTH, height: SLIDE_HEIGHT }: SlideSize
 ): Partial<Pick<ElementTransformProps, "x" | "y">> {
   const a = toRadians(rotation)
   const cos = Math.abs(Math.cos(a))

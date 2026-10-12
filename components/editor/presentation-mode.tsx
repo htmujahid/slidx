@@ -9,9 +9,9 @@ import {
   XIcon,
 } from "lucide-react"
 
-import { SLIDE_ASPECT_RATIO } from "@/lib/editor/constants"
 import type { PresentationFile } from "@/lib/editor/presentation"
 import { resolver } from "@/lib/editor/resolver"
+import { slideSizeFromJson } from "@/lib/editor/slide-size"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -164,6 +164,9 @@ function PresentationProvider({ children }: { children: React.ReactNode }) {
       Math.max(0, Math.min((deck?.slides.length ?? 1) - 1, current + delta))
     )
 
+  const size = deck ? slideSizeFromJson(deck.slides[index].json) : null
+  const ratio = size ? size.width / size.height : 16 / 9
+
   return (
     <PresentationContext.Provider value={context}>
       {children}
@@ -231,8 +234,8 @@ function PresentationProvider({ children }: { children: React.ReactNode }) {
                 <div
                   className="pointer-events-none w-full"
                   style={{
-                    aspectRatio: SLIDE_ASPECT_RATIO,
-                    maxWidth: `calc((100dvh - 6rem) * ${SLIDE_ASPECT_RATIO})`,
+                    aspectRatio: ratio,
+                    maxWidth: `calc((100dvh - 6rem) * ${ratio})`,
                   }}
                 >
                   <PlaybackProvider>

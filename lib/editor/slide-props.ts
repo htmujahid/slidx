@@ -1,4 +1,9 @@
-import { DEFAULT_SLIDE_DURATION } from "@/lib/editor/animation"
+import {
+  DEFAULT_SLIDE_DURATION,
+  DEFAULT_TIMING,
+  type ElementTiming,
+} from "@/lib/editor/animation"
+import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 
 export type BackgroundType = "solid" | "gradient" | "image"
 export type GradientType = "linear" | "radial"
@@ -19,6 +24,11 @@ export type SlideProps = {
   snapToAlignment: boolean
   /** How long the slide plays, in milliseconds. Elements are on it throughout unless trimmed. */
   duration: number
+  /** The slide's size, in the units everything on it is placed in. */
+  width: number
+  height: number
+  /** The slide's own entrance and exit; its first span's presets apply to the whole slide. */
+  timing: ElementTiming
 }
 
 export const SLIDE_DEFAULTS: SlideProps = {
@@ -35,6 +45,9 @@ export const SLIDE_DEFAULTS: SlideProps = {
   snapToGrid: false,
   snapToAlignment: true,
   duration: DEFAULT_SLIDE_DURATION,
+  width: SLIDE_WIDTH,
+  height: SLIDE_HEIGHT,
+  timing: DEFAULT_TIMING,
 }
 
 /**

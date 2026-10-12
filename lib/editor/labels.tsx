@@ -4,6 +4,7 @@ import {
   GroupIcon,
   ImageIcon,
   MoveDownRightIcon,
+  PresentationIcon,
   SmileIcon,
   SquareFunctionIcon,
   TableIcon,
@@ -66,6 +67,8 @@ export function ElementIcon({
   className,
 }: NodeLike & { className?: string }) {
   switch (name) {
+    case "Slide":
+      return <PresentationIcon className={className} />
     case "Shape":
       return (
         <ShapePreview kind={props.kind as ShapeKind} className={className} />

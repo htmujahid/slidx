@@ -2,13 +2,12 @@
 
 import { PDFDocument } from "pdf-lib"
 
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
-import { svgToMarkup, svgToPng } from "@/lib/editor/export"
+import { markupSize, svgToMarkup, svgToPng } from "@/lib/editor/export"
 import { renderSlides } from "@/lib/editor/render-slides"
 
 const PDF_SCALE = 2
-const PAGE_WIDTH = SLIDE_WIDTH / 2
-const PAGE_HEIGHT = SLIDE_HEIGHT / 2
+/** A page is half the slide's pixels, in points. */
+const PAGE_SCALE = 0.5
 
 export async function slidesToPdf(slides: string[], title: string) {
   const markups = await renderSlides(slides, svgToMarkup)
@@ -17,12 +16,15 @@ export async function slidesToPdf(slides: string[], title: string) {
   for (const markup of markups) {
     const png = await svgToPng(markup, PDF_SCALE)
     const image = await doc.embedPng(await png.arrayBuffer())
-    const page = doc.addPage([PAGE_WIDTH, PAGE_HEIGHT])
+    const size = markupSize(markup)
+    const pageWidth = size.width * PAGE_SCALE
+    const pageHeight = size.height * PAGE_SCALE
+    const page = doc.addPage([pageWidth, pageHeight])
     page.drawImage(image, {
       x: 0,
       y: 0,
-      width: PAGE_WIDTH,
-      height: PAGE_HEIGHT,
+      width: pageWidth,
+      height: pageHeight,
     })
   }
   const bytes = await doc.save()

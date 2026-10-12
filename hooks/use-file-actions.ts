@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { slideToSvg, svgToBlob, svgToPng } from "@/lib/editor/export"
+import { slideToSvg, svgToPng } from "@/lib/editor/export"
 import { downloadBlob, pickFile, toFilename } from "@/lib/editor/files"
 import { slidesToHtml } from "@/lib/editor/html-export"
 import { slidesToPdf } from "@/lib/editor/pdf"
@@ -43,27 +43,19 @@ function useFileActions() {
     }
   }, [loadPresentation])
 
-  const exportSlide = React.useCallback(
-    async (format: "svg" | "png") => {
-      const markup = slideToSvg()
-      if (!markup) return fail("Nothing to export", undefined)
-      const name = `${toFilename(title)}-slide-${activeIndex + 1}`
-      try {
-        if (format === "svg") {
-          downloadBlob(svgToBlob(markup), `${name}.svg`)
-        } else {
-          downloadBlob(await svgToPng(markup), `${name}.png`)
-        }
-        toast.add({
-          type: "success",
-          title: `Slide exported as ${format.toUpperCase()}`,
-        })
-      } catch (error) {
-        fail("Export failed", error)
-      }
-    },
-    [title, activeIndex]
-  )
+  const exportPng = React.useCallback(async () => {
+    const markup = slideToSvg()
+    if (!markup) return fail("Nothing to export", undefined)
+    try {
+      downloadBlob(
+        await svgToPng(markup),
+        `${toFilename(title)}-slide-${activeIndex + 1}.png`
+      )
+      toast.add({ type: "success", title: "Slide exported as PNG" })
+    } catch (error) {
+      fail("Export failed", error)
+    }
+  }, [title, activeIndex])
 
   const exportPdf = React.useCallback(async () => {
     const presentation = getPresentation()
@@ -101,7 +93,7 @@ function useFileActions() {
     }
   }, [getPresentation, title])
 
-  return { save, open, exportSlide, exportPdf, exportHtml }
+  return { save, open, exportPng, exportPdf, exportHtml }
 }
 
 export { useFileActions }

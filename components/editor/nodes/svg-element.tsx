@@ -5,7 +5,6 @@ import { ROOT_NODE, useEditor, useNode } from "@craftjs/core"
 
 import { snapToAlignment } from "@/lib/editor/alignment-guides"
 import { resolveTiming } from "@/lib/editor/animation"
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import {
   roundTo,
   swallowNextClick,
@@ -60,6 +59,8 @@ function SvgElement({
     setGuides,
     snapToAlignment: alignmentEnabled,
     animationClasses,
+    width: slideWidth,
+    height: slideHeight,
   } = useSlide()
   const endDrag = React.useRef<(() => void) | null>(null)
   React.useEffect(() => () => endDrag.current?.(), [])
@@ -125,7 +126,7 @@ function SvgElement({
         const next = snapToAlignment(
           { ...origin, x: origin.x + dx, y: origin.y + dy },
           peers,
-          { width: SLIDE_WIDTH, height: SLIDE_HEIGHT, scale },
+          { width: slideWidth, height: slideHeight, scale },
           grid,
           move.altKey,
           alignmentEnabled

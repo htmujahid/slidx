@@ -18,7 +18,6 @@ import {
 } from "lucide-react"
 
 import type { Alignment } from "@/lib/editor/align"
-import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import type { Point } from "@/lib/editor/geometry"
 import { canEditContent, getElementLabel } from "@/lib/editor/labels"
 import { LIBRARY } from "@/lib/editor/library"
@@ -114,6 +113,8 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
             "[data-slide-canvas]"
           )
           const rect = svg?.getBoundingClientRect()
+          const SLIDE_WIDTH = svg?.viewBox.baseVal.width ?? 0
+          const SLIDE_HEIGHT = svg?.viewBox.baseVal.height ?? 0
           insertAt.current =
             rect && rect.width && rect.height && event.button !== 0
               ? {

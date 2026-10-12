@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "@/lib/editor/constants"
 
-export type EditorDialog = "rename" | "new" | "reset" | null
+export type EditorDialog = "rename" | "new" | "reset" | "size" | null
 
 export type AnimationPreview = {
   /** `play` runs on its own clock; `scrub` is held at `time`. */
@@ -22,6 +22,9 @@ const NO_PREVIEW: AnimationPreview = {
   startedAt: 0,
 }
 
+/** What a zoom of 1 means: the whole slide in view, or the slide's full width. */
+export type FitMode = "view" | "width"
+
 const clampZoom = (zoom: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom))
 
 type EditorLayoutContextValue = {
@@ -35,7 +38,14 @@ type EditorLayoutContextValue = {
   canvasScale: number
   setCanvasScale: (scale: number) => void
   zoom: number
+  fitMode: FitMode
+  /** Fits the slide to the canvas area and resets zoom. */
+  fit: (mode: FitMode) => void
   zoomBy: (factor: number) => void
+  /** Zooms so the slide is drawn at `scale` times its own size (1 is 100%). */
+  zoomToScale: (scale: number) => void
+  /** Whether `zoomToScale(scale)` is within the zoom limits. */
+  canZoomToScale: (scale: number) => boolean
   zoomIn: () => void
   zoomOut: () => void
   zoomReset: () => void
@@ -66,9 +76,30 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
     (factor: number) => setZoom((current) => clampZoom(current * factor)),
     []
   )
+  // `canvasScale` is what the slide is drawn at; zoom is relative to the fit.
+  const zoomFor = React.useCallback(
+    (scale: number) => (scale * zoom) / (canvasScale || 1),
+    [zoom, canvasScale]
+  )
+  const zoomToScale = React.useCallback(
+    (scale: number) => setZoom(clampZoom(zoomFor(scale))),
+    [zoomFor]
+  )
+  const canZoomToScale = React.useCallback(
+    (scale: number) => {
+      const target = zoomFor(scale)
+      return target >= ZOOM_MIN && target <= ZOOM_MAX
+    },
+    [zoomFor]
+  )
   const zoomIn = React.useCallback(() => zoomBy(ZOOM_STEP), [zoomBy])
   const zoomOut = React.useCallback(() => zoomBy(1 / ZOOM_STEP), [zoomBy])
-  const zoomReset = React.useCallback(() => setZoom(1), [])
+  const [fitMode, setFitMode] = React.useState<FitMode>("view")
+  const fit = React.useCallback((mode: FitMode) => {
+    setFitMode(mode)
+    setZoom(1)
+  }, [])
+  const zoomReset = React.useCallback(() => fit("view"), [fit])
   const [timelineOpen, setTimelineOpen] = React.useState(false)
   const [keyframeTarget, setKeyframeTarget] = React.useState<string | null>(
     null
@@ -118,7 +149,11 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       canvasScale,
       setCanvasScale,
       zoom,
+      fitMode,
+      fit,
       zoomBy,
+      zoomToScale,
+      canZoomToScale,
       zoomIn,
       zoomOut,
       zoomReset,
@@ -138,7 +173,11 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       editingId,
       canvasScale,
       zoom,
+      fitMode,
+      fit,
       zoomBy,
+      zoomToScale,
+      canZoomToScale,
       zoomIn,
       zoomOut,
       zoomReset,

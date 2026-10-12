@@ -3,17 +3,62 @@
 import * as React from "react"
 import { Frame, useEditor } from "@craftjs/core"
 
-import { SLIDE_ASPECT_RATIO } from "@/lib/editor/constants"
 import { INITIAL_SLIDE_JSON } from "@/lib/editor/slides"
+import { useSlideSize } from "@/hooks/use-slide-size"
 import { EditorContextMenu } from "@/components/editor/editor-context-menu"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 
 const WHEEL_ZOOM_STEP = 1.1
 
+type Area = { width: number; height: number }
+
+/** The room inside the stage's padding, where the slide can go. */
+function measure(stage: HTMLElement): Area {
+  const style = getComputedStyle(stage)
+  const inset = (sides: string[]) =>
+    sides.reduce(
+      (sum, side) => sum + parseFloat(style.getPropertyValue(side)),
+      0
+    )
+  return {
+    width: stage.clientWidth - inset(["padding-left", "padding-right"]),
+    height: stage.clientHeight - inset(["padding-top", "padding-bottom"]),
+  }
+}
+
 function EditorCanvas() {
   const { actions } = useEditor()
-  const { zoom, zoomBy } = useEditorLayout()
+  const { zoom, zoomBy, fitMode } = useEditorLayout()
+  const { width: SLIDE_WIDTH, height: SLIDE_HEIGHT } = useSlideSize()
   const stageRef = React.useRef<HTMLDivElement>(null)
+  const [area, setArea] = React.useState<Area | null>(null)
+
+  React.useLayoutEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+    setArea(measure(stage))
+    const observer = new ResizeObserver(() => setArea(measure(stage)))
+    observer.observe(stage)
+    return () => observer.disconnect()
+  }, [])
+
+  // Zoom 1 is the slide fitted to the area: all of it in view, or its full
+  // width. A pixel is held back so rounding never makes the stage scroll.
+  const width = area
+    ? Math.max(
+        Math.floor(
+          Math.min(
+            area.width,
+            fitMode === "view"
+              ? (area.height * SLIDE_WIDTH) / SLIDE_HEIGHT
+              : Infinity
+          ) *
+            zoom -
+            1
+        ),
+        1
+      )
+    : undefined
 
   React.useEffect(() => {
     const stage = stageRef.current
@@ -31,7 +76,7 @@ function EditorCanvas() {
     <EditorContextMenu>
       <div
         ref={stageRef}
-        className="editor-stage flex min-h-0 flex-1 overflow-auto bg-muted/50 p-6 lg:p-10"
+        className="editor-stage flex min-h-0 flex-1 [scrollbar-gutter:stable] overflow-auto bg-muted/50 p-6 lg:p-10"
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) actions.clearEvents()
         }}
@@ -39,9 +84,9 @@ function EditorCanvas() {
         <div
           className="m-auto shrink-0 ring-1 ring-border"
           style={{
-            aspectRatio: SLIDE_ASPECT_RATIO,
-            width: `${zoom * 100}%`,
-            maxWidth: `calc((100svh - var(--header-height) - var(--footer-height) - 5rem) * ${SLIDE_ASPECT_RATIO * zoom})`,
+            width,
+            height: width && (width * SLIDE_HEIGHT) / SLIDE_WIDTH,
+            visibility: width ? undefined : "hidden",
           }}
         >
           <Frame data={INITIAL_SLIDE_JSON} />

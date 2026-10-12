@@ -18,6 +18,7 @@ import { Toaster } from "@/components/ui/toast"
 import { NewPresentationDialog } from "@/components/editor/dialogs/new-presentation-dialog"
 import { RenameDialog } from "@/components/editor/dialogs/rename-dialog"
 import { ResetPresentationDialog } from "@/components/editor/dialogs/reset-presentation-dialog"
+import { SlideSizeDialog } from "@/components/editor/dialogs/slide-size-dialog"
 import { EditorCanvas } from "@/components/editor/editor-canvas"
 import { EditorFooter } from "@/components/editor/editor-footer"
 import { EditorHeader } from "@/components/editor/editor-header"
@@ -99,6 +100,7 @@ function EditorShell() {
             <KeyframeDialog />
             <NewPresentationDialog />
             <ResetPresentationDialog />
+            <SlideSizeDialog />
             <Toaster />
             <div className="[--footer-height:calc(--spacing(10))] [--header-height:calc(--spacing(12))]">
               <SidebarProvider

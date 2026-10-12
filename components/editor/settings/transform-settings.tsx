@@ -20,6 +20,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
+import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
 import { Field, FieldLabel } from "@/components/ui/field"
@@ -93,6 +94,7 @@ function TransformSettings({
   resizable?: boolean
 }) {
   const merged = { ...DEFAULT_TRANSFORM, ...props }
+  const slideSize = useSlideSize()
   const nameId = React.useId()
 
   return (
@@ -111,12 +113,16 @@ function TransformSettings({
         <AlignGroup
           label="Align horizontally to slide"
           options={HORIZONTAL}
-          onAlign={(alignment) => update(alignToSlide(merged, alignment))}
+          onAlign={(alignment) =>
+            update(alignToSlide(merged, alignment, slideSize))
+          }
         />
         <AlignGroup
           label="Align vertically to slide"
           options={VERTICAL}
-          onAlign={(alignment) => update(alignToSlide(merged, alignment))}
+          onAlign={(alignment) =>
+            update(alignToSlide(merged, alignment, slideSize))
+          }
         />
       </SettingsRow>
       <SettingsRow>

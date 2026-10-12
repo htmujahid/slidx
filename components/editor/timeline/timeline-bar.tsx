@@ -202,6 +202,7 @@ function TimelineBar({
   entry,
   index,
   label,
+  fixed,
   pxPerMs,
   onMove,
   onNudgeSpan,
@@ -216,6 +217,8 @@ function TimelineBar({
   /** Which of the element's spans this bar is. */
   index: number
   label: string
+  /** The slide's own bar: it can't be moved, trimmed or removed. */
+  fixed?: boolean
   pxPerMs: number
   onMove: (
     event: React.PointerEvent,
@@ -271,14 +274,18 @@ function TimelineBar({
         data-timeline-bar={entry.id}
         data-span={index}
         aria-label={`${name}, on the slide from ${formatTime(span.start)} to ${formatTime(span.end)}`}
-        className="absolute top-1 h-6 cursor-grab rounded-md border bg-secondary text-xs text-secondary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring active:cursor-grabbing"
+        className={cn(
+          "absolute top-1 h-6 rounded-md border bg-secondary text-xs text-secondary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          !fixed && "cursor-grab active:cursor-grabbing"
+        )}
         style={{ left: span.start * pxPerMs, width }}
         onPointerDown={(event) => {
+          if (fixed) return
           event.currentTarget.focus()
           onMove(event, entry, index)
         }}
         onKeyDown={(event) => {
-          if (event.target !== event.currentTarget) return
+          if (fixed || event.target !== event.currentTarget) return
           if (event.key === "Delete" || event.key === "Backspace") {
             event.preventDefault()
             event.stopPropagation()
@@ -288,13 +295,15 @@ function TimelineBar({
           }
         }}
       >
-        <EdgeHandle
-          edge="start"
-          label={name}
-          ms={span.start}
-          onPointerDown={(event) => onTrim(event, entry, index, "start")}
-          onKeyDown={(event) => onNudge(event, entry, index, "start")}
-        />
+        {fixed ? null : (
+          <EdgeHandle
+            edge="start"
+            label={name}
+            ms={span.start}
+            onPointerDown={(event) => onTrim(event, entry, index, "start")}
+            onKeyDown={(event) => onNudge(event, entry, index, "start")}
+          />
+        )}
         <TransitionChip
           side="enter"
           entry={entry}
@@ -315,13 +324,15 @@ function TimelineBar({
           onEasing={(easing) => onEasing(entry, index, "exit", easing)}
           onDragStart={(event) => onTransitionDrag(event, entry, index, "exit")}
         />
-        <EdgeHandle
-          edge="end"
-          label={name}
-          ms={span.end}
-          onPointerDown={(event) => onTrim(event, entry, index, "end")}
-          onKeyDown={(event) => onNudge(event, entry, index, "end")}
-        />
+        {fixed ? null : (
+          <EdgeHandle
+            edge="end"
+            label={name}
+            ms={span.end}
+            onPointerDown={(event) => onTrim(event, entry, index, "end")}
+            onKeyDown={(event) => onNudge(event, entry, index, "end")}
+          />
+        )}
       </ContextMenuTrigger>
       <ContextMenuContent className="w-44">
         <TransitionSubmenu
@@ -338,7 +349,7 @@ function TimelineBar({
         />
         <ContextMenuSeparator />
         <ContextMenuItem
-          disabled={entry.spans.length < 2}
+          disabled={fixed || entry.spans.length < 2}
           onClick={() => onRemove(entry, index)}
         >
           Delete part

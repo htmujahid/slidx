@@ -1,4 +1,5 @@
 import * as React from "react"
+import { ROOT_NODE } from "@craftjs/core"
 import { DiamondIcon } from "lucide-react"
 
 import type {
@@ -91,6 +92,9 @@ function TimelineRow({
   ) => void
   onRemove: (entry: TimelineEntry, index: number) => void
 }) {
+  // The slide itself is always there for the whole slide: it only has an
+  // entrance and an exit, and no keyframes.
+  const fixed = row.id === ROOT_NODE
   return (
     <div
       role="listitem"
@@ -116,18 +120,20 @@ function TimelineRow({
           />
           <span className="truncate">{row.label}</span>
         </button>
-        <Button
-          variant="ghost"
-          size="icon-xs"
-          className="size-5 text-muted-foreground"
-          aria-label={`Edit keyframes of ${row.label}`}
-          onClick={(event) => {
-            event.stopPropagation()
-            onEditKeyframes()
-          }}
-        >
-          <DiamondIcon />
-        </Button>
+        {fixed ? null : (
+          <Button
+            variant="ghost"
+            size="icon-xs"
+            className="size-5 text-muted-foreground"
+            aria-label={`Edit keyframes of ${row.label}`}
+            onClick={(event) => {
+              event.stopPropagation()
+              onEditKeyframes()
+            }}
+          >
+            <DiamondIcon />
+          </Button>
+        )}
         <RowReset label={row.label} timed={timed} onReset={onReset} />
       </div>
       <div
@@ -161,6 +167,7 @@ function TimelineRow({
             entry={entry}
             index={index}
             label={row.label}
+            fixed={fixed}
             pxPerMs={pxPerMs}
             onMove={onMove}
             onNudgeSpan={onNudgeSpan}

@@ -18,21 +18,31 @@ import {
   type Point,
 } from "@/lib/editor/geometry"
 import { getLibraryItem } from "@/lib/editor/library"
+import { slideSizeOf } from "@/lib/editor/slide-size"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { Group } from "@/components/editor/nodes/group"
 
 function useEditorActions() {
   const { actions, query } = useEditor()
 
+  /** The size of the slide being edited. */
+  const getSlideSize = React.useCallback(
+    () => slideSizeOf(query.node(ROOT_NODE).get().data.props),
+    [query]
+  )
+
   const addLibraryItem = React.useCallback(
     (itemId: string, at?: Point) => {
       const item = getLibraryItem(itemId)
       if (!item) return
-      const tree = query.parseReactElement(item.create(at)).toNodeTree()
+      const { width, height } = getSlideSize()
+      const tree = query
+        .parseReactElement(item.create(at ?? { x: width / 2, y: height / 2 }))
+        .toNodeTree()
       actions.addNodeTree(tree, ROOT_NODE)
       actions.selectNode(tree.rootNodeId)
     },
-    [actions, query]
+    [actions, query, getSlideSize]
   )
 
   const getSelectedIds = React.useCallback(
@@ -293,11 +303,14 @@ function useEditorActions() {
     (alignment: Alignment, id?: string) => {
       getTargets(id).forEach((targetId) => {
         actions.setProp(targetId, (props) => {
-          Object.assign(props, alignToSlide(props as never, alignment))
+          Object.assign(
+            props,
+            alignToSlide(props as never, alignment, getSlideSize())
+          )
         })
       })
     },
-    [actions, getTargets]
+    [actions, getTargets, getSlideSize]
   )
 
   return {

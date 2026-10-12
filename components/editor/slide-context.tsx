@@ -11,6 +11,8 @@ type SlideContextValue = {
   grid: GridSnap
   snapToAlignment: boolean
   toSlidePoint: (clientX: number, clientY: number) => Point
+  /** Element id -> class that plays its animation; empty when not playing. */
+  animationClasses: Record<string, string>
 }
 
 const SlideContext = React.createContext<SlideContextValue | null>(null)

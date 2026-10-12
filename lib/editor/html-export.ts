@@ -131,6 +131,8 @@ body:has(#overview:target) .open{display:block;position:absolute;inset:0;z-index
 html:has(#scroll:target){scroll-snap-type:y mandatory}
 body:has(#scroll:target) .slide{display:flex;scroll-snap-align:center}
 
+body:has(#overview:target) .slide *,body:has(#scroll:target) .slide *{animation:none!important}
+
 @page{size:${SLIDE_WIDTH}px ${SLIDE_HEIGHT}px;margin:0}
 @media print{
   html,body{background:#fff}
@@ -138,6 +140,7 @@ body:has(#scroll:target) .slide{display:flex;scroll-snap-align:center}
   .slide{display:block!important;min-height:0!important;padding:0!important;break-after:page}
   .slide:last-child{break-after:auto}
   .frame{width:${SLIDE_WIDTH}px!important;box-shadow:none}
+  .slide *{animation:none!important}
   .controls,.modes,.open{display:none!important}
 }
 `
@@ -160,7 +163,7 @@ function slideSection(svg: string, index: number, total: number) {
 
 /** One self-contained HTML file: every slide inline, navigable without script. */
 export async function slidesToHtml(slides: string[], title: string) {
-  const svgs = await renderSlides(slides, svgToHtml)
+  const svgs = await renderSlides(slides, svgToHtml, { animate: true })
   const fonts = await embeddedFontCss(svgs.join(""))
   const stack = getComputedStyle(document.documentElement)
     .getPropertyValue("--font-sans")

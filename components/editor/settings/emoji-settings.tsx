@@ -9,6 +9,7 @@ import {
   EmojiPickerValue,
 } from "@/components/reui/emoji-picker"
 import type { EmojiBoxProps } from "@/components/editor/nodes/emoji-box"
+import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import { SettingsSection } from "@/components/editor/settings/fields"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
@@ -42,6 +43,7 @@ function EmojiSettings() {
       </SettingsSection>
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
+      <AnimationSettings props={props} update={update} />
     </>
   )
 }

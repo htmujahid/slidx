@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { ScrollArea as ScrollAreaPrimitive } from "@base-ui/react/scroll-area"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 import {
   ArrowDownToLineIcon,
@@ -175,33 +176,36 @@ function PropertiesPanel() {
                 </Button>
               </div>
             )}
-            <ScrollArea className="min-h-0 flex-1">
-              <Accordion
-                key={id}
-                multiple
-                defaultValue={[
-                  "Layout",
-                  "Background",
-                  "Canvas",
-                  "Text",
-                  "Table",
-                  "Chart",
-                  "Style",
-                  "Appearance",
-                  "Image",
-                  "Equation",
-                  "Code",
-                  "Group",
-                  "Icon",
-                  "Emoji",
-                  "Arrow",
-                  "Shape",
-                  "Effects",
-                ]}
-                className="px-4 pt-1 pb-4"
-              >
-                {Settings ? <Settings /> : null}
-              </Accordion>
+            <ScrollArea className="min-h-0 flex-1 overflow-hidden">
+              {/* Watches the content so the scrollbar follows sections opening. */}
+              <ScrollAreaPrimitive.Content>
+                <Accordion
+                  key={id}
+                  multiple
+                  defaultValue={[
+                    "Layout",
+                    "Background",
+                    "Canvas",
+                    "Text",
+                    "Table",
+                    "Chart",
+                    "Style",
+                    "Appearance",
+                    "Image",
+                    "Equation",
+                    "Code",
+                    "Group",
+                    "Icon",
+                    "Emoji",
+                    "Arrow",
+                    "Shape",
+                    "Effects",
+                  ]}
+                  className="px-4 pt-1 pb-4"
+                >
+                  {Settings ? <Settings /> : null}
+                </Accordion>
+              </ScrollAreaPrimitive.Content>
             </ScrollArea>
           </TabsContent>
           <TabsContent value="layers" className="min-h-0 overflow-y-auto">

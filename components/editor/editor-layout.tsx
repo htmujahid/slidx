@@ -23,6 +23,8 @@ type EditorLayoutContextValue = {
   zoomIn: () => void
   zoomOut: () => void
   zoomReset: () => void
+  animationPreview: { active: boolean; run: number }
+  playAnimationPreview: (durationMs: number) => void
 }
 
 const EditorLayoutContext =
@@ -41,6 +43,22 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
   const zoomIn = React.useCallback(() => zoomBy(ZOOM_STEP), [zoomBy])
   const zoomOut = React.useCallback(() => zoomBy(1 / ZOOM_STEP), [zoomBy])
   const zoomReset = React.useCallback(() => setZoom(1), [])
+  const [animationPreview, setAnimationPreview] = React.useState({
+    active: false,
+    run: 0,
+  })
+  const previewTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined
+  )
+  const playAnimationPreview = React.useCallback((durationMs: number) => {
+    clearTimeout(previewTimer.current)
+    setAnimationPreview((current) => ({ active: true, run: current.run + 1 }))
+    previewTimer.current = setTimeout(
+      () => setAnimationPreview((current) => ({ ...current, active: false })),
+      durationMs
+    )
+  }, [])
+  React.useEffect(() => () => clearTimeout(previewTimer.current), [])
   const value = React.useMemo(
     () => ({
       propertiesOpen,
@@ -57,6 +75,8 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       zoomIn,
       zoomOut,
       zoomReset,
+      animationPreview,
+      playAnimationPreview,
     }),
     [
       propertiesOpen,
@@ -68,6 +88,8 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       zoomIn,
       zoomOut,
       zoomReset,
+      animationPreview,
+      playAnimationPreview,
     ]
   )
   return (

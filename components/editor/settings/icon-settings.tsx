@@ -2,6 +2,7 @@
 
 import { IconPicker } from "@/components/editor/icon-picker"
 import type { IconBoxProps } from "@/components/editor/nodes/icon-box"
+import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   ColorSetting,
@@ -34,6 +35,7 @@ function IconSettings() {
       </SettingsSection>
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
+      <AnimationSettings props={props} update={update} />
     </>
   )
 }

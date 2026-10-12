@@ -12,6 +12,10 @@ import {
   trackPointer,
 } from "@/lib/editor/geometry"
 import {
+  measureDrawLengths,
+  measureTextExtent,
+} from "@/lib/editor/measure-animation"
+import {
   DEFAULT_TRANSFORM,
   elementFilter,
   type ElementTransformProps,
@@ -54,6 +58,7 @@ function SvgElement({
     scale,
     setGuides,
     snapToAlignment: alignmentEnabled,
+    animationClasses,
   } = useSlide()
   const endDrag = React.useRef<(() => void) | null>(null)
   React.useEffect(() => () => endDrag.current?.(), [])
@@ -167,6 +172,42 @@ function SvgElement({
         }
       : undefined
 
+  // The wrapper is what the animation CSS targets. It is always rendered, so
+  // adding an animation never changes the element's structure (that would
+  // re-create its content and break anything measuring it); its class only
+  // exists while the slide plays.
+  const wrapperRef = React.useRef<SVGGElement | null>(null)
+  const drawing = merged.animation.preset === "draw"
+
+  // Draw-on needs each outline's true length; the keyframes read it from here,
+  // so playback itself stays pure CSS.
+  const typing = merged.animation.preset === "typewriter"
+  React.useLayoutEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper || (!drawing && !typing)) return
+    const measure = () => {
+      if (drawing) measureDrawLengths(wrapper)
+      // Rotated or flipped boxes can't be measured this way; they sweep the box.
+      if (typing && !merged.rotation && !merged.flipX && !merged.flipY)
+        measureTextExtent(wrapper)
+    }
+    measure()
+    // A width measured before the fonts arrive would be wrong.
+    let cancelled = false
+    void document.fonts.ready.then(() => {
+      if (!cancelled) measure()
+    })
+    return () => {
+      cancelled = true
+    }
+  })
+
+  const body = (
+    <g ref={wrapperRef} className={animationClasses[id]}>
+      {children}
+    </g>
+  )
+
   // Inside a group the wrapper is purely visual: the group's own SvgElement
   // handles selection and dragging for the whole subtree.
   if (nested) {
@@ -200,7 +241,7 @@ function SvgElement({
       onPointerDown={handlePointerDown}
       onDoubleClick={enabled && !locked ? onStartEditing : undefined}
     >
-      {children}
+      {body}
       {hovered && !selected ? (
         <rect
           data-export-ignore=""

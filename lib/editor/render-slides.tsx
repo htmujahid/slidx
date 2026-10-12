@@ -5,6 +5,7 @@ import { createRoot } from "react-dom/client"
 import { Editor, Frame } from "@craftjs/core"
 
 import { resolver } from "@/lib/editor/resolver"
+import { PlaybackProvider } from "@/components/editor/animation-playback"
 
 const RENDER_SETTLE_MS = 300
 
@@ -14,7 +15,8 @@ const RENDER_SETTLE_MS = 300
  */
 export async function renderSlides<T>(
   slides: string[],
-  convert: (svg: SVGSVGElement) => T
+  convert: (svg: SVGSVGElement) => T,
+  { animate = false }: { animate?: boolean } = {}
 ) {
   const host = document.createElement("div")
   host.setAttribute("aria-hidden", "true")
@@ -28,9 +30,11 @@ export async function renderSlides<T>(
         <>
           {slides.map((json, index) => (
             <div key={index} data-render-slide="">
-              <Editor resolver={resolver} enabled={false}>
-                <Frame data={json} />
-              </Editor>
+              <PlaybackProvider play={animate}>
+                <Editor resolver={resolver} enabled={false}>
+                  <Frame data={json} />
+                </Editor>
+              </PlaybackProvider>
             </div>
           ))}
         </>

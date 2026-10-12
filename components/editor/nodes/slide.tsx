@@ -9,6 +9,7 @@ import {
 } from "@craftjs/core"
 
 import type { AlignmentGuide } from "@/lib/editor/alignment-guides"
+import { buildAnimationCss } from "@/lib/editor/animation"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import {
   elementBounds,
@@ -22,8 +23,10 @@ import {
   SLIDE_DEFAULTS,
   type SlideProps,
 } from "@/lib/editor/slide-props"
+import { slideTimeline } from "@/lib/editor/slide-timeline"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { useEditorActions } from "@/hooks/use-editor-actions"
+import { usePlayback } from "@/components/editor/animation-playback"
 import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
 import { SelectionOverlay } from "@/components/editor/nodes/selection-overlay"
 import { SlideSettings } from "@/components/editor/settings/slide-settings"
@@ -49,8 +52,9 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const {
     connectors: { connect },
   } = useNode()
-  const { actions, query, editable } = useEditor((state) => ({
+  const { actions, query, editable, nodes } = useEditor((state) => ({
     editable: state.options.enabled,
+    nodes: state.nodes,
   }))
   const uid = React.useId().replace(/\W/g, "")
   const CLIP_ID = `${uid}-clip`
@@ -88,6 +92,21 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     }
   }, [])
 
+  const playback = usePlayback()
+  const preview = editable ? layout?.animationPreview : undefined
+  const playing = playback.play || Boolean(preview?.active)
+  const run = playback.run + (preview?.run ?? 0)
+
+  const timeline = React.useMemo(() => slideTimeline(nodes), [nodes])
+
+  const animation = React.useMemo(
+    () =>
+      playing
+        ? buildAnimationCss(uid, run, timeline)
+        : { css: "", classes: {} as Record<string, string> },
+    [playing, uid, run, timeline]
+  )
+
   const context = React.useMemo(
     () => ({
       scale,
@@ -95,8 +114,16 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
       snapToAlignment,
       toSlidePoint,
       grid: { snap: snapToGrid, size: gridSize },
+      animationClasses: animation.classes,
     }),
-    [scale, toSlidePoint, snapToGrid, gridSize, snapToAlignment]
+    [
+      scale,
+      toSlidePoint,
+      snapToGrid,
+      gridSize,
+      snapToAlignment,
+      animation.classes,
+    ]
   )
 
   const handleDragOver = (event: React.DragEvent) => {
@@ -237,7 +264,8 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
             />
           </pattern>
         </defs>
-        <g clipPath={`url(#${CLIP_ID})`}>
+        {animation.css ? <style>{animation.css}</style> : null}
+        <g clipPath={`url(#${CLIP_ID})`} className={`vx-${uid}`}>
           <rect
             width={SLIDE_WIDTH}
             height={SLIDE_HEIGHT}

@@ -135,6 +135,8 @@ const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {
     const element = measureRef.current
     if (!element) return
     const sync = () => {
+      // A detached or hidden element reports 0, which is not a real height.
+      if (!element.isConnected || element.offsetHeight === 0) return
       const next = Math.max(Math.round(element.offsetHeight), 24)
       if (Math.abs(lastHeight.current - next) <= 1) return
       lastHeight.current = next

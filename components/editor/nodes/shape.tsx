@@ -166,7 +166,6 @@ const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
         strokeDasharray={strokeDashArray(dashStyle, strokeWidth)}
         strokeLinejoin="round"
         strokeLinecap="round"
-        vectorEffect="non-scaling-stroke"
       />
       {withText ? (
         <foreignObject

@@ -24,6 +24,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { PlaybackProvider } from "@/components/editor/animation-playback"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 import { useSlides } from "@/components/editor/slides-context"
 
@@ -234,9 +235,11 @@ function PresentationProvider({ children }: { children: React.ReactNode }) {
                     maxWidth: `calc((100dvh - 6rem) * ${SLIDE_ASPECT_RATIO})`,
                   }}
                 >
-                  <Editor key={index} resolver={resolver} enabled={false}>
-                    <Frame data={deck.slides[index].json} />
-                  </Editor>
+                  <PlaybackProvider>
+                    <Editor key={index} resolver={resolver} enabled={false}>
+                      <Frame data={deck.slides[index].json} />
+                    </Editor>
+                  </PlaybackProvider>
                 </div>
               </div>
               <div className="flex h-14 shrink-0 items-center gap-2 border-t px-4">

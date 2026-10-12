@@ -7,6 +7,7 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import type { ImageBoxProps } from "@/components/editor/nodes/image-box"
+import { AnimationSettings } from "@/components/editor/settings/animation-settings"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
   NumberSetting,
@@ -111,6 +112,7 @@ function ImageSettings() {
       </SettingsSection>
       <TransformSettings props={props} update={update} />
       <EffectsSettings props={props} update={update} />
+      <AnimationSettings props={props} update={update} />
     </>
   )
 }

@@ -1,3 +1,8 @@
+import {
+  DEFAULT_ANIMATION,
+  type ElementAnimation,
+} from "@/lib/editor/animation"
+
 export const BLEND_MODES = [
   "normal",
   "multiply",
@@ -37,6 +42,7 @@ export type ElementTransformProps = {
   blur: number
   grayscale: number
   brightness: number
+  animation: ElementAnimation
 }
 
 export const DEFAULT_TRANSFORM: ElementTransformProps = {
@@ -59,6 +65,7 @@ export const DEFAULT_TRANSFORM: ElementTransformProps = {
   blur: 0,
   grayscale: 0,
   brightness: 100,
+  animation: DEFAULT_ANIMATION,
 }
 
 const HEX_COLOR = /^#([0-9a-f]{6})$/i

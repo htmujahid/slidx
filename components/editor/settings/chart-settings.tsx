@@ -118,6 +118,20 @@ function ChartSettings() {
             onChange={(gridColor) => update({ gridColor })}
           />
         </SettingsRow>
+        {props.series.map((series, index) => (
+          <ColorSetting
+            key={index}
+            label={series.name || `Series ${index + 1}`}
+            value={series.color}
+            onChange={(color) =>
+              update({
+                series: props.series.map((entry, i) =>
+                  i === index ? { ...entry, color } : entry
+                ),
+              })
+            }
+          />
+        ))}
       </SettingsSection>
 
       <TransformSettings props={props} update={update} />

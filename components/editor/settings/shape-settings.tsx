@@ -45,6 +45,27 @@ function ShapeSettings() {
         ) : null}
         {gradient ? (
           <>
+            <ToggleGroup
+              variant="outline"
+              size="sm"
+              spacing={0}
+              className="w-full"
+              aria-label="Gradient type"
+              value={[props.gradientType ?? "linear"]}
+              onValueChange={([gradientType]) => {
+                if (gradientType)
+                  update({
+                    gradientType: gradientType as ShapeProps["gradientType"],
+                  })
+              }}
+            >
+              <ToggleGroupItem value="linear" className="flex-1">
+                Linear
+              </ToggleGroupItem>
+              <ToggleGroupItem value="radial" className="flex-1">
+                Radial
+              </ToggleGroupItem>
+            </ToggleGroup>
             <SettingsRow>
               <ColorSetting
                 label="From"
@@ -57,13 +78,15 @@ function ShapeSettings() {
                 onChange={(fill2) => update({ fill2 })}
               />
             </SettingsRow>
-            <NumberSetting
-              label="Angle"
-              value={props.gradientAngle}
-              min={0}
-              max={360}
-              onChange={(gradientAngle) => update({ gradientAngle })}
-            />
+            {props.gradientType !== "radial" && (
+              <NumberSetting
+                label="Angle"
+                value={props.gradientAngle}
+                min={0}
+                max={360}
+                onChange={(gradientAngle) => update({ gradientAngle })}
+              />
+            )}
           </>
         ) : (
           <ColorSetting
@@ -106,7 +129,47 @@ function ShapeSettings() {
             onChange={(strokeWidth) => update({ strokeWidth })}
           />
         )}
+        <ToggleGroup
+          variant="outline"
+          size="sm"
+          spacing={0}
+          className="w-full"
+          aria-label="Stroke style"
+          value={[props.dashStyle ?? "solid"]}
+          onValueChange={([dashStyle]) => {
+            if (dashStyle)
+              update({ dashStyle: dashStyle as ShapeProps["dashStyle"] })
+          }}
+        >
+          <ToggleGroupItem value="solid" className="flex-1">
+            Solid
+          </ToggleGroupItem>
+          <ToggleGroupItem value="dashed" className="flex-1">
+            Dashed
+          </ToggleGroupItem>
+          <ToggleGroupItem value="dotted" className="flex-1">
+            Dotted
+          </ToggleGroupItem>
+        </ToggleGroup>
       </SettingsSection>
+      {definition.filled ? (
+        <SettingsSection title="Text">
+          <SettingsRow>
+            <ColorSetting
+              label="Color"
+              value={props.textColor ?? "#ffffff"}
+              onChange={(textColor) => update({ textColor })}
+            />
+            <NumberSetting
+              label="Size"
+              value={props.textSize ?? 32}
+              min={8}
+              max={200}
+              onChange={(textSize) => update({ textSize })}
+            />
+          </SettingsRow>
+        </SettingsSection>
+      ) : null}
       <EffectsSettings props={props} update={update} />
     </>
   )

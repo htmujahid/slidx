@@ -18,7 +18,7 @@ import {
 import type { Alignment } from "@/lib/editor/align"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import type { Point } from "@/lib/editor/geometry"
-import { getElementLabel } from "@/lib/editor/labels"
+import { canEditContent, getElementLabel } from "@/lib/editor/labels"
 import { LIBRARY } from "@/lib/editor/library"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import {
@@ -45,7 +45,6 @@ const ALIGNMENTS: Array<[Alignment, string]> = [
   ["middle", "Center vertically"],
   ["bottom", "Bottom"],
 ]
-const EDITABLE = new Set(["TextBox", "Table", "CodeBlock", "Equation"])
 
 function EditorContextMenu({ children }: { children: React.ReactNode }) {
   const { setEditingId } = useEditorLayout()
@@ -160,7 +159,7 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
         {selection ? (
           <>
             <ContextMenuGroup>
-              {EDITABLE.has(selection.name) && (
+              {canEditContent(selection) && (
                 <ContextMenuItem
                   onClick={() => {
                     editingFromMenu.current = true

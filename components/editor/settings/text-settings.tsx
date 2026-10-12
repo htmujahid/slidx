@@ -1,17 +1,21 @@
 "use client"
 
+import * as React from "react"
 import {
   AlignCenterIcon,
   AlignLeftIcon,
   AlignRightIcon,
   BoldIcon,
   ItalicIcon,
+  StrikethroughIcon,
+  UnderlineIcon,
 } from "lucide-react"
 
 import { FONT_FAMILIES } from "@/lib/editor/constants"
 import type { TextAlign } from "@/lib/editor/types"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
+import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { TextBoxProps } from "@/components/editor/nodes/text-box"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
@@ -26,9 +30,12 @@ import { useNodeProps } from "@/components/editor/settings/use-node-props"
 
 function TextSettings() {
   const { props, update } = useNodeProps<TextBoxProps>()
+  const backgroundId = React.useId()
   const style = [
     props.fontWeight >= 600 ? "bold" : null,
     props.fontStyle === "italic" ? "italic" : null,
+    props.underline ? "underline" : null,
+    props.strikethrough ? "strikethrough" : null,
   ].filter((value): value is string => value !== null)
 
   return (
@@ -78,6 +85,8 @@ function TextSettings() {
               update({
                 fontWeight: next.includes("bold") ? 700 : 400,
                 fontStyle: next.includes("italic") ? "italic" : "normal",
+                underline: next.includes("underline"),
+                strikethrough: next.includes("strikethrough"),
               })
             }
           >
@@ -86,6 +95,12 @@ function TextSettings() {
             </ToggleGroupItem>
             <ToggleGroupItem value="italic" aria-label="Italic">
               <ItalicIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="underline" aria-label="Underline">
+              <UnderlineIcon />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="strikethrough" aria-label="Strikethrough">
+              <StrikethroughIcon />
             </ToggleGroupItem>
           </ToggleGroup>
           <ToggleGroup
@@ -114,6 +129,40 @@ function TextSettings() {
           value={props.fill}
           onChange={(fill) => update({ fill })}
         />
+        <SettingsRow>
+          <NumberSetting
+            label="Letter spacing"
+            value={props.letterSpacing ?? 0}
+            min={-5}
+            max={50}
+            step={0.5}
+            onChange={(letterSpacing) => update({ letterSpacing })}
+          />
+          <NumberSetting
+            label="Padding"
+            value={props.padding ?? 0}
+            min={0}
+            max={200}
+            onChange={(padding) => update({ padding })}
+          />
+        </SettingsRow>
+        <Field orientation="horizontal">
+          <FieldLabel htmlFor={backgroundId}>Background</FieldLabel>
+          <Switch
+            id={backgroundId}
+            checked={Boolean(props.background)}
+            onCheckedChange={(checked) =>
+              update({ background: checked ? "#fef9c3" : "" })
+            }
+          />
+        </Field>
+        {props.background ? (
+          <ColorSetting
+            label="Background color"
+            value={props.background}
+            onChange={(background) => update({ background })}
+          />
+        ) : null}
       </SettingsSection>
       <TransformSettings props={props} update={update} autoHeight />
       <EffectsSettings props={props} update={update} />

@@ -3,6 +3,7 @@
 import * as React from "react"
 import type { UserComponent } from "@craftjs/core"
 
+import { SHAPES_BY_KIND, type ShapeKind } from "@/lib/editor/shapes"
 import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
@@ -12,7 +13,9 @@ import { ImageSettings } from "@/components/editor/settings/image-settings"
 
 export type ImageBoxProps = ElementTransformProps & {
   src: string
+  alt: string
   fit: "cover" | "contain"
+  mask: ShapeKind | "none"
   cornerRadius: number
   zoom: number
   focusX: number
@@ -20,12 +23,26 @@ export type ImageBoxProps = ElementTransformProps & {
 }
 
 const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
-  const { src, fit, cornerRadius, zoom, focusX, focusY, ...transform } = {
+  const {
+    src,
+    alt,
+    fit,
+    mask,
+    cornerRadius,
+    zoom,
+    focusX,
+    focusY,
+    ...transform
+  } = {
     ...ImageBox.craft!.props,
     ...props,
   } as ImageBoxProps
   const { width, height } = transform
   const clipId = `${React.useId().replace(/\W/g, "")}-clip`
+  const maskDefinition =
+    mask && mask !== "none" && SHAPES_BY_KIND[mask]?.filled
+      ? SHAPES_BY_KIND[mask]
+      : null
 
   const layerWidth = width * zoom
   const layerHeight = height * zoom
@@ -38,11 +55,20 @@ const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
         <>
           <rect width={width} height={height} fill="transparent" />
           <clipPath id={clipId}>
-            <rect width={width} height={height} rx={cornerRadius} />
+            {maskDefinition ? (
+              <path
+                d={maskDefinition.path(width, height, { cornerRadius: 0 })}
+                clipRule={maskDefinition.fillRule}
+              />
+            ) : (
+              <rect width={width} height={height} rx={cornerRadius} />
+            )}
           </clipPath>
           <g clipPath={`url(#${clipId})`}>
             <image
               href={src}
+              aria-label={alt || undefined}
+              role={alt ? "img" : undefined}
               x={layerX}
               y={layerY}
               width={layerWidth}
@@ -89,7 +115,9 @@ ImageBox.craft = {
     width: 640,
     height: 400,
     src: "",
+    alt: "",
     fit: "cover",
+    mask: "none",
     cornerRadius: 0,
     zoom: 1,
     focusX: 50,

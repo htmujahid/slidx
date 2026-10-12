@@ -4,6 +4,7 @@ import * as React from "react"
 import { useEditor } from "@craftjs/core"
 
 import { NUDGE, NUDGE_LARGE } from "@/lib/editor/constants"
+import { canEditContent } from "@/lib/editor/labels"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useFileActions } from "@/hooks/use-file-actions"
 import { useEditorLayout } from "@/components/editor/editor-layout"
@@ -15,8 +16,6 @@ const ARROWS: Record<string, [number, number]> = {
   ArrowUp: [0, -1],
   ArrowDown: [0, 1],
 }
-
-const EDITABLE_NODES = new Set(["TextBox", "Table", "CodeBlock", "Equation"])
 
 function isEditableTarget(target: EventTarget | null) {
   return (
@@ -117,9 +116,12 @@ function EditorShortcuts() {
         remove()
       } else if (key === "enter" && document.activeElement === document.body) {
         const [id] = query.getEvent("selected").all()
-        if (id && EDITABLE_NODES.has(query.node(id).get().data.name)) {
-          event.preventDefault()
-          setEditingId(id)
+        if (id) {
+          const { data } = query.node(id).get()
+          if (canEditContent({ name: data.name, props: data.props })) {
+            event.preventDefault()
+            setEditingId(id)
+          }
         }
       } else if (key === "escape") {
         actions.clearEvents()

@@ -13,6 +13,14 @@ import { ShapePreview } from "@/components/editor/shape-preview"
 
 type NodeLike = { name: string; props: Record<string, unknown> }
 
+const EDITABLE_NODES = new Set(["TextBox", "Table", "CodeBlock", "Equation"])
+
+export function canEditContent({ name, props }: NodeLike) {
+  if (name === "Shape")
+    return Boolean(SHAPES_BY_KIND[props.kind as ShapeKind]?.filled)
+  return EDITABLE_NODES.has(name)
+}
+
 export function getElementLabel({ name, props }: NodeLike) {
   const customName = typeof props.name === "string" ? props.name.trim() : ""
   if (customName) return customName

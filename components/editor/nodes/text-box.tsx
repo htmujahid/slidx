@@ -23,10 +23,15 @@ export type TextBoxProps = ElementTransformProps & {
   fontSize: number
   fontWeight: number
   fontStyle: "normal" | "italic"
+  underline: boolean
+  strikethrough: boolean
   fontFamily: string
   fill: string
   align: TextAlign
   lineHeight: number
+  letterSpacing: number
+  padding: number
+  background: string
 }
 
 function RichTextEditor({
@@ -41,10 +46,9 @@ function RichTextEditor({
   onDone: () => void
 }) {
   const [frozenHtml] = React.useState(initialHtml)
-  const ref = React.useRef<HTMLDivElement | null>(null)
+  const [element, setElement] = React.useState<HTMLDivElement | null>(null)
 
   React.useEffect(() => {
-    const element = ref.current
     if (!element) return
     element.focus()
     const selection = window.getSelection()
@@ -52,12 +56,12 @@ function RichTextEditor({
       selection.selectAllChildren(element)
       selection.collapseToEnd()
     }
-  }, [])
+  }, [element])
 
   return (
     <div style={{ width: "100%" }}>
       <div
-        ref={ref}
+        ref={setElement}
         className="rich-text"
         contentEditable
         suppressContentEditableWarning
@@ -67,8 +71,8 @@ function RichTextEditor({
         spellCheck={false}
         style={{ ...style, outline: 0, caretColor: style.color }}
         onInput={(event) => {
-          const element = event.currentTarget
-          onCommit(element.innerHTML, element.innerText ?? "")
+          const target = event.currentTarget
+          onCommit(target.innerHTML, target.innerText ?? "")
         }}
         onBlur={onDone}
         onKeyDown={(event) => {
@@ -87,10 +91,15 @@ const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {
     fontSize,
     fontWeight,
     fontStyle,
+    underline,
+    strikethrough,
     fontFamily,
     fill,
     align,
     lineHeight,
+    letterSpacing,
+    padding,
+    background,
     ...transform
   } = { ...TextBox.craft!.props, ...props } as TextBoxProps
   const { width, height } = transform
@@ -111,6 +120,13 @@ const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {
     fontStyle,
     fontFamily,
     lineHeight,
+    letterSpacing: letterSpacing || undefined,
+    padding: padding || undefined,
+    background: background || undefined,
+    textDecorationLine:
+      [underline ? "underline" : null, strikethrough ? "line-through" : null]
+        .filter(Boolean)
+        .join(" ") || undefined,
     overflowWrap: "break-word",
   }
 
@@ -178,10 +194,15 @@ TextBox.craft = {
     fontSize: 48,
     fontWeight: 400,
     fontStyle: "normal",
+    underline: false,
+    strikethrough: false,
     fontFamily: "var(--font-sans), system-ui, sans-serif",
     fill: "#0a0a0a",
     align: "left",
     lineHeight: DEFAULT_LINE_HEIGHT,
+    letterSpacing: 0,
+    padding: 0,
+    background: "",
   } satisfies TextBoxProps,
   custom: { handles: "horizontal" },
   related: { settings: TextSettings },

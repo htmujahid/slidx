@@ -5,6 +5,11 @@ import { DefaultEventHandlers, Editor } from "@craftjs/core"
 
 import { resolver } from "@/lib/editor/resolver"
 import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable"
+import {
   SidebarInset,
   SidebarProvider,
   useSidebar,
@@ -16,7 +21,10 @@ import { ResetPresentationDialog } from "@/components/editor/dialogs/reset-prese
 import { EditorCanvas } from "@/components/editor/editor-canvas"
 import { EditorFooter } from "@/components/editor/editor-footer"
 import { EditorHeader } from "@/components/editor/editor-header"
-import { EditorLayoutProvider } from "@/components/editor/editor-layout"
+import {
+  EditorLayoutProvider,
+  useEditorLayout,
+} from "@/components/editor/editor-layout"
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
 import { EditorSidebar } from "@/components/editor/editor-sidebar"
 import { PresentationProvider } from "@/components/editor/presentation-mode"
@@ -25,6 +33,7 @@ import {
   PropertiesSidebarProvider,
 } from "@/components/editor/properties-panel"
 import { SlidesProvider } from "@/components/editor/slides-context"
+import { TimelinePanel } from "@/components/editor/timeline/timeline-panel"
 
 function WorkspaceSidebarShortcut() {
   const { toggleSidebar } = useSidebar()
@@ -41,6 +50,31 @@ function WorkspaceSidebarShortcut() {
       window.removeEventListener("keydown", onKeyDown, { capture: true })
   }, [toggleSidebar])
   return null
+}
+
+function EditorWorkspace() {
+  const { timelineOpen } = useEditorLayout()
+  return (
+    <ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1">
+      <ResizablePanel id="canvas" minSize={240} className="flex flex-col">
+        <EditorCanvas />
+      </ResizablePanel>
+      {timelineOpen ? (
+        <>
+          <ResizableHandle />
+          <ResizablePanel
+            id="timeline"
+            defaultSize={260}
+            minSize={140}
+            maxSize="70%"
+            className="flex flex-col"
+          >
+            <TimelinePanel />
+          </ResizablePanel>
+        </>
+      ) : null}
+    </ResizablePanelGroup>
+  )
 }
 
 function EditorShell() {
@@ -75,7 +109,7 @@ function EditorShell() {
                   <EditorSidebar />
                   <PropertiesSidebarProvider>
                     <SidebarInset className="min-h-0 min-w-0">
-                      <EditorCanvas />
+                      <EditorWorkspace />
                       <EditorFooter />
                     </SidebarInset>
                     <PropertiesPanel />

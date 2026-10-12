@@ -6,6 +6,22 @@ import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "@/lib/editor/constants"
 
 export type EditorDialog = "rename" | "new" | "reset" | null
 
+export type AnimationPreview = {
+  /** `play` runs on its own clock; `scrub` is held at `time`. */
+  mode: "off" | "play" | "scrub"
+  run: number
+  time: number
+  /** `performance.now()` when playback began. */
+  startedAt: number
+}
+
+const NO_PREVIEW: AnimationPreview = {
+  mode: "off",
+  run: 0,
+  time: 0,
+  startedAt: 0,
+}
+
 const clampZoom = (zoom: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom))
 
 type EditorLayoutContextValue = {
@@ -23,8 +39,15 @@ type EditorLayoutContextValue = {
   zoomIn: () => void
   zoomOut: () => void
   zoomReset: () => void
-  animationPreview: { active: boolean; run: number }
+  timelineOpen: boolean
+  setTimelineOpen: (open: boolean) => void
+  toggleTimeline: () => void
+  animationPreview: AnimationPreview
+  /** Runs the slide's animations once, ending after `durationMs`. */
   playAnimationPreview: (durationMs: number) => void
+  /** Holds every animation at `ms` into the slide. */
+  scrubAnimationPreview: (ms: number) => void
+  stopAnimationPreview: () => void
 }
 
 const EditorLayoutContext =
@@ -43,20 +66,38 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
   const zoomIn = React.useCallback(() => zoomBy(ZOOM_STEP), [zoomBy])
   const zoomOut = React.useCallback(() => zoomBy(1 / ZOOM_STEP), [zoomBy])
   const zoomReset = React.useCallback(() => setZoom(1), [])
-  const [animationPreview, setAnimationPreview] = React.useState({
-    active: false,
-    run: 0,
-  })
+  const [timelineOpen, setTimelineOpen] = React.useState(false)
+  const [animationPreview, setAnimationPreview] =
+    React.useState<AnimationPreview>(NO_PREVIEW)
   const previewTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>(
     undefined
   )
+  const stopAnimationPreview = React.useCallback(() => {
+    clearTimeout(previewTimer.current)
+    setAnimationPreview((current) =>
+      current.mode === "off" ? current : { ...current, mode: "off" }
+    )
+  }, [])
   const playAnimationPreview = React.useCallback((durationMs: number) => {
     clearTimeout(previewTimer.current)
-    setAnimationPreview((current) => ({ active: true, run: current.run + 1 }))
+    setAnimationPreview((current) => ({
+      mode: "play",
+      run: current.run + 1,
+      time: 0,
+      startedAt: performance.now(),
+    }))
     previewTimer.current = setTimeout(
-      () => setAnimationPreview((current) => ({ ...current, active: false })),
+      () => setAnimationPreview((current) => ({ ...current, mode: "off" })),
       durationMs
     )
+  }, [])
+  const scrubAnimationPreview = React.useCallback((ms: number) => {
+    clearTimeout(previewTimer.current)
+    setAnimationPreview((current) => ({
+      ...current,
+      mode: "scrub",
+      time: ms,
+    }))
   }, [])
   React.useEffect(() => () => clearTimeout(previewTimer.current), [])
   const value = React.useMemo(
@@ -75,8 +116,13 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       zoomIn,
       zoomOut,
       zoomReset,
+      timelineOpen,
+      setTimelineOpen,
+      toggleTimeline: () => setTimelineOpen((open) => !open),
       animationPreview,
       playAnimationPreview,
+      scrubAnimationPreview,
+      stopAnimationPreview,
     }),
     [
       propertiesOpen,
@@ -88,8 +134,11 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
       zoomIn,
       zoomOut,
       zoomReset,
+      timelineOpen,
       animationPreview,
       playAnimationPreview,
+      scrubAnimationPreview,
+      stopAnimationPreview,
     ]
   )
   return (

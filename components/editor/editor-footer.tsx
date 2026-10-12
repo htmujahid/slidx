@@ -2,7 +2,7 @@
 
 import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
-import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { ChartGanttIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
 
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 import { getElementLabel } from "@/lib/editor/labels"
@@ -41,7 +41,7 @@ function FooterSeparator() {
 
 function EditorFooter() {
   const { activeIndex, slides, selectSlide } = useSlides()
-  const { canvasScale } = useEditorLayout()
+  const { canvasScale, timelineOpen, toggleTimeline } = useEditorLayout()
   const { selected, count, slide } = useEditor((state) => {
     const [id] = state.events.selected
     const node = id && id !== ROOT_NODE ? state.nodes[id] : undefined
@@ -127,6 +127,17 @@ function EditorFooter() {
             <FooterSeparator />
           </>
         ) : null}
+        <Button
+          variant="ghost"
+          size="xs"
+          aria-pressed={timelineOpen}
+          className={timelineOpen ? "bg-muted text-foreground" : undefined}
+          onClick={toggleTimeline}
+        >
+          <ChartGanttIcon data-icon="inline-start" />
+          Timeline
+        </Button>
+        <FooterSeparator />
         <span className="hidden sm:block">
           <Stat>
             16:9 · {SLIDE_WIDTH} × {SLIDE_HEIGHT}

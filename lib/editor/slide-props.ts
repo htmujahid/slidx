@@ -15,6 +15,8 @@ export type SlideProps = {
   gridSize: number
   snapToGrid: boolean
   snapToAlignment: boolean
+  /** Element ids in animation order; unlisted elements follow in layer order. */
+  animationOrder: string[]
 }
 
 export const SLIDE_DEFAULTS: SlideProps = {
@@ -30,6 +32,7 @@ export const SLIDE_DEFAULTS: SlideProps = {
   gridSize: 40,
   snapToGrid: false,
   snapToAlignment: true,
+  animationOrder: [],
 }
 
 /**

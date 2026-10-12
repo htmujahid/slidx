@@ -94,7 +94,9 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
 
   const playback = usePlayback()
   const preview = editable ? layout?.animationPreview : undefined
-  const playing = playback.play || Boolean(preview?.active)
+  const playing =
+    playback.play || (preview !== undefined && preview.mode !== "off")
+  const pausedAt = preview?.mode === "scrub" ? preview.time : undefined
   const run = playback.run + (preview?.run ?? 0)
 
   const timeline = React.useMemo(() => slideTimeline(nodes), [nodes])
@@ -102,9 +104,9 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const animation = React.useMemo(
     () =>
       playing
-        ? buildAnimationCss(uid, run, timeline)
+        ? buildAnimationCss(uid, run, timeline, { pausedAt })
         : { css: "", classes: {} as Record<string, string> },
-    [playing, uid, run, timeline]
+    [playing, uid, run, timeline, pausedAt]
   )
 
   const context = React.useMemo(

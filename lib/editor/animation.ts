@@ -261,8 +261,10 @@ const stepCount = (text = "") =>
 export function buildAnimationCss(
   scope: string,
   run: number,
-  timeline: Timeline
+  timeline: Timeline,
+  options: { pausedAt?: number } = {}
 ) {
+  const { pausedAt } = options
   const classes: Record<string, string> = {}
   const keyframes = new Map<string, string>()
   const rules: string[] = []
@@ -284,13 +286,17 @@ export function buildAnimationCss(
       : 1
     // Backwards fill shows the first frame during the delay and then hands
     // control back to the element, so the finished state is the plain one.
-    const timing = `${entry.animation.duration}ms ${easing} ${entry.start}ms ${iterations} backwards`
+    // Held at a moment: every animation is paused at its start with its delay
+    // shifted, which leaves it exactly `pausedAt` into the slide.
+    const delay = pausedAt === undefined ? entry.start : entry.start - pausedAt
+    const paused = pausedAt === undefined ? "" : ";animation-play-state:paused"
+    const timing = `${entry.animation.duration}ms ${easing} ${delay}ms ${iterations} backwards`
 
     if (definition.frames) {
       const name = `vx-${scope}-${definition.id}`
       keyframes.set(name, definition.frames)
       rules.push(
-        `${selector}{transform-box:fill-box;transform-origin:center;animation:${name} ${timing}}`
+        `${selector}{transform-box:fill-box;transform-origin:center;animation:${name} ${timing}${paused}}`
       )
     }
     if (definition.draw) {
@@ -302,7 +308,7 @@ export function buildAnimationCss(
       )
       keyframes.set(fill, "0%,55%{fill-opacity:0}100%{fill-opacity:1}")
       rules.push(
-        `${selector} :is(${DRAWN_ELEMENTS}){animation:${stroke} ${timing},${fill} ${timing}}`
+        `${selector} :is(${DRAWN_ELEMENTS}){animation:${stroke} ${timing},${fill} ${timing}${paused}}`
       )
     }
   }
@@ -317,3 +323,7 @@ export function buildAnimationCss(
     classes,
   }
 }
+
+export const PRESET_LABELS = Object.fromEntries(
+  PRESETS.map((preset) => [preset.id, preset.label])
+) as Record<AnimationPreset, string>

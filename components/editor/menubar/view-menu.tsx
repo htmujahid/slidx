@@ -23,8 +23,16 @@ import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function ViewMenu() {
   const { open: slidesOpen, toggleSidebar } = useSidebar()
-  const { propertiesOpen, toggleProperties, zoom, zoomIn, zoomOut, zoomReset } =
-    useEditorLayout()
+  const {
+    propertiesOpen,
+    toggleProperties,
+    timelineOpen,
+    toggleTimeline,
+    zoom,
+    zoomIn,
+    zoomOut,
+    zoomReset,
+  } = useEditorLayout()
   const { theme = "system", setTheme } = useTheme()
   const { actions, slide } = useEditor((state) => ({
     slide: {
@@ -96,6 +104,12 @@ function ViewMenu() {
             onCheckedChange={toggleProperties}
           >
             Properties
+          </MenubarCheckboxItem>
+          <MenubarCheckboxItem
+            checked={timelineOpen}
+            onCheckedChange={toggleTimeline}
+          >
+            Timeline
           </MenubarCheckboxItem>
         </MenubarGroup>
         <MenubarSeparator />

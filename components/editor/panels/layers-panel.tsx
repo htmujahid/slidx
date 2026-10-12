@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 import {
+  ChevronRightIcon,
   EyeIcon,
   EyeOffIcon,
   GripVerticalIcon,
@@ -14,6 +15,11 @@ import {
 import { ElementIcon, getElementLabel } from "@/lib/editor/labels"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible"
 import {
   Empty,
   EmptyDescription,
@@ -87,11 +93,21 @@ function LayersPanel() {
           hidden: Boolean(hidden),
           locked: Boolean(custom.locked),
           label: getElementLabel({ name, props }),
+          children: state.nodes[id].data.nodes.map((childId) => {
+            const child = state.nodes[childId].data
+            return {
+              id: childId,
+              name: child.name,
+              props: child.props,
+              label: getElementLabel({ name: child.name, props: child.props }),
+            }
+          }),
         }
       }),
     }
   })
   const [renamingId, setRenamingId] = React.useState<string | null>(null)
+  const [expandedIds, setExpandedIds] = React.useState<Set<string>>(new Set())
 
   const handleMove = React.useCallback(
     ({
@@ -135,20 +151,39 @@ function LayersPanel() {
           getItemValue={getLayerId}
           onValueChange={() => {}}
           onMove={handleMove}
-          render={<SidebarMenu />}
+          render={<SidebarMenu className="gap-1" />}
         >
           {layers.map((layer) => {
-            return (
+            const isGroup = layer.children.length > 0
+            const row = (
               <SortableItem
-                key={layer.id}
                 value={layer.id}
                 role="listitem"
                 tabIndex={-1}
                 className="rounded-md data-[dragging=true]:bg-sidebar-accent data-[dragging=true]:shadow-md"
                 render={<SidebarMenuItem />}
               >
+                {isGroup && layer.id !== renamingId ? (
+                  <CollapsibleTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon-sm"
+                        className="group absolute top-1 left-1 size-6 hover:bg-transparent aria-expanded:bg-transparent aria-expanded:hover:bg-transparent dark:hover:bg-transparent"
+                      />
+                    }
+                    aria-label="Toggle group"
+                  >
+                    <ChevronRightIcon className="transition-transform group-aria-expanded:rotate-90" />
+                  </CollapsibleTrigger>
+                ) : null}
                 {layer.id === renamingId ? (
-                  <div className="flex h-8 items-center gap-2 px-2">
+                  <div
+                    className={cn(
+                      "flex h-8 items-center gap-2 pr-2",
+                      isGroup ? "pl-9" : "pl-2"
+                    )}
+                  >
                     <ElementIcon
                       name={layer.name}
                       props={layer.props}
@@ -175,7 +210,11 @@ function LayersPanel() {
                     render={
                       <SidebarMenuButton
                         isActive={layer.id === selectedId}
-                        className="pr-[4.5rem]"
+                        className={cn(
+                          "pr-[4.5rem]",
+                          isGroup &&
+                            "pl-9 group-has-[[data-slot=collapsible-trigger]:hover]/menu-item:bg-sidebar-accent group-has-[[data-slot=collapsible-trigger]:hover]/menu-item:text-sidebar-accent-foreground"
+                        )}
                         onClick={() => actions.selectNode(layer.id)}
                         onDoubleClick={() => setRenamingId(layer.id)}
                       />
@@ -232,6 +271,46 @@ function LayersPanel() {
                   </div>
                 )}
               </SortableItem>
+            )
+
+            if (!isGroup)
+              return <React.Fragment key={layer.id}>{row}</React.Fragment>
+
+            return (
+              <Collapsible
+                key={layer.id}
+                className="contents"
+                open={expandedIds.has(layer.id)}
+                onOpenChange={(open) =>
+                  setExpandedIds((current) => {
+                    const next = new Set(current)
+                    if (open) next.add(layer.id)
+                    else next.delete(layer.id)
+                    return next
+                  })
+                }
+              >
+                {row}
+                <CollapsibleContent>
+                  <div className="flex flex-col gap-1">
+                    {layer.children.map((child) => (
+                      <SidebarMenuItem key={child.id}>
+                        <SidebarMenuButton
+                          size="sm"
+                          className="pl-9 text-muted-foreground"
+                          title="Select the group"
+                          onClick={() => actions.selectNode(layer.id)}
+                        >
+                          <ElementIcon name={child.name} props={child.props} />
+                          <span className="min-w-0 flex-1 truncate">
+                            {child.label}
+                          </span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             )
           })}
         </Sortable>

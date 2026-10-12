@@ -7,6 +7,7 @@ import {
   FilePlusIcon,
   FileTextIcon,
   FolderOpenIcon,
+  GlobeIcon,
   ImageIcon,
   PencilIcon,
   Redo2Icon,
@@ -32,7 +33,7 @@ import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function FileMenu() {
   const { setDialog } = useEditorLayout()
-  const { save, open, exportSlide, exportPdf } = useFileActions()
+  const { save, open, exportSlide, exportPdf, exportHtml } = useFileActions()
   const { actions, canUndo, canRedo } = useEditor((_, query) => ({
     canUndo: query.history.canUndo(),
     canRedo: query.history.canRedo(),
@@ -87,6 +88,10 @@ function FileMenu() {
           <MenubarItem onClick={exportPdf}>
             <FileTextIcon />
             Export as PDF
+          </MenubarItem>
+          <MenubarItem onClick={exportHtml}>
+            <GlobeIcon />
+            Export as HTML
           </MenubarItem>
         </MenubarGroup>
         <MenubarSeparator />

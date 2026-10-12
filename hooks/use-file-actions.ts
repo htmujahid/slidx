@@ -4,6 +4,7 @@ import * as React from "react"
 
 import { slideToSvg, svgToBlob, svgToPng } from "@/lib/editor/export"
 import { downloadBlob, pickFile, toFilename } from "@/lib/editor/files"
+import { slidesToHtml } from "@/lib/editor/html-export"
 import { slidesToPdf } from "@/lib/editor/pdf"
 import {
   parsePresentation,
@@ -82,7 +83,25 @@ function useFileActions() {
     }
   }, [getPresentation, title])
 
-  return { save, open, exportSlide, exportPdf }
+  const exportHtml = React.useCallback(async () => {
+    const presentation = getPresentation()
+    try {
+      const blob = await slidesToHtml(
+        presentation.slides.map((slide) => slide.json),
+        presentation.title
+      )
+      downloadBlob(blob, `${toFilename(title)}.html`)
+      const count = presentation.slides.length
+      toast.add({
+        type: "success",
+        title: `Exported ${count} slide${count === 1 ? "" : "s"} as HTML`,
+      })
+    } catch (error) {
+      fail("Export failed", error)
+    }
+  }, [getPresentation, title])
+
+  return { save, open, exportSlide, exportPdf, exportHtml }
 }
 
 export { useFileActions }

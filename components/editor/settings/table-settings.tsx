@@ -9,7 +9,7 @@ import {
   resizeCells,
 } from "@/lib/editor/table"
 import type { TextAlign } from "@/lib/editor/types"
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Field, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { TableProps } from "@/components/editor/nodes/table"
@@ -55,10 +55,6 @@ function TableSettings() {
             }
           />
         </SettingsRow>
-        <FieldDescription>
-          Double-click a cell on the slide to edit it. Tab and Enter move
-          between cells.
-        </FieldDescription>
         <Field orientation="horizontal">
           <FieldLabel htmlFor={headerId}>Header row</FieldLabel>
           <Switch

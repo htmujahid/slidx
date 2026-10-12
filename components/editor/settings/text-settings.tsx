@@ -10,7 +10,7 @@ import {
 
 import { FONT_FAMILIES } from "@/lib/editor/constants"
 import type { TextAlign } from "@/lib/editor/types"
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { TextBoxProps } from "@/components/editor/nodes/text-box"
@@ -34,10 +34,6 @@ function TextSettings() {
   return (
     <>
       <SettingsSection title="Text">
-        <FieldDescription>
-          Double-click the text on the slide (or select it and press Enter) to
-          edit.
-        </FieldDescription>
         <Field>
           <FieldLabel htmlFor="text-font">Font</FieldLabel>
           <NativeSelect

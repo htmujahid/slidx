@@ -3,7 +3,7 @@
 import * as React from "react"
 
 import { CHART_KINDS, type ChartKind } from "@/lib/editor/chart"
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
+import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import type { ChartBoxProps } from "@/components/editor/nodes/chart-box"
@@ -46,10 +46,6 @@ function ChartSettings() {
   return (
     <>
       <SettingsSection title="Chart">
-        <FieldDescription>
-          Double-click the chart on the slide (or select it and press Enter) to
-          edit its data.
-        </FieldDescription>
         <Field>
           <FieldLabel htmlFor={`${id}-kind`}>Type</FieldLabel>
           <NativeSelect

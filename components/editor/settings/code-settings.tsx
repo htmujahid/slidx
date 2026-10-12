@@ -36,10 +36,6 @@ function CodeSettings() {
   return (
     <>
       <SettingsSection title="Code">
-        <FieldDescription>
-          Double-click the code on the slide (or select it and press Enter) to
-          edit.
-        </FieldDescription>
         <Field>
           <FieldLabel htmlFor={`${id}-language`}>Language</FieldLabel>
           <NativeSelect

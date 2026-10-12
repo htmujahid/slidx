@@ -1,6 +1,5 @@
 "use client"
 
-import { FieldDescription } from "@/components/ui/field"
 import type { EquationProps } from "@/components/editor/nodes/equation"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import {
@@ -17,10 +16,6 @@ function EquationSettings() {
   return (
     <>
       <SettingsSection title="Equation">
-        <FieldDescription>
-          Double-click the equation on the slide (or select it and press Enter)
-          to edit.
-        </FieldDescription>
         <NumberSetting
           label="Font size"
           value={props.fontSize}

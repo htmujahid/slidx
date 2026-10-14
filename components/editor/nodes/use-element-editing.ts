@@ -2,19 +2,22 @@
 
 import { useEditor, useNode } from "@craftjs/core"
 
-import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 
 function useElementEditing() {
   const { id } = useNode()
   const { enabled } = useEditor((state) => ({ enabled: state.options.enabled }))
-  const layout = useOptionalEditorLayout()
+  const editingId = useChrome((state) => state.editingId)
+  const setEditingId = useChrome((state) => state.setEditingId)
 
   return {
-    editing: enabled && layout?.editingId === id,
+    editing: enabled && editingId === id,
     start: () => {
-      if (enabled) layout?.setEditingId(id)
+      if (enabled) setEditingId(id)
     },
-    stop: () => layout?.setEditingId(null),
+    stop: () => {
+      if (enabled) setEditingId(null)
+    },
   }
 }
 

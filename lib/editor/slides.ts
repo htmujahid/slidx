@@ -3,7 +3,6 @@ import { ROOT_NODE } from "@craftjs/core"
 export type SlideData = {
   id: string
   json: string
-  version: number
 }
 
 export const rootNode = (children: string[]) => ({

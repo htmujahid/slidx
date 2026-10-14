@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
 import { cn } from "@/lib/utils"
+import { Toaster } from "@/components/ui/toast"
 import { ConvexProvider } from "@/components/convex-provider"
 import { StorageProvider } from "@/components/storage-provider"
 import { ThemeProvider } from "@/components/theme-provider"
@@ -34,6 +35,7 @@ export default function RootLayout({
         <ConvexProvider>
           <ThemeProvider>
             <StorageProvider>{children}</StorageProvider>
+            <Toaster />
           </ThemeProvider>
         </ConvexProvider>
       </body>

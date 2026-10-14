@@ -6,6 +6,8 @@ import { useTheme } from "next-themes"
 
 import { ZOOM_MAX, ZOOM_MIN } from "@/lib/editor/constants"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
+import { useViewport } from "@/lib/editor/stores/viewport-store"
 import {
   MenubarCheckboxItem,
   MenubarContent,
@@ -19,25 +21,22 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { useSidebar } from "@/components/ui/sidebar"
-import { useEditorLayout } from "@/components/editor/editor-layout"
+import { usePresenter } from "@/components/editor/editor-stores"
 import { Shortcut } from "@/components/editor/menubar/shortcut"
-import { usePresentation } from "@/components/editor/presentation-mode"
 
 function ViewMenu() {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar()
   const slidesOpen = isMobile ? openMobile : open
-  const {
-    propertiesOpen,
-    toggleProperties,
-    timelineOpen,
-    toggleTimeline,
-    zoom,
-    fitMode,
-    fit,
-    zoomIn,
-    zoomOut,
-  } = useEditorLayout()
-  const { start } = usePresentation()
+  const propertiesOpen = useChrome((state) => state.propertiesOpen)
+  const toggleProperties = useChrome((state) => state.toggleProperties)
+  const timelineOpen = useChrome((state) => state.timelineOpen)
+  const toggleTimeline = useChrome((state) => state.toggleTimeline)
+  const zoom = useViewport((state) => state.zoom)
+  const fitMode = useViewport((state) => state.fitMode)
+  const fit = useViewport((state) => state.fit)
+  const zoomIn = useViewport((state) => state.zoomIn)
+  const zoomOut = useViewport((state) => state.zoomOut)
+  const start = usePresenter((state) => state.start)
   const { theme = "system", setTheme } = useTheme()
   const { actions, slide } = useEditor((state) => ({
     slide: {

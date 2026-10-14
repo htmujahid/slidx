@@ -1,5 +1,6 @@
 "use client"
 
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,18 +11,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
 
 function ResetPresentationDialog() {
-  const { dialog, setDialog } = useEditorLayout()
-  const { resetPresentation } = useSlides()
+  const open = useChrome((state) => state.dialog === "reset")
+  const setDialog = useChrome((state) => state.setDialog)
+  const resetPresentation = useDeck((state) => state.reset)
 
   return (
-    <AlertDialog
-      open={dialog === "reset"}
-      onOpenChange={(open) => !open && setDialog(null)}
-    >
+    <AlertDialog open={open} onOpenChange={(open) => !open && setDialog(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>

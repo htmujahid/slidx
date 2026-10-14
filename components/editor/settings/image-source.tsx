@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { toast } from "@/components/ui/toast"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { usePresentationId } from "@/components/editor/presentation-id"
+import { useDeck } from "@/components/editor/editor-stores"
 import { useAssetSrc, useStorage } from "@/components/storage-provider"
 
 function ImageSource({
@@ -23,7 +23,7 @@ function ImageSource({
   const id = React.useId()
   const inputRef = React.useRef<HTMLInputElement>(null)
   const storage = useStorage()
-  const presentationId = usePresentationId()
+  const presentationId = useDeck((state) => state.presentationId)
   const preview = useAssetSrc(value)
 
   return (

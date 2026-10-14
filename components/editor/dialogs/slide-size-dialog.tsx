@@ -13,6 +13,7 @@ import {
   type ResizeMode,
   type SlideSize,
 } from "@/lib/editor/slide-size"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,8 +33,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
 
 const CUSTOM = "custom"
 const PREVIEW_BOX = 96
@@ -79,7 +79,7 @@ function DimensionField({
 
 function SlideSizeForm({ onDone }: { onDone: () => void }) {
   const current = useSlideSize()
-  const { resizeSlides } = useSlides()
+  const resizeSlides = useDeck((state) => state.resizeSlides)
   const [width, setWidth] = React.useState(String(current.width))
   const [height, setHeight] = React.useState(String(current.height))
   const [mode, setMode] = React.useState<ResizeMode>("scale")
@@ -211,11 +211,12 @@ function SlideSizeForm({ onDone }: { onDone: () => void }) {
 }
 
 function SlideSizeDialog() {
-  const { dialog, setDialog } = useEditorLayout()
+  const open = useChrome((state) => state.dialog === "size")
+  const setDialog = useChrome((state) => state.setDialog)
   const close = () => setDialog(null)
 
   return (
-    <Dialog open={dialog === "size"} onOpenChange={(open) => !open && close()}>
+    <Dialog open={open} onOpenChange={(open) => !open && close()}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Slide size</DialogTitle>
@@ -224,7 +225,7 @@ function SlideSizeDialog() {
             cleared when it changes.
           </DialogDescription>
         </DialogHeader>
-        {dialog === "size" ? <SlideSizeForm onDone={close} /> : null}
+        {open ? <SlideSizeForm onDone={close} /> : null}
       </DialogContent>
     </Dialog>
   )

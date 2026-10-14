@@ -13,9 +13,9 @@ import {
   toDegrees,
   trackPointer,
 } from "@/lib/editor/geometry"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { cn } from "@/lib/utils"
-import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
 import { useSlide } from "@/components/editor/slide-context"
 
 type Handle = { id: string; sx: -1 | 0 | 1; sy: -1 | 0 | 1; cursor: string }
@@ -91,7 +91,7 @@ function SelectionOverlay() {
       }),
   }))
   const { scale, toSlidePoint, grid } = useSlide()
-  const editingId = useOptionalEditorLayout()?.editingId
+  const editingId = useChrome((state) => state.editingId)
 
   if (!enabled || nodes.length === 0) return null
   if (nodes.length > 1) return <MultiSelectionOverlay nodes={nodes} />

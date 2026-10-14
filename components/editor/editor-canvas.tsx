@@ -4,9 +4,9 @@ import * as React from "react"
 import { Frame, useEditor } from "@craftjs/core"
 
 import { INITIAL_SLIDE_JSON } from "@/lib/editor/slides"
+import { useViewport } from "@/lib/editor/stores/viewport-store"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { EditorContextMenu } from "@/components/editor/editor-context-menu"
-import { useEditorLayout } from "@/components/editor/editor-layout"
 
 const WHEEL_ZOOM_STEP = 1.1
 
@@ -27,7 +27,9 @@ function measure(stage: HTMLElement): Area {
 
 function EditorCanvas() {
   const { actions } = useEditor()
-  const { zoom, zoomBy, fitMode } = useEditorLayout()
+  const zoom = useViewport((state) => state.zoom)
+  const zoomBy = useViewport((state) => state.zoomBy)
+  const fitMode = useViewport((state) => state.fitMode)
   const { width: SLIDE_WIDTH, height: SLIDE_HEIGHT } = useSlideSize()
   const stageRef = React.useRef<HTMLDivElement>(null)
   const [area, setArea] = React.useState<Area | null>(null)

@@ -10,7 +10,9 @@ import {
   RulerDimensionLineIcon,
   Trash2Icon,
 } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
 
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   MenubarContent,
   MenubarGroup,
@@ -22,21 +24,18 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { selectActiveIndex, useDeck } from "@/components/editor/editor-stores"
 
 function SlideMenu() {
-  const {
-    slides,
-    activeId,
-    activeIndex,
-    addSlide,
-    duplicateSlide,
-    deleteSlide,
-    moveSlide,
-    selectSlide,
-  } = useSlides()
-  const { setDialog } = useEditorLayout()
+  const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))
+  const activeId = useDeck((state) => state.activeId)
+  const activeIndex = useDeck(selectActiveIndex)
+  const addSlide = useDeck((state) => state.addSlide)
+  const duplicateSlide = useDeck((state) => state.duplicateSlide)
+  const deleteSlide = useDeck((state) => state.deleteSlide)
+  const moveSlide = useDeck((state) => state.moveSlide)
+  const selectSlide = useDeck((state) => state.select)
+  const setDialog = useChrome((state) => state.setDialog)
 
   return (
     <MenubarMenu>
@@ -47,14 +46,14 @@ function SlideMenu() {
             <PlusIcon />
             New slide
           </MenubarItem>
-          <MenubarItem onClick={() => duplicateSlide(activeId)}>
+          <MenubarItem onClick={() => duplicateSlide()}>
             <CopyIcon />
             Duplicate slide
           </MenubarItem>
           <MenubarItem
             variant="destructive"
-            disabled={slides.length <= 1}
-            onClick={() => deleteSlide(activeId)}
+            disabled={slideIds.length <= 1}
+            onClick={() => deleteSlide()}
           >
             <Trash2Icon />
             Delete slide
@@ -80,15 +79,15 @@ function SlideMenu() {
                 Move earlier
               </MenubarItem>
               <MenubarItem
-                disabled={activeIndex === slides.length - 1}
+                disabled={activeIndex === slideIds.length - 1}
                 onClick={() => moveSlide(activeId, activeIndex + 1)}
               >
                 <ChevronRightIcon />
                 Move later
               </MenubarItem>
               <MenubarItem
-                disabled={activeIndex === slides.length - 1}
-                onClick={() => moveSlide(activeId, slides.length - 1)}
+                disabled={activeIndex === slideIds.length - 1}
+                onClick={() => moveSlide(activeId, slideIds.length - 1)}
               >
                 <ChevronsRightIcon />
                 Move to end
@@ -100,14 +99,14 @@ function SlideMenu() {
         <MenubarGroup>
           <MenubarItem
             disabled={activeIndex === 0}
-            onClick={() => selectSlide(slides[activeIndex - 1].id)}
+            onClick={() => selectSlide(slideIds[activeIndex - 1])}
           >
             <ChevronLeftIcon />
             Previous slide
           </MenubarItem>
           <MenubarItem
-            disabled={activeIndex === slides.length - 1}
-            onClick={() => selectSlide(slides[activeIndex + 1].id)}
+            disabled={activeIndex === slideIds.length - 1}
+            onClick={() => selectSlide(slideIds[activeIndex + 1])}
           >
             <ChevronRightIcon />
             Next slide

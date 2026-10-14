@@ -6,6 +6,7 @@ import { useEditor } from "@craftjs/core"
 import { resolveTiming } from "@/lib/editor/animation"
 import { EASINGS, type AnimationEasing } from "@/lib/editor/easing"
 import { getElementLabel } from "@/lib/editor/labels"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   elementValues,
   propertiesFor,
@@ -25,7 +26,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import { useEditorLayout } from "@/components/editor/editor-layout"
 import { PropertyLane } from "@/components/editor/keyframes/property-lane"
 import { useKeyframeEditing } from "@/components/editor/keyframes/use-keyframe-editing"
 import {
@@ -229,12 +229,15 @@ function KeyframeEditor({ id }: { id: string }) {
 }
 
 function KeyframeDialog() {
-  const { keyframeTarget, setKeyframeTarget } = useEditorLayout()
+  const keyframeTarget = useChrome((state) =>
+    typeof state.dialog === "object" && state.dialog ? state.dialog.id : null
+  )
+  const setDialog = useChrome((state) => state.setDialog)
   return (
     <Dialog
       open={keyframeTarget !== null}
       onOpenChange={(open) => {
-        if (!open) setKeyframeTarget(null)
+        if (!open) setDialog(null)
       }}
     >
       <DialogContent className="sm:max-w-4xl">

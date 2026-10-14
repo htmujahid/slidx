@@ -5,10 +5,11 @@ import { useEditor } from "@craftjs/core"
 
 import { NUDGE, NUDGE_LARGE } from "@/lib/editor/constants"
 import { canEditContent } from "@/lib/editor/labels"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
+import { useViewport } from "@/lib/editor/stores/viewport-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useFileActions } from "@/hooks/use-file-actions"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { usePresentation } from "@/components/editor/presentation-mode"
+import { usePresenter } from "@/components/editor/editor-stores"
 
 const ARROWS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 0],
@@ -40,8 +41,11 @@ function EditorShortcuts() {
     ungroup,
   } = useEditorActions()
   const { save, open } = useFileActions()
-  const { setEditingId, zoomIn, zoomOut, zoomReset } = useEditorLayout()
-  const { presenting } = usePresentation()
+  const setEditingId = useChrome((state) => state.setEditingId)
+  const zoomIn = useViewport((state) => state.zoomIn)
+  const zoomOut = useViewport((state) => state.zoomOut)
+  const zoomReset = useViewport((state) => state.zoomReset)
+  const presenting = usePresenter((state) => state.deck !== null)
 
   React.useEffect(() => {
     if (presenting) return

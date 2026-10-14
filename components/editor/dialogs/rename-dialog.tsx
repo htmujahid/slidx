@@ -3,6 +3,7 @@
 import * as React from "react"
 
 import { DEFAULT_TITLE } from "@/lib/editor/presentation"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -14,11 +15,11 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
 
 function RenameForm({ onDone }: { onDone: () => void }) {
-  const { title, setTitle } = useSlides()
+  const title = useDeck((state) => state.title)
+  const setTitle = useDeck((state) => state.setTitle)
   const [value, setValue] = React.useState(title)
 
   return (
@@ -52,14 +53,12 @@ function RenameForm({ onDone }: { onDone: () => void }) {
 }
 
 function RenameDialog() {
-  const { dialog, setDialog } = useEditorLayout()
+  const open = useChrome((state) => state.dialog === "rename")
+  const setDialog = useChrome((state) => state.setDialog)
   const close = () => setDialog(null)
 
   return (
-    <Dialog
-      open={dialog === "rename"}
-      onOpenChange={(open) => !open && close()}
-    >
+    <Dialog open={open} onOpenChange={(open) => !open && close()}>
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Rename presentation</DialogTitle>
@@ -67,7 +66,7 @@ function RenameDialog() {
             The name is used in the header and for saved and exported files.
           </DialogDescription>
         </DialogHeader>
-        {dialog === "rename" ? <RenameForm onDone={close} /> : null}
+        {open ? <RenameForm onDone={close} /> : null}
       </DialogContent>
     </Dialog>
   )

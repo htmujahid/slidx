@@ -3,7 +3,7 @@
 import * as React from "react"
 
 import { isTimed, MIN_VISIBLE_MS } from "@/lib/editor/animation"
-import { useEditorLayout } from "@/components/editor/editor-layout"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   DEFAULT_ZOOM,
   LABEL_WIDTH,
@@ -19,7 +19,8 @@ import { useTimelineEditing } from "@/components/editor/timeline/use-timeline-ed
 import { useTimelinePlayback } from "@/components/editor/timeline/use-timeline-playback"
 
 function TimelinePanel() {
-  const { setTimelineOpen, setKeyframeTarget } = useEditorLayout()
+  const setTimelineOpen = useChrome((state) => state.setTimelineOpen)
+  const setDialog = useChrome((state) => state.setDialog)
   const { rows, entries, timeline, selected } = useTimelineData()
   const [zoomIndex, setZoomIndex] = React.useState(DEFAULT_ZOOM)
 
@@ -98,7 +99,9 @@ function TimelinePanel() {
                     gridWidth={ZOOMS[zoomIndex]}
                     onSelect={() => editing.selectElement(row.id)}
                     onReset={() => editing.resetTiming(row.id)}
-                    onEditKeyframes={() => setKeyframeTarget(row.id)}
+                    onEditKeyframes={() =>
+                      setDialog({ type: "keyframes", id: row.id })
+                    }
                     onMove={editing.startMove}
                     onNudgeSpan={editing.nudgeSpan}
                     onTrim={editing.startTrim}

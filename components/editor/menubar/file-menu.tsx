@@ -11,6 +11,7 @@ import {
   SaveIcon,
 } from "lucide-react"
 
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useFileActions } from "@/hooks/use-file-actions"
 import {
   MenubarContent,
@@ -23,11 +24,10 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
-import { useEditorLayout } from "@/components/editor/editor-layout"
 import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function FileMenu() {
-  const { setDialog } = useEditorLayout()
+  const setDialog = useChrome((state) => state.setDialog)
   const { save, open, exportPng, exportSlideHtml, exportPdf, exportHtml } =
     useFileActions()
 

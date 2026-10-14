@@ -3,15 +3,16 @@
 import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 import { ChartGanttIcon, ChevronLeftIcon, ChevronRightIcon } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
 
 import { getElementLabel } from "@/lib/editor/labels"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
 import { aspectLabel } from "@/lib/editor/slide-size"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { selectActiveIndex, useDeck } from "@/components/editor/editor-stores"
 import { ZoomMenu } from "@/components/editor/zoom-menu"
 
 type Transform = {
@@ -42,8 +43,12 @@ function FooterSeparator() {
 }
 
 function EditorFooter() {
-  const { activeIndex, slides, selectSlide } = useSlides()
-  const { timelineOpen, toggleTimeline, setDialog } = useEditorLayout()
+  const activeIndex = useDeck(selectActiveIndex)
+  const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))
+  const selectSlide = useDeck((state) => state.select)
+  const timelineOpen = useChrome((state) => state.timelineOpen)
+  const toggleTimeline = useChrome((state) => state.toggleTimeline)
+  const setDialog = useChrome((state) => state.setDialog)
   const size = useSlideSize()
   const { selected, count, slide } = useEditor((state) => {
     const [id] = state.events.selected
@@ -75,19 +80,19 @@ function EditorFooter() {
           size="icon-xs"
           aria-label="Previous slide"
           disabled={activeIndex === 0}
-          onClick={() => selectSlide(slides[activeIndex - 1].id)}
+          onClick={() => selectSlide(slideIds[activeIndex - 1])}
         >
           <ChevronLeftIcon />
         </Button>
         <Stat>
-          Slide {activeIndex + 1} of {slides.length}
+          Slide {activeIndex + 1} of {slideIds.length}
         </Stat>
         <Button
           variant="ghost"
           size="icon-xs"
           aria-label="Next slide"
-          disabled={activeIndex === slides.length - 1}
-          onClick={() => selectSlide(slides[activeIndex + 1].id)}
+          disabled={activeIndex === slideIds.length - 1}
+          onClick={() => selectSlide(slideIds[activeIndex + 1])}
         >
           <ChevronRightIcon />
         </Button>

@@ -7,6 +7,7 @@ import {
   useNode,
   type UserComponent,
 } from "@craftjs/core"
+import { useShallow } from "zustand/react/shallow"
 
 import type { AlignmentGuide } from "@/lib/editor/alignment-guides"
 import { buildAnimationCss } from "@/lib/editor/animation"
@@ -24,11 +25,12 @@ import {
 } from "@/lib/editor/slide-props"
 import { slideSizeOf } from "@/lib/editor/slide-size"
 import { slideTimeline } from "@/lib/editor/slide-timeline"
+import { usePreview } from "@/lib/editor/stores/preview-store"
+import { useViewport } from "@/lib/editor/stores/viewport-store"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { cn } from "@/lib/utils"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { usePlayback } from "@/components/editor/animation-playback"
-import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
 import { SelectionOverlay } from "@/components/editor/nodes/selection-overlay"
 import { SlideSettings } from "@/components/editor/settings/slide-settings"
 import { SlideContext } from "@/components/editor/slide-context"
@@ -69,8 +71,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   const surfaceRef = React.useRef<HTMLDivElement | null>(null)
   const [scale, setScale] = React.useState(1)
   const [guides, setGuides] = React.useState<AlignmentGuide[]>([])
-  const layout = useOptionalEditorLayout()
-  const setCanvasScale = layout?.setCanvasScale
+  const setCanvasScale = useViewport((state) => state.setCanvasScale)
 
   React.useEffect(() => {
     const section = sectionRef.current
@@ -83,7 +84,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   }, [SLIDE_WIDTH])
 
   React.useEffect(() => {
-    if (editable) setCanvasScale?.(scale)
+    if (editable) setCanvasScale(scale)
   }, [editable, scale, setCanvasScale])
 
   const toSlidePoint = React.useCallback(
@@ -99,7 +100,10 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
   )
 
   const playback = usePlayback()
-  const preview = editable ? layout?.animationPreview : undefined
+  const editorPreview = usePreview(
+    useShallow(({ mode, run, time }) => ({ mode, run, time }))
+  )
+  const preview = editable ? editorPreview : undefined
   const playing =
     playback.play || (preview !== undefined && preview.mode !== "off")
   const pausedAt = preview?.mode === "scrub" ? preview.time : undefined

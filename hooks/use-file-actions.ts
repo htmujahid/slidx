@@ -13,8 +13,10 @@ import {
 import { renderSlides } from "@/lib/editor/render-slides"
 import { externalizeAssets, inlineAssets } from "@/lib/storage/assets"
 import { toast } from "@/components/ui/toast"
-import { usePresentationId } from "@/components/editor/presentation-id"
-import { useSlides } from "@/components/editor/slides-context"
+import {
+  selectActiveIndex,
+  useEditorStores,
+} from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
 const fail = (title: string, error: unknown) =>
@@ -25,9 +27,8 @@ const fail = (title: string, error: unknown) =>
   })
 
 function useFileActions() {
-  const { title, activeIndex, getPresentation, loadPresentation } = useSlides()
+  const { deck } = useEditorStores()
   const storage = useStorage()
-  const presentationId = usePresentationId()
 
   const inline = React.useCallback(
     (jsons: string[]) =>
@@ -37,6 +38,7 @@ function useFileActions() {
 
   const save = React.useCallback(async () => {
     try {
+      const { title, getPresentation } = deck.getState()
       const presentation = getPresentation()
       const slides = await inline(
         presentation.slides.map((slide) => slide.json)
@@ -55,9 +57,10 @@ function useFileActions() {
     } catch (error) {
       fail("Could not save the file", error)
     }
-  }, [getPresentation, inline, title])
+  }, [deck, inline])
 
   const open = React.useCallback(async () => {
+    const { presentationId, load } = deck.getState()
     const file = await pickFile(".json,application/json")
     if (!file) return
     try {
@@ -67,16 +70,19 @@ function useFileActions() {
           externalizeAssets(storage, json, { presentationId })
         )
       )
-      loadPresentation(parsed.title, slides)
+      load(parsed.title, slides)
       toast.add({ type: "success", title: `Opened “${parsed.title}”` })
     } catch (error) {
       fail("Could not open the file", error)
     }
-  }, [loadPresentation, storage, presentationId])
+  }, [deck, storage])
 
   const exportPng = React.useCallback(async () => {
     try {
-      const presentation = getPresentation()
+      const state = deck.getState()
+      const { title } = state
+      const activeIndex = selectActiveIndex(state)
+      const presentation = state.getPresentation()
       const [json] = await inline([presentation.slides[activeIndex].json])
       const [markup] = await renderSlides([json], sectionToImageMarkup)
       downloadBlob(
@@ -87,10 +93,13 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [getPresentation, inline, title, activeIndex])
+  }, [deck, inline])
 
   const exportSlideHtml = React.useCallback(async () => {
-    const presentation = getPresentation()
+    const state = deck.getState()
+    const { title } = state
+    const activeIndex = selectActiveIndex(state)
+    const presentation = state.getPresentation()
     const slide = presentation.slides[activeIndex]
     if (!slide) return fail("Nothing to export", undefined)
     try {
@@ -102,9 +111,10 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [getPresentation, inline, title, activeIndex])
+  }, [deck, inline])
 
   const exportPdf = React.useCallback(async () => {
+    const { title, getPresentation } = deck.getState()
     const presentation = getPresentation()
     try {
       const blob = await slidesToPdf(
@@ -120,9 +130,10 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [getPresentation, inline, title])
+  }, [deck, inline])
 
   const exportHtml = React.useCallback(async () => {
+    const { title, getPresentation } = deck.getState()
     const presentation = getPresentation()
     try {
       const blob = await slidesToHtml(
@@ -138,7 +149,7 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [getPresentation, inline, title])
+  }, [deck, inline])
 
   return { save, open, exportPng, exportSlideHtml, exportPdf, exportHtml }
 }

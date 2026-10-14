@@ -1,8 +1,7 @@
 import * as React from "react"
 
 import { trackPointer } from "@/lib/editor/geometry"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { usePreview } from "@/lib/editor/stores/preview-store"
 import {
   PLAY_TAIL_MS,
   SCRUB_STEP_LARGE_MS,
@@ -16,37 +15,30 @@ export function useTimelinePlayback({
   durationMs: number
   pxPerMs: number
 }) {
-  const {
-    animationPreview,
-    playAnimationPreview,
-    scrubAnimationPreview,
-    stopAnimationPreview,
-  } = useEditorLayout()
-  const { activeId } = useSlides()
+  const mode = usePreview((state) => state.mode)
+  const time = usePreview((state) => state.time)
+  const startedAt = usePreview((state) => state.startedAt)
+  const playAnimationPreview = usePreview((state) => state.play)
+  const scrubAnimationPreview = usePreview((state) => state.scrub)
+  const stopAnimationPreview = usePreview((state) => state.stop)
   const [clock, setClock] = React.useState(0)
   const rulerRef = React.useRef<HTMLDivElement | null>(null)
 
-  const playing = animationPreview.mode === "play"
-  const playhead =
-    animationPreview.mode === "scrub" ? animationPreview.time : clock
+  const playing = mode === "play"
+  const playhead = mode === "scrub" ? time : clock
 
   React.useEffect(() => {
-    if (animationPreview.mode !== "play") return
+    if (mode !== "play") return
     let frame = 0
     const tick = () => {
-      setClock(
-        Math.min(performance.now() - animationPreview.startedAt, durationMs)
-      )
+      setClock(Math.min(performance.now() - startedAt, durationMs))
       frame = requestAnimationFrame(tick)
     }
     frame = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(frame)
-  }, [animationPreview.mode, animationPreview.startedAt, durationMs])
+  }, [mode, startedAt, durationMs])
 
-  React.useEffect(() => {
-    stopAnimationPreview()
-    return stopAnimationPreview
-  }, [activeId, stopAnimationPreview])
+  React.useEffect(() => stopAnimationPreview, [stopAnimationPreview])
 
   const reset = () => {
     stopAnimationPreview()

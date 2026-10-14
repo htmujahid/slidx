@@ -1,8 +1,14 @@
 "use client"
 
 import * as React from "react"
+import { useShallow } from "zustand/react/shallow"
 
 import { ZOOM_MAX, ZOOM_MIN } from "@/lib/editor/constants"
+import {
+  canZoomToScale,
+  useViewport,
+  type FitMode,
+} from "@/lib/editor/stores/viewport-store"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -16,10 +22,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import {
-  useEditorLayout,
-  type FitMode,
-} from "@/components/editor/editor-layout"
 
 const subscribe = () => () => {}
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform)
@@ -30,16 +32,15 @@ const useModifier = () =>
 const PRESETS = [25, 50, 75, 100, 150, 200]
 
 function ZoomMenu() {
-  const {
-    canvasScale,
-    zoom,
-    fitMode,
-    fit,
-    zoomIn,
-    zoomOut,
-    zoomToScale,
-    canZoomToScale,
-  } = useEditorLayout()
+  const viewport = useViewport(
+    useShallow(({ canvasScale, zoom }) => ({ canvasScale, zoom }))
+  )
+  const { canvasScale, zoom } = viewport
+  const fitMode = useViewport((state) => state.fitMode)
+  const fit = useViewport((state) => state.fit)
+  const zoomIn = useViewport((state) => state.zoomIn)
+  const zoomOut = useViewport((state) => state.zoomOut)
+  const zoomToScale = useViewport((state) => state.zoomToScale)
   const percent = Math.round(canvasScale * 100)
   const mod = useModifier()
 
@@ -96,7 +97,7 @@ function ZoomMenu() {
               <DropdownMenuRadioItem
                 key={preset}
                 value={String(preset)}
-                disabled={!canZoomToScale(preset / 100)}
+                disabled={!canZoomToScale(viewport, preset / 100)}
                 closeOnClick
               >
                 {preset}%

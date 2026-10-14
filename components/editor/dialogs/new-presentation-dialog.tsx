@@ -1,5 +1,10 @@
 "use client"
 
+import { useRouter } from "next/navigation"
+
+import { DEFAULT_TITLE } from "@/lib/editor/presentation"
+import { BLANK_SLIDE_JSON } from "@/lib/editor/slides"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,18 +15,23 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
+import { useStorage } from "@/components/storage-provider"
 
 function NewPresentationDialog() {
-  const { dialog, setDialog } = useEditorLayout()
-  const { newPresentation } = useSlides()
+  const open = useChrome((state) => state.dialog === "new")
+  const setDialog = useChrome((state) => state.setDialog)
+  const load = useDeck((state) => state.load)
+  const service = useStorage()
+  const router = useRouter()
+
+  const newPresentation = () => {
+    if (service.kind === "cloud") router.push("/editor/new")
+    else load(DEFAULT_TITLE, [BLANK_SLIDE_JSON])
+  }
 
   return (
-    <AlertDialog
-      open={dialog === "new"}
-      onOpenChange={(open) => !open && setDialog(null)}
-    >
+    <AlertDialog open={open} onOpenChange={(open) => !open && setDialog(null)}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Start a new presentation?</AlertDialogTitle>

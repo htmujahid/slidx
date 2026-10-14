@@ -11,8 +11,8 @@ import {
   PresentationIcon,
   Trash2Icon,
 } from "lucide-react"
+import { useShallow } from "zustand/react/shallow"
 
-import type { SlideData } from "@/lib/editor/slides"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -30,9 +30,9 @@ import {
   SortableItem,
   SortableItemHandle,
 } from "@/components/reui/sortable"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
 
-const getSlideId = (slide: SlideData) => slide.id
+const getSlideId = (id: string) => id
 
 function SlideListItem({
   value,
@@ -43,17 +43,14 @@ function SlideListItem({
   index: number
   className?: string
 }) {
-  const {
-    slides,
-    activeId,
-    selectSlide,
-    duplicateSlide,
-    deleteSlide,
-    moveSlide,
-  } = useSlides()
-  const active = value === activeId
+  const slideCount = useDeck((state) => state.slides.length)
+  const active = useDeck((state) => state.activeId === value)
+  const selectSlide = useDeck((state) => state.select)
+  const duplicateSlide = useDeck((state) => state.duplicateSlide)
+  const deleteSlide = useDeck((state) => state.deleteSlide)
+  const moveSlide = useDeck((state) => state.moveSlide)
   const first = index === 0
-  const last = index === slides.length - 1
+  const last = index === slideCount - 1
 
   return (
     <ContextMenu
@@ -101,7 +98,7 @@ function SlideListItem({
       >
         <ContextMenuGroup>
           <ContextMenuLabel>Slide {index + 1}</ContextMenuLabel>
-          <ContextMenuItem onClick={() => duplicateSlide(value)}>
+          <ContextMenuItem onClick={() => duplicateSlide()}>
             <CopyIcon />
             Duplicate slide
           </ContextMenuItem>
@@ -129,7 +126,7 @@ function SlideListItem({
           </ContextMenuItem>
           <ContextMenuItem
             disabled={last}
-            onClick={() => moveSlide(value, slides.length - 1)}
+            onClick={() => moveSlide(value, slideCount - 1)}
           >
             <ArrowDownToLineIcon />
             Make last slide
@@ -139,8 +136,8 @@ function SlideListItem({
         <ContextMenuGroup>
           <ContextMenuItem
             variant="destructive"
-            disabled={slides.length <= 1}
-            onClick={() => deleteSlide(value)}
+            disabled={slideCount <= 1}
+            onClick={() => deleteSlide()}
           >
             <Trash2Icon />
             Delete slide
@@ -152,7 +149,9 @@ function SlideListItem({
 }
 
 function SlidesPanel() {
-  const { slides, addSlide, moveSlide } = useSlides()
+  const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))
+  const addSlide = useDeck((state) => state.addSlide)
+  const moveSlide = useDeck((state) => state.moveSlide)
   return (
     <div className="flex flex-col gap-3" data-slide-list="">
       <Button variant="outline" onClick={addSlide}>
@@ -160,18 +159,18 @@ function SlidesPanel() {
         Add slide
       </Button>
       <Sortable
-        value={slides}
+        value={slideIds}
         getItemValue={getSlideId}
         onValueChange={() => {}}
         onMove={({ activeIndex, overIndex }) =>
-          moveSlide(slides[activeIndex].id, overIndex)
+          moveSlide(slideIds[activeIndex], overIndex)
         }
         className="flex flex-col gap-3"
         role="list"
         aria-label="Slides. Use the drag handles to reorder."
       >
-        {slides.map((slide, index) => (
-          <SlideListItem key={slide.id} value={slide.id} index={index} />
+        {slideIds.map((id, index) => (
+          <SlideListItem key={id} value={id} index={index} />
         ))}
       </Sortable>
     </div>

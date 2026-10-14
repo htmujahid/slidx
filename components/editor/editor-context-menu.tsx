@@ -21,6 +21,7 @@ import type { Alignment } from "@/lib/editor/align"
 import type { Point } from "@/lib/editor/geometry"
 import { canEditContent, getElementLabel } from "@/lib/editor/labels"
 import { LIBRARY } from "@/lib/editor/library"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import {
   ContextMenu,
@@ -35,8 +36,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
-import { useEditorLayout } from "@/components/editor/editor-layout"
-import { useSlides } from "@/components/editor/slides-context"
+import { useDeck } from "@/components/editor/editor-stores"
 
 const ALIGNMENTS: Array<[Alignment, string]> = [
   ["left", "Left"],
@@ -48,8 +48,8 @@ const ALIGNMENTS: Array<[Alignment, string]> = [
 ]
 
 function EditorContextMenu({ children }: { children: React.ReactNode }) {
-  const { setEditingId } = useEditorLayout()
-  const { addSlide } = useSlides()
+  const setEditingId = useChrome((state) => state.setEditingId)
+  const addSlide = useDeck((state) => state.addSlide)
   const { duplicate, remove, align, reorder, addLibraryItem, group, ungroup } =
     useEditorActions()
   const insertAt = React.useRef<Point | undefined>(undefined)

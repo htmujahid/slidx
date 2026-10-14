@@ -14,6 +14,7 @@ import {
 } from "lucide-react"
 
 import { getElementLabel } from "@/lib/editor/labels"
+import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Accordion } from "@/components/ui/accordion"
@@ -34,7 +35,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { useEditorLayout } from "@/components/editor/editor-layout"
 import { LayersPanel } from "@/components/editor/panels/layers-panel"
 
 function ActionButton({
@@ -65,12 +65,9 @@ function ActionButton({
   )
 }
 
-function PropertiesSidebarProvider({
-  children,
-}: {
-  children: React.ReactNode
-}) {
-  const { propertiesOpen, setPropertiesOpen } = useEditorLayout()
+function PropertiesSidebar({ children }: { children: React.ReactNode }) {
+  const propertiesOpen = useChrome((state) => state.propertiesOpen)
+  const setPropertiesOpen = useChrome((state) => state.setPropertiesOpen)
   const isMobile = useIsMobile()
   return (
     <SidebarProvider
@@ -225,4 +222,4 @@ function PropertiesPanel() {
   )
 }
 
-export { PropertiesPanel, PropertiesSidebarProvider }
+export { PropertiesPanel, PropertiesSidebar }

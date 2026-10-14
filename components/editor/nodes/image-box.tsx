@@ -12,7 +12,8 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
+import { ElementBox } from "@/components/editor/nodes/element-box"
+import { ElementSvg } from "@/components/editor/nodes/element-svg"
 import { ImageSettings } from "@/components/editor/settings/image-settings"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 import { useAssetSrc } from "@/components/storage-provider"

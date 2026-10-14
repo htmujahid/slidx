@@ -7,7 +7,8 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
-import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
+import { ElementBox } from "@/components/editor/nodes/element-box"
+import { ElementSvg } from "@/components/editor/nodes/element-svg"
 import { ArrowLineSettings } from "@/components/editor/settings/arrow-line-settings"
 
 export type ArrowLineProps = ElementTransformProps & {

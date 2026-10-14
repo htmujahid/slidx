@@ -15,17 +15,13 @@ import { Button } from "@/components/ui/button"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import {
-  ColorSetting,
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-  SliderSetting,
-} from "@/components/editor/settings/fields"
-import {
-  ImageFitSetting,
-  ImageSource,
-} from "@/components/editor/settings/image-source"
+import { ColorSetting } from "@/components/editor/settings/color-setting"
+import { ImageFitSetting } from "@/components/editor/settings/image-fit-setting"
+import { ImageSource } from "@/components/editor/settings/image-source"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SliderSetting } from "@/components/editor/settings/slider-setting"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 import { TemplatePreview } from "@/components/editor/template-preview"
 

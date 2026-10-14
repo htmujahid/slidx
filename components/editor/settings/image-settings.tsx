@@ -8,16 +8,12 @@ import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import type { ImageBoxProps } from "@/components/editor/nodes/image-box"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import {
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-  SliderSetting,
-} from "@/components/editor/settings/fields"
-import {
-  ImageFitSetting,
-  ImageSource,
-} from "@/components/editor/settings/image-source"
+import { ImageFitSetting } from "@/components/editor/settings/image-fit-setting"
+import { ImageSource } from "@/components/editor/settings/image-source"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SliderSetting } from "@/components/editor/settings/slider-setting"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

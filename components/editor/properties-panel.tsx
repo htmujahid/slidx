@@ -14,9 +14,7 @@ import {
 } from "lucide-react"
 
 import { getElementLabel } from "@/lib/editor/labels"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
-import { useIsMobile } from "@/hooks/use-mobile"
 import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Kbd } from "@/components/ui/kbd"
@@ -26,7 +24,6 @@ import {
   Sidebar,
   SidebarContent,
   SidebarHeader,
-  SidebarProvider,
   SidebarRail,
 } from "@/components/ui/sidebar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -62,28 +59,6 @@ function ActionButton({
       </TooltipTrigger>
       <TooltipContent>{label}</TooltipContent>
     </Tooltip>
-  )
-}
-
-function PropertiesSidebar({ children }: { children: React.ReactNode }) {
-  const propertiesOpen = useChrome((state) => state.propertiesOpen)
-  const setPropertiesOpen = useChrome((state) => state.setPropertiesOpen)
-  const isMobile = useIsMobile()
-  return (
-    <SidebarProvider
-      open={propertiesOpen}
-      openMobile={isMobile && propertiesOpen}
-      onOpenMobileChange={(next) =>
-        setPropertiesOpen(
-          typeof next === "function" ? next(propertiesOpen) : next
-        )
-      }
-      onOpenChange={setPropertiesOpen}
-      className="min-h-0 min-w-0 flex-1"
-      style={{ "--sidebar-width": "18rem" } as React.CSSProperties}
-    >
-      {children}
-    </SidebarProvider>
   )
 }
 
@@ -222,4 +197,4 @@ function PropertiesPanel() {
   )
 }
 
-export { PropertiesPanel, PropertiesSidebar }
+export { PropertiesPanel }

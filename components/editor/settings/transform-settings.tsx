@@ -31,11 +31,9 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-} from "@/components/editor/settings/fields"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 
 const HORIZONTAL: Array<[Alignment, string, LucideIcon]> = [
   ["left", "Align left", AlignStartVerticalIcon],

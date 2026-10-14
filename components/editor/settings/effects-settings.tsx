@@ -11,13 +11,11 @@ import {
 import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
-import {
-  ColorSetting,
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-  SliderSetting,
-} from "@/components/editor/settings/fields"
+import { ColorSetting } from "@/components/editor/settings/color-setting"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SliderSetting } from "@/components/editor/settings/slider-setting"
 
 const blendModeLabel = (mode: BlendMode) =>
   (mode.charAt(0).toUpperCase() + mode.slice(1)).replace("-", " ")

@@ -6,12 +6,10 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ArrowLineProps } from "@/components/editor/nodes/arrow-line"
+import { ColorSetting } from "@/components/editor/settings/color-setting"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import {
-  ColorSetting,
-  NumberSetting,
-  SettingsSection,
-} from "@/components/editor/settings/fields"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

@@ -7,13 +7,11 @@ import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import type { ChartBoxProps } from "@/components/editor/nodes/chart-box"
+import { ColorSetting } from "@/components/editor/settings/color-setting"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import {
-  ColorSetting,
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-} from "@/components/editor/settings/fields"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

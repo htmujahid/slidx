@@ -10,7 +10,7 @@ import {
 } from "@/components/reui/emoji-picker"
 import type { EmojiBoxProps } from "@/components/editor/nodes/emoji-box"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import { SettingsSection } from "@/components/editor/settings/fields"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

@@ -10,7 +10,7 @@ import { Kbd } from "@/components/ui/kbd"
 import { Switch } from "@/components/ui/switch"
 import type { GroupProps } from "@/components/editor/nodes/group"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import { SettingsSection } from "@/components/editor/settings/fields"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

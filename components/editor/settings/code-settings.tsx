@@ -17,11 +17,9 @@ import {
 import { Switch } from "@/components/ui/switch"
 import type { CodeBlockProps } from "@/components/editor/nodes/code-block"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import {
-  NumberSetting,
-  SettingsRow,
-  SettingsSection,
-} from "@/components/editor/settings/fields"
+import { NumberSetting } from "@/components/editor/settings/number-setting"
+import { SettingsRow } from "@/components/editor/settings/settings-row"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

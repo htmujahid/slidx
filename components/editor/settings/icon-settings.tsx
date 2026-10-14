@@ -2,12 +2,10 @@
 
 import { IconPicker } from "@/components/editor/icon-picker"
 import type { IconBoxProps } from "@/components/editor/nodes/icon-box"
+import { ColorSetting } from "@/components/editor/settings/color-setting"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import {
-  ColorSetting,
-  SettingsSection,
-  SliderSetting,
-} from "@/components/editor/settings/fields"
+import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SliderSetting } from "@/components/editor/settings/slider-setting"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 

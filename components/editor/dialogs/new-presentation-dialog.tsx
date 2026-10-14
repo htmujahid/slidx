@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation"
 
 import { DEFAULT_TITLE } from "@/lib/editor/presentation"
 import { BLANK_SLIDE_JSON } from "@/lib/editor/slides"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useDeck } from "@/components/editor/editor-stores"
+import { useChrome, useDeck } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
 function NewPresentationDialog() {

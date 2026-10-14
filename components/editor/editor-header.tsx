@@ -2,12 +2,11 @@
 
 import { PanelLeftIcon, PanelRightIcon, PlayIcon } from "lucide-react"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { AccountMenu } from "@/components/editor/account-menu"
 import { Brand } from "@/components/editor/brand"
-import { usePresenter } from "@/components/editor/editor-stores"
+import { useChrome, usePresenter } from "@/components/editor/editor-stores"
 import { EditorMenubar } from "@/components/editor/menubar/editor-menubar"
 import { ThemeToggle } from "@/components/editor/theme-toggle"
 

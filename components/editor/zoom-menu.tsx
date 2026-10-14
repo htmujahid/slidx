@@ -6,7 +6,6 @@ import { useShallow } from "zustand/react/shallow"
 import { ZOOM_MAX, ZOOM_MIN } from "@/lib/editor/constants"
 import {
   canZoomToScale,
-  useViewport,
   type FitMode,
 } from "@/lib/editor/stores/viewport-store"
 import { Button } from "@/components/ui/button"
@@ -22,6 +21,7 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { useViewport } from "@/components/editor/editor-stores"
 
 const subscribe = () => () => {}
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform)

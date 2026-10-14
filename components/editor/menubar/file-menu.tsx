@@ -11,7 +11,6 @@ import {
   SaveIcon,
 } from "lucide-react"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useFileActions } from "@/hooks/use-file-actions"
 import {
   MenubarContent,
@@ -24,6 +23,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
+import { useChrome } from "@/components/editor/editor-stores"
 import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function FileMenu() {

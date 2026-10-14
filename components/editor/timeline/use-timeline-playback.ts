@@ -1,7 +1,7 @@
 import * as React from "react"
 
 import { trackPointer } from "@/lib/editor/geometry"
-import { usePreview } from "@/lib/editor/stores/preview-store"
+import { usePreview } from "@/components/editor/editor-stores"
 import {
   PLAY_TAIL_MS,
   SCRUB_STEP_LARGE_MS,

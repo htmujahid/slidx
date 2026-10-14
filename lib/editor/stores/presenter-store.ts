@@ -4,7 +4,7 @@ import { createStore } from "zustand/vanilla"
 import { createFullscreen } from "@/lib/editor/fullscreen"
 import type { PresentationFile } from "@/lib/editor/presentation"
 
-import { useChrome } from "./chrome-store"
+import type { ChromeState } from "./chrome-store"
 import { selectActiveIndex, type DeckState } from "./deck-store"
 
 export type PresenterState = {
@@ -20,7 +20,13 @@ export type PresenterState = {
   attach: () => () => void
 }
 
-export function createPresenterStore({ deck }: { deck: StoreApi<DeckState> }) {
+export function createPresenterStore({
+  deck,
+  chrome,
+}: {
+  deck: StoreApi<DeckState>
+  chrome: StoreApi<ChromeState>
+}) {
   return createStore<PresenterState>()((set, get) => {
     const fullscreen = createFullscreen({
       isWanted: () => get().deck !== null,
@@ -43,7 +49,7 @@ export function createPresenterStore({ deck }: { deck: StoreApi<DeckState> }) {
         if (get().deck) return
         const state = deck.getState()
         const snapshot = state.getPresentation()
-        useChrome.getState().setEditingId(null)
+        chrome.getState().setEditingId(null)
         set({
           deck: snapshot,
           index: selectActiveIndex(state),

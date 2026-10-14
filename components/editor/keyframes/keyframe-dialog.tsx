@@ -1,7 +1,7 @@
 "use client"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
+import { useChrome } from "@/components/editor/editor-stores"
 import { KeyframeEditor } from "@/components/editor/keyframes/keyframe-editor"
 
 function KeyframeDialog() {

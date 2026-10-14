@@ -5,11 +5,13 @@ import { useEditor } from "@craftjs/core"
 
 import { NUDGE, NUDGE_LARGE } from "@/lib/editor/constants"
 import { canEditContent } from "@/lib/editor/labels"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
-import { useViewport } from "@/lib/editor/stores/viewport-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useFileActions } from "@/hooks/use-file-actions"
-import { usePresenter } from "@/components/editor/editor-stores"
+import {
+  useChrome,
+  usePresenter,
+  useViewport,
+} from "@/components/editor/editor-stores"
 
 const ARROWS: Record<string, [number, number]> = {
   ArrowLeft: [-1, 0],

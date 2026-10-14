@@ -2,7 +2,7 @@
 
 import { useEditor, useNode } from "@craftjs/core"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
+import { useChrome } from "@/components/editor/editor-stores"
 
 function useElementEditing() {
   const { id } = useNode()

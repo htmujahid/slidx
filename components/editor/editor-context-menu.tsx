@@ -21,7 +21,6 @@ import type { Alignment } from "@/lib/editor/align"
 import type { Point } from "@/lib/editor/geometry"
 import { canEditContent, getElementLabel } from "@/lib/editor/labels"
 import { LIBRARY } from "@/lib/editor/library/items"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import {
   ContextMenu,
@@ -36,7 +35,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
-import { useDeck } from "@/components/editor/editor-stores"
+import { useChrome, useDeck } from "@/components/editor/editor-stores"
 
 const ALIGNMENTS: Array<[Alignment, string]> = [
   ["left", "Left"],

@@ -13,9 +13,9 @@ import {
   toDegrees,
   trackPointer,
 } from "@/lib/editor/geometry"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { cn } from "@/lib/utils"
+import { useChrome } from "@/components/editor/editor-stores"
 import { useSlide } from "@/components/editor/slide-context"
 
 function MultiSelectionOverlay({

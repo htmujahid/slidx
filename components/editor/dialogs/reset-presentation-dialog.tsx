@@ -1,6 +1,5 @@
 "use client"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useDeck } from "@/components/editor/editor-stores"
+import { useChrome, useDeck } from "@/components/editor/editor-stores"
 
 function ResetPresentationDialog() {
   const open = useChrome((state) => state.dialog === "reset")

@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -17,6 +16,7 @@ import { EditorCanvas } from "@/components/editor/editor-canvas"
 import { EditorFooter } from "@/components/editor/editor-footer"
 import { EditorHeader } from "@/components/editor/editor-header"
 import { EditorSidebar } from "@/components/editor/editor-sidebar"
+import { useChrome } from "@/components/editor/editor-stores"
 import { PropertiesPanel } from "@/components/editor/properties-panel"
 import { PropertiesSidebar } from "@/components/editor/properties-sidebar"
 import { TimelinePanel } from "@/components/editor/timeline/timeline-panel"

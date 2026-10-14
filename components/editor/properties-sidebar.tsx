@@ -2,9 +2,9 @@
 
 import * as React from "react"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { SidebarProvider } from "@/components/ui/sidebar"
+import { useChrome } from "@/components/editor/editor-stores"
 
 function PropertiesSidebar({ children }: { children: React.ReactNode }) {
   const propertiesOpen = useChrome((state) => state.propertiesOpen)

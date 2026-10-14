@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   MenubarContent,
   MenubarGroup,
@@ -24,7 +23,11 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
-import { selectActiveIndex, useDeck } from "@/components/editor/editor-stores"
+import {
+  selectActiveIndex,
+  useChrome,
+  useDeck,
+} from "@/components/editor/editor-stores"
 
 function SlideMenu() {
   const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))

@@ -4,9 +4,9 @@ import * as React from "react"
 import { Frame, useEditor } from "@craftjs/core"
 
 import { INITIAL_SLIDE_JSON } from "@/lib/editor/slides"
-import { useViewport } from "@/lib/editor/stores/viewport-store"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { EditorContextMenu } from "@/components/editor/editor-context-menu"
+import { useViewport } from "@/components/editor/editor-stores"
 
 const WHEEL_ZOOM_STEP = 1.1
 

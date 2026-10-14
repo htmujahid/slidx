@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import { DEFAULT_TITLE } from "@/lib/editor/presentation"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -15,7 +14,7 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { useDeck } from "@/components/editor/editor-stores"
+import { useChrome, useDeck } from "@/components/editor/editor-stores"
 
 function RenameForm({ onDone }: { onDone: () => void }) {
   const title = useDeck((state) => state.title)

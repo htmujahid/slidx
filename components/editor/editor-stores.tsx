@@ -3,7 +3,10 @@
 import * as React from "react"
 import { useStore, type StoreApi } from "zustand"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
+import {
+  createChromeStore,
+  type ChromeState,
+} from "@/lib/editor/stores/chrome-store"
 import {
   createCraftRef,
   createDeckStore,
@@ -15,23 +18,25 @@ import {
   createPresenterStore,
   type PresenterState,
 } from "@/lib/editor/stores/presenter-store"
-import { usePreview } from "@/lib/editor/stores/preview-store"
-import { useViewport } from "@/lib/editor/stores/viewport-store"
+import {
+  createPreviewStore,
+  type PreviewState,
+} from "@/lib/editor/stores/preview-store"
+import {
+  createViewportStore,
+  type ViewportState,
+} from "@/lib/editor/stores/viewport-store"
 
 type EditorStores = {
   craft: CraftRef
   deck: StoreApi<DeckState>
   presenter: StoreApi<PresenterState>
+  chrome: StoreApi<ChromeState>
+  viewport: StoreApi<ViewportState>
+  preview: StoreApi<PreviewState>
 }
 
 const EditorStoresContext = React.createContext<EditorStores | null>(null)
-
-function resetEditorUi() {
-  usePreview.getState().stop()
-  useChrome.setState(useChrome.getInitialState(), true)
-  useViewport.setState(useViewport.getInitialState(), true)
-  usePreview.setState(usePreview.getInitialState(), true)
-}
 
 function EditorStoresProvider({
   presentationId,
@@ -43,15 +48,19 @@ function EditorStoresProvider({
   const [stores] = React.useState<EditorStores>(() => {
     const craft = createCraftRef()
     const deck = createDeckStore({ presentationId, craft })
-    return { craft, deck, presenter: createPresenterStore({ deck }) }
+    const chrome = createChromeStore()
+    const viewport = createViewportStore()
+    const preview = createPreviewStore()
+    const presenter = createPresenterStore({ deck, chrome })
+    return { craft, deck, presenter, chrome, viewport, preview }
   })
   React.useEffect(() => {
     const unsubscribe = stores.deck.subscribe((state, previous) => {
-      if (state.activeId !== previous.activeId) usePreview.getState().stop()
+      if (state.activeId !== previous.activeId) stores.preview.getState().stop()
     })
     return () => {
       unsubscribe()
-      resetEditorUi()
+      stores.preview.getState().stop()
     }
   }, [stores])
   return (
@@ -77,10 +86,25 @@ function usePresenter<T>(selector: (state: PresenterState) => T) {
   return useStore(useEditorStores().presenter, selector)
 }
 
+function useChrome<T>(selector: (state: ChromeState) => T) {
+  return useStore(useEditorStores().chrome, selector)
+}
+
+function useViewport<T>(selector: (state: ViewportState) => T) {
+  return useStore(useEditorStores().viewport, selector)
+}
+
+function usePreview<T>(selector: (state: PreviewState) => T) {
+  return useStore(useEditorStores().preview, selector)
+}
+
 export {
   EditorStoresProvider,
   selectActiveIndex,
+  useChrome,
   useDeck,
+  usePreview,
+  useViewport,
   useEditorStores,
   usePresenter,
 }

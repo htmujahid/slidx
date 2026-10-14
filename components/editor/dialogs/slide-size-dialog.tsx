@@ -1,6 +1,5 @@
 "use client"
 
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   Dialog,
   DialogContent,
@@ -9,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { SlideSizeForm } from "@/components/editor/dialogs/slide-size-form"
+import { useChrome } from "@/components/editor/editor-stores"
 
 function SlideSizeDialog() {
   const open = useChrome((state) => state.dialog === "size")

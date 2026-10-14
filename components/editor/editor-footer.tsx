@@ -8,11 +8,14 @@ import { useShallow } from "zustand/react/shallow"
 import { getElementLabel } from "@/lib/editor/labels"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
 import { aspectLabel } from "@/lib/editor/slide-size"
-import { useChrome } from "@/lib/editor/stores/chrome-store"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { selectActiveIndex, useDeck } from "@/components/editor/editor-stores"
+import {
+  selectActiveIndex,
+  useChrome,
+  useDeck,
+} from "@/components/editor/editor-stores"
 import { ZoomMenu } from "@/components/editor/zoom-menu"
 
 function Stat({

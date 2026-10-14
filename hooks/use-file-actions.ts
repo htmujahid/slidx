@@ -6,10 +6,8 @@ import { sectionToImageMarkup, svgToPng } from "@/lib/editor/export"
 import { downloadBlob, pickFile, toFilename } from "@/lib/editor/files"
 import { slidesToHtml, slideToHtml } from "@/lib/editor/html-export"
 import { slidesToPdf } from "@/lib/editor/pdf"
-import {
-  parsePresentation,
-  PRESENTATION_EXTENSION,
-} from "@/lib/editor/presentation"
+import { PRESENTATION_EXTENSION } from "@/lib/editor/presentation"
+import { parsePresentation } from "@/lib/editor/presentation-file"
 import { renderSlides } from "@/lib/editor/render-slides"
 import { externalizeAssets, inlineAssets } from "@/lib/storage/assets"
 import { toast } from "@/components/ui/toast"

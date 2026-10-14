@@ -8,7 +8,6 @@ import {
 
 const TICK_MS = 500
 
-/** The seconds ruler, which is also the playhead's slider. */
 function TimelineRuler({
   rulerRef,
   trackWidth,

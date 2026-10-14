@@ -13,7 +13,6 @@ async function fetchAsDataUri(url: string) {
   return readAsDataUri(await response.blob())
 }
 
-/** Every character the slides display, as code points. */
 function usedCodePoints(markup: string) {
   const template = document.createElement("template")
   template.innerHTML = markup
@@ -24,7 +23,6 @@ function usedCodePoints(markup: string) {
   return points
 }
 
-/** Whether a `unicode-range` descriptor covers any of the given code points. */
 function coversAny(range: string, points: Set<number>) {
   if (!range.trim()) return true
   return range.split(",").some((token) => {
@@ -36,10 +34,6 @@ function coversAny(range: string, points: Set<number>) {
   })
 }
 
-/**
- * `@font-face` rules for the families the deck uses, with their font files
- * inlined as data URIs so the exported file needs nothing else.
- */
 export async function embeddedFontCss(markup: string) {
   const rules: CSSFontFaceRule[] = []
   for (const sheet of Array.from(document.styleSheets)) {
@@ -77,9 +71,7 @@ export async function embeddedFontCss(markup: string) {
           const base = rule.parentStyleSheet?.href ?? document.baseURI
           const dataUri = await fetchAsDataUri(new URL(url, base).href)
           text = text.replace(whole, `url("${dataUri}")`)
-        } catch {
-          // The family falls back to its next source or a system font.
-        }
+        } catch {}
       }
       return text
     })

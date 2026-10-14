@@ -177,7 +177,6 @@ function PropertiesPanel() {
               </div>
             )}
             <ScrollArea className="min-h-0 flex-1 overflow-hidden">
-              {/* Watches the content so the scrollbar follows sections opening. */}
               <ScrollAreaPrimitive.Content>
                 <Accordion
                   key={id}

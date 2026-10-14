@@ -23,7 +23,6 @@ import {
   NUDGE_MS,
 } from "@/components/editor/timeline/constants"
 
-/** Every change the keyframe dialog makes to one element's keyframes. */
 export function useKeyframeEditing({
   id,
   tracks,
@@ -41,7 +40,6 @@ export function useKeyframeEditing({
 }) {
   const { actions } = useEditor()
 
-  // Dragging and typing produce streams of changes, merged into one undo step.
   const write = (next: AnimationTrack[], merge = false) =>
     (merge ? actions.history.throttle(400) : actions).setProp(id, (props) => {
       props.timing = {
@@ -56,7 +54,6 @@ export function useKeyframeEditing({
     [...(trackOf(property)?.keyframes ?? [])].sort((a, b) => a.at - b.at)
   const moment = () => Math.min(Math.max(snapTime(playhead), 0), durationMs)
 
-  /** Adds a keyframe at the playhead, or removes the one that is there. */
   const toggle = (property: TrackProperty) => {
     const at = moment()
     write(
@@ -66,7 +63,6 @@ export function useKeyframeEditing({
     )
   }
 
-  /** Changing a value sets a keyframe at the playhead. */
   const setValue = (property: TrackProperty, value: number) =>
     write(
       setKeyframeAt(

@@ -35,7 +35,6 @@ type SlidesContextValue = {
   duplicateSlide: (id: string) => void
   deleteSlide: (id: string) => void
   moveSlide: (id: string, index: number) => void
-  /** Gives every slide a new size, scaling what is on them or leaving it be. */
   resizeSlides: (size: SlideSize, mode: ResizeMode) => void
   getPresentation: () => PresentationFile
   loadPresentation: (title: string, slides: string[]) => void
@@ -117,7 +116,6 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
 
   const addSlideFrom = React.useCallback(
     (json: string) => {
-      // New slides and templates join the deck at its size.
       const size = slideSizeOf(
         query.node(ROOT_NODE).get().data.props as Partial<SlideSize>
       )

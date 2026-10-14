@@ -1,6 +1,5 @@
 import { EASINGS, type AnimationEasing } from "@/lib/editor/easing"
 
-/** What a keyframe track animates: the properties an element's panel shows. */
 export type TrackProperty =
   | "x"
   | "y"
@@ -15,16 +14,13 @@ export type TrackProperty =
   | "strokeWidth"
 
 export type Keyframe = {
-  /** Milliseconds from the slide appearing. */
   at: number
   value: number
-  /** The easing from this keyframe towards the next. */
   easing: AnimationEasing
 }
 
 export type AnimationTrack = { property: TrackProperty; keyframes: Keyframe[] }
 
-/** The element's own numbers, which the properties that mirror its panel start from. */
 export type ElementValues = Partial<
   Record<"x" | "y" | "width" | "height" | "rotation" | "strokeWidth", number>
 >
@@ -38,16 +34,12 @@ type PropertyDefinition = {
   step: number
   min?: number
   max?: number
-  /** Node types it applies to; every element when omitted. */
   only?: string[]
-  /** The value when nothing is animated. */
   rest: (values: ElementValues) => number
-  /** The CSS custom property the animation drives. */
   variable: string
   syntax: string
   initial: string
   inherits?: boolean
-  /** The custom property's value for a keyframe value. */
   toCss: (value: number, rest: number) => string
 }
 
@@ -194,7 +186,6 @@ export const TRACK_PROPERTIES: Record<TrackProperty, PropertyDefinition> = {
 
 export const TRACK_ORDER = Object.keys(TRACK_PROPERTIES) as TrackProperty[]
 
-/** The properties an element of this type can animate, in panel order. */
 export const propertiesFor = (nodeName: string) =>
   TRACK_ORDER.filter((property) => {
     const only = TRACK_PROPERTIES[property].only
@@ -204,7 +195,6 @@ export const propertiesFor = (nodeName: string) =>
 export const restValue = (property: TrackProperty, values: ElementValues) =>
   TRACK_PROPERTIES[property].rest(values)
 
-/** The pickable values from an element's props. */
 export function elementValues(props: Record<string, unknown>): ElementValues {
   const pick = (key: keyof ElementValues) =>
     typeof props[key] === "number" ? (props[key] as number) : undefined
@@ -218,22 +208,12 @@ export function elementValues(props: Record<string, unknown>): ElementValues {
   }
 }
 
-/**
- * Each property animates its own registered custom property, so every track
- * keeps its own keyframes and easing. The element composes them into
- * `translate`, `scale`, `rotate`, `opacity` and `filter`, declared the same
- * way every time so they can sit beside the element's other animations.
- * A transition that writes the same property (a fade, a blur) is an animation,
- * so it takes precedence while it plays and the keyframes govern the rest.
- * Tracks run for the whole slide and hold their first and last values.
- */
 export function compileTracks(options: {
   scope: string
   id: string
   tracks: AnimationTrack[]
   values: ElementValues
   durationMs: number
-  /** Delay shared by every track; negative when held at a moment. */
   delay: number
 }) {
   const { scope, id, values, durationMs } = options

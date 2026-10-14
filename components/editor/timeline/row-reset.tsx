@@ -2,7 +2,6 @@ import { RotateCcwIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 
-/** Puts the element back on the slide throughout, with no transitions. */
 function RowReset({
   label,
   timed,

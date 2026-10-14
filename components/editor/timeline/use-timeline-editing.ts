@@ -27,7 +27,6 @@ import {
   NUDGE_MS,
 } from "@/components/editor/timeline/constants"
 
-/** Every change the timeline makes to the slide: spans, transitions, length. */
 export function useTimelineEditing({
   pxPerMs,
   durationMs,
@@ -37,11 +36,9 @@ export function useTimelineEditing({
 }) {
   const { actions } = useEditor()
 
-  // The slide has no selection of its own: choosing it clears the selection.
   const select = (id: string) =>
     id === ROOT_NODE ? actions.clearEvents() : actions.selectNode(id)
 
-  // Dragging produces a stream of changes, merged into one undo step.
   const writeSpans = (id: string, spans: ElementSpan[], merge = true) =>
     (merge ? actions.history.throttle(400) : actions).setProp(id, (props) => {
       props.timing = { ...resolveTiming(props.timing), spans }
@@ -81,7 +78,6 @@ export function useTimelineEditing({
     )
   }
 
-  /** Drag a whole span along the timeline. */
   const startMove = (
     event: React.PointerEvent,
     entry: TimelineEntry,
@@ -165,7 +161,6 @@ export function useTimelineEditing({
   ) =>
     writeSpans(entry.id, withTransition(entry, index, side, { easing }), false)
 
-  /** Drag the inner edge of a transition to change how long it takes. */
   const startTransitionDrag = (
     event: React.PointerEvent,
     entry: TimelineEntry,
@@ -200,7 +195,6 @@ export function useTimelineEditing({
     )
   }
 
-  /** Cuts the span under `ms` in two on every given element that has one there. */
   const split = (entries: TimelineEntry[], ms: number) => {
     for (const entry of entries) {
       const spans = splitAt(entry, ms)

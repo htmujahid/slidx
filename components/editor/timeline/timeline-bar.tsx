@@ -36,11 +36,6 @@ import {
 
 const MIN_CHIP_PX = 40
 
-/**
- * The entrance or exit at one end of the bar, when it has one: its name, and
- * a handle on its inner edge that sets how long it takes. It is chosen from
- * the bar's context menu.
- */
 function TransitionChip({
   side,
   entry,
@@ -52,7 +47,6 @@ function TransitionChip({
 }: {
   side: TransitionSide
   entry: TimelineEntry
-  /** Which of the element's spans this is. */
   index: number
   pxPerMs: number
   barWidth: number
@@ -191,11 +185,6 @@ function TransitionSubmenu({
   )
 }
 
-/**
- * One stretch of time an element is on the slide. Drag the bar to move it and
- * either end to trim it; the element is hidden outside. Right-click for the
- * entrance and exit that play at its ends.
- */
 function TimelineBar({
   entry,
   index,
@@ -212,10 +201,8 @@ function TimelineBar({
   onRemove,
 }: {
   entry: TimelineEntry
-  /** Which of the element's spans this bar is. */
   index: number
   label: string
-  /** The slide's own bar: it can't be moved, trimmed or removed. */
   fixed?: boolean
   pxPerMs: number
   onMove: (

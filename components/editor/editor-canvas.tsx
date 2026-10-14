@@ -12,7 +12,6 @@ const WHEEL_ZOOM_STEP = 1.1
 
 type Area = { width: number; height: number }
 
-/** The room inside the stage's padding, where the slide can go. */
 function measure(stage: HTMLElement): Area {
   const style = getComputedStyle(stage)
   const inset = (sides: string[]) =>
@@ -42,8 +41,6 @@ function EditorCanvas() {
     return () => observer.disconnect()
   }, [])
 
-  // Zoom 1 is the slide fitted to the area: all of it in view, or its full
-  // width. A pixel is held back so rounding never makes the stage scroll.
   const width = area
     ? Math.max(
         Math.floor(

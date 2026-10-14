@@ -31,7 +31,6 @@ function arrowPoints(tip: Point, from: Point, size: number) {
   ].join(" ")
 }
 
-// A straight diagonal arrow across the element box; use flip to mirror it.
 const ArrowLine: UserComponent<Partial<ArrowLineProps>> = (props) => {
   const { color, strokeWidth, dashStyle, arrowStart, arrowEnd, ...transform } =
     {

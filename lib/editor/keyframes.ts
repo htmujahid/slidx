@@ -4,12 +4,10 @@ import {
   type TrackProperty,
 } from "@/lib/editor/tracks"
 
-/** Keyframes closer together than this are the same moment. */
 export const SAME_MOMENT_MS = 25
 
 const byTime = (a: Keyframe, b: Keyframe) => a.at - b.at
 
-/** A track's value at a moment: held before and after, linear between. */
 export function valueAt(
   track: AnimationTrack | undefined,
   rest: number,
@@ -47,11 +45,6 @@ const withTrack = (
     : [...tracks, next]
 }
 
-/**
- * Sets a keyframe at a moment, adding it when the track has none there. A
- * new keyframe starts at the value the track already has at that moment, so
- * adding one changes nothing until it is edited.
- */
 export function setKeyframeAt(
   tracks: AnimationTrack[],
   property: TrackProperty,
@@ -81,7 +74,6 @@ export function setKeyframeAt(
   })
 }
 
-/** Removes the keyframe at a moment; a track left with none is dropped. */
 export function removeKeyframeAt(
   tracks: AnimationTrack[],
   property: TrackProperty,
@@ -98,7 +90,6 @@ export function removeKeyframeAt(
   }).filter((track) => track.keyframes.length > 0)
 }
 
-/** Moves one keyframe, keeping it between its neighbours and within the slide. */
 export function moveKeyframe(
   tracks: AnimationTrack[],
   property: TrackProperty,
@@ -122,7 +113,6 @@ export function moveKeyframe(
   })
 }
 
-/** Sets how the animation eases from one keyframe to the next. */
 export function setKeyframeEasing(
   tracks: AnimationTrack[],
   property: TrackProperty,

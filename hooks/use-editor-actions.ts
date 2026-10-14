@@ -25,7 +25,6 @@ import { Group } from "@/components/editor/nodes/group"
 function useEditorActions() {
   const { actions, query } = useEditor()
 
-  /** The size of the slide being edited. */
   const getSlideSize = React.useCallback(
     () => slideSizeOf(query.node(ROOT_NODE).get().data.props),
     [query]

@@ -22,12 +22,9 @@ export type SlideProps = {
   gridSize: number
   snapToGrid: boolean
   snapToAlignment: boolean
-  /** How long the slide plays, in milliseconds. Elements are on it throughout unless trimmed. */
   duration: number
-  /** The slide's size, in the units everything on it is placed in. */
   width: number
   height: number
-  /** The slide's own entrance and exit; its first span's presets apply to the whole slide. */
   timing: ElementTiming
 }
 
@@ -50,11 +47,6 @@ export const SLIDE_DEFAULTS: SlideProps = {
   timing: DEFAULT_TIMING,
 }
 
-/**
- * Endpoints of a CSS-style linear gradient (0° points up, 90° right) across a
- * width × height box. The line runs through the center and is long enough
- * that the end colors land exactly on the corners.
- */
 export function linearGradientPoints(
   angle: number,
   width: number,

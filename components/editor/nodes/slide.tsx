@@ -228,8 +228,6 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
         }}
       >
         {animation.css ? <style>{animation.css}</style> : null}
-        {/* The slide is drawn at its own size and scaled to fit by CSS alone, so
-            an exported slide fits its frame without a script. */}
         <div
           ref={(element) => {
             surfaceRef.current = element

@@ -7,11 +7,9 @@ import { ZOOM_MAX, ZOOM_MIN, ZOOM_STEP } from "@/lib/editor/constants"
 export type EditorDialog = "rename" | "new" | "reset" | "size" | null
 
 export type AnimationPreview = {
-  /** `play` runs on its own clock; `scrub` is held at `time`. */
   mode: "off" | "play" | "scrub"
   run: number
   time: number
-  /** `performance.now()` when playback began. */
   startedAt: number
 }
 
@@ -22,7 +20,6 @@ const NO_PREVIEW: AnimationPreview = {
   startedAt: 0,
 }
 
-/** What a zoom of 1 means: the whole slide in view, or the slide's full width. */
 export type FitMode = "view" | "width"
 
 const clampZoom = (zoom: number) => Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, zoom))
@@ -39,12 +36,9 @@ type EditorLayoutContextValue = {
   setCanvasScale: (scale: number) => void
   zoom: number
   fitMode: FitMode
-  /** Fits the slide to the canvas area and resets zoom. */
   fit: (mode: FitMode) => void
   zoomBy: (factor: number) => void
-  /** Zooms so the slide is drawn at `scale` times its own size (1 is 100%). */
   zoomToScale: (scale: number) => void
-  /** Whether `zoomToScale(scale)` is within the zoom limits. */
   canZoomToScale: (scale: number) => boolean
   zoomIn: () => void
   zoomOut: () => void
@@ -52,13 +46,10 @@ type EditorLayoutContextValue = {
   timelineOpen: boolean
   setTimelineOpen: (open: boolean) => void
   toggleTimeline: () => void
-  /** The element whose keyframes the dialog is editing. */
   keyframeTarget: string | null
   setKeyframeTarget: (id: string | null) => void
   animationPreview: AnimationPreview
-  /** Runs the slide's animations once, ending after `durationMs`. */
   playAnimationPreview: (durationMs: number) => void
-  /** Holds every animation at `ms` into the slide. */
   scrubAnimationPreview: (ms: number) => void
   stopAnimationPreview: () => void
 }
@@ -76,7 +67,6 @@ function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
     (factor: number) => setZoom((current) => clampZoom(current * factor)),
     []
   )
-  // `canvasScale` is what the slide is drawn at; zoom is relative to the fit.
   const zoomFor = React.useCallback(
     (scale: number) => (scale * zoom) / (canvasScale || 1),
     [zoom, canvasScale]

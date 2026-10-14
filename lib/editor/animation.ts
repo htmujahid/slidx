@@ -33,41 +33,27 @@ export type AnimationPreset =
   | "blur-out"
   | "wipe-out"
 
-/** An element's entrance plays at the start of its span, its exit at the end. */
 export type TransitionSide = "enter" | "exit"
 
 export type Transition = {
   preset: AnimationPreset
-  /** Milliseconds. */
   duration: number
   easing: AnimationEasing
 }
 
-/**
- * One stretch of time an element is on the slide, in milliseconds from the
- * slide appearing. The transitions play inside it, at its edges.
- */
 export type ElementSpan = {
   start: number
-  /** `null` runs to the end of the slide. */
   end: number | null
   enter: Transition
   exit: Transition
 }
 
-/**
- * When an element is on the slide. By default it is there throughout, as one
- * span. Trimming a span hides the element outside it; splitting one into two
- * and trimming between them shows the element, hides it, and shows it again.
- */
 export type ElementTiming = {
   spans: ElementSpan[]
-  /** Property keyframes, at slide milliseconds; they run alongside the spans. */
   tracks: AnimationTrack[]
 }
 
 export const DEFAULT_SLIDE_DURATION = 5000
-/** The shortest an element can be on the slide in one go. */
 export const MIN_VISIBLE_MS = 100
 
 const DEFAULT_ENTER: Transition = {
@@ -96,7 +82,6 @@ export const resolveSpan = (span?: Partial<ElementSpan>): ElementSpan => ({
   exit: { ...DEFAULT_EXIT, ...span?.exit },
 })
 
-/** Fills in whatever a saved timing leaves out. */
 export function resolveTiming(timing?: Partial<ElementTiming>): ElementTiming {
   return {
     spans:
@@ -115,15 +100,10 @@ type PresetDefinition = {
   id: Exclude<AnimationPreset, "none">
   label: string
   group: "enter" | "exit"
-  /** Node names it applies to; every element when omitted. */
   only?: string[]
-  /** `@keyframes` body applied to the element's wrapper. */
   frames?: string
-  /** Animates the stroke and fill of the drawn geometry instead. */
   draw?: boolean
-  /** Builds a chart up piece by piece; what that means depends on its kind. */
   build?: boolean
-  /** Reveals in discrete steps, one per character. */
   stepped?: boolean
 }
 
@@ -133,17 +113,12 @@ const slideFrames = (axis: "X" | "Y", sign: 1 | -1) =>
 const slideOutFrames = (axis: "X" | "Y", sign: 1 | -1) =>
   `from{opacity:1;transform:none}to{opacity:0;transform:translate${axis}(${sign * DISTANCE}px)}`
 
-/* A left-to-right reveal. The generous negative insets keep shadows and
-   outer stroke halves from being clipped once it has finished. */
 const WIPE_FRAMES =
   "from{clip-path:inset(-200px 100% -200px -200px)}to{clip-path:inset(-200px -200px -200px -200px)}"
 
-/* The reverse: the element is wiped away from the left. */
 const WIPE_OUT_FRAMES =
   "from{clip-path:inset(-200px -200px -200px -200px)}to{clip-path:inset(-200px -200px -200px 100%)}"
 
-/* Same reveal, but between the measured text edges (--vx-text-l / -r) rather
-   than across the whole box; unmeasured it falls back to the box. */
 const TYPEWRITER_FRAMES =
   "from{clip-path:inset(-200px calc(100% - var(--vx-text-l,0px)) -200px -200px)}99.9%{clip-path:inset(-200px calc(100% - var(--vx-text-r,100%)) -200px -200px)}to{clip-path:inset(-200px -200px -200px -200px)}"
 
@@ -279,11 +254,9 @@ const PRESETS_BY_ID = Object.fromEntries(
   PRESETS.map((preset) => [preset.id, preset])
 ) as Record<PresetDefinition["id"], PresetDefinition>
 
-/** Whether easing shapes this preset (stepped ones like the typewriter ignore it). */
 export const hasEasing = (preset: AnimationPreset) =>
   preset !== "none" && !PRESETS_BY_ID[preset].stepped
 
-/** The presets that suit this element at one edge of its span. */
 export function presetsFor(nodeName: string, side: TransitionSide) {
   return PRESETS.filter(
     (preset) =>
@@ -295,21 +268,15 @@ export type ChartMeta = { kind: ChartKind; categories: number }
 
 export type TimelineInput = {
   id: string
-  /** The node type, e.g. "TextBox". */
   name: string
   timing?: Partial<ElementTiming>
-  /** Plain text, used to size the typewriter's steps. */
   text?: string
-  /** A chart's kind and how many categories it has, which shape its build. */
   chart?: ChartMeta
-  /** The element's own position, size, rotation and stroke, which keyframes are measured from. */
   values?: ElementValues
 }
 
-/** A span settled within the slide: `end` is always a time. */
 export type ResolvedSpan = Omit<ElementSpan, "end"> & {
   end: number
-  /** Whether this span runs to the end of the slide. */
   toEnd: boolean
 }
 
@@ -323,11 +290,9 @@ export type TimelineEntry = {
   chart?: ChartMeta
 }
 
-/** Settles every element's spans within the slide's length, in order and apart. */
 export function buildTimeline(inputs: TimelineInput[], durationMs: number) {
   const entries: TimelineEntry[] = inputs.map((input) => {
     const timing = resolveTiming(input.timing)
-    // A preset that doesn't suit this element at this edge does nothing.
     const valid = (side: TransitionSide, transition: Transition) => {
       const definition =
         transition.preset === "none"
@@ -375,7 +340,6 @@ export function buildTimeline(inputs: TimelineInput[], durationMs: number) {
 
 export type Timeline = ReturnType<typeof buildTimeline>
 
-/** Whether an element's timing changes anything about how it plays. */
 export const isTimed = (entry: TimelineEntry, durationMs: number) =>
   entry.tracks.length > 0 ||
   entry.spans.length !== 1 ||
@@ -392,22 +356,14 @@ const stepCount = (text = "") =>
 
 const FADE_LATE = "0%,60%{opacity:0}to{opacity:1}"
 
-/**
- * How a chart builds up, as rules aimed at the classes Recharts gives its
- * parts. Bars grow in turn from their baseline, lines draw themselves, areas
- * wipe in, a pie sweeps round and a radar opens out from its centre.
- */
-/** One part of a chart's build: what to style, and the animation that plays on it. */
 type ChartPiece = {
   selector: string
-  /** Declarations that stay as they are, whatever animation plays. */
   declarations?: string
   animation?: string
 }
 
 function chartBuildCss(
   scope: string,
-  /** Tells apart the builds of one chart's parts, which each need their own keyframes. */
   buildId: string,
   selector: string,
   meta: ChartMeta,
@@ -433,9 +389,6 @@ function chartBuildCss(
   if (meta.kind === "bar" || meta.kind === "bar-horizontal") {
     const horizontal = meta.kind === "bar-horizontal"
     const count = Math.max(1, meta.categories)
-    // Bars start spread over the first half and each grows for the second. The
-    // stagger is inside each bar's keyframes, so every bar starts with the part
-    // and waits at its first frame, even where nothing holds that frame for it.
     const barMs = count > 1 ? duration / 2 : duration
     const step = count > 1 ? (duration - barMs) / (count - 1) : 0
     const percent = (ms: number) => +((ms / duration) * 100).toFixed(4)
@@ -492,8 +445,6 @@ function chartBuildCss(
     )
   } else if (meta.kind === "pie") {
     const sweep = key("sweep", "from{--vx-sweep:0deg}to{--vx-sweep:360deg}")
-    // The mask is permanent but the angle returns to 360deg when the
-    // animation ends, so the finished chart is whole.
     pieces.push({
       selector: `${selector} .recharts-surface`,
       declarations:
@@ -515,17 +466,6 @@ function chartBuildCss(
   return { pieces, keyframes }
 }
 
-/**
- * The CSS that plays a slide's animations. Class and keyframe names carry a
- * per-slide scope, and the class a per-run number, so slides never collide
- * and a new run restarts the animations.
- */
-
-/**
- * Visible exactly within the element's spans. Each keyframe holds its value
- * until the next (`step-end`), so the element switches at the boundaries
- * rather than fading through them.
- */
 function visibilityFrames(entry: TimelineEntry, durationMs: number) {
   const states = new Map<number, "visible" | "hidden">([[0, "hidden"]])
   for (const span of entry.spans) {
@@ -542,14 +482,6 @@ function visibilityFrames(entry: TimelineEntry, durationMs: number) {
   ].join("")
 }
 
-/**
- * The CSS that plays a slide's timing. Class and keyframe names carry a
- * per-slide scope, and the class a per-run number, so slides never collide
- * and a new run restarts the animations.
- *
- * The element is held hidden outside its spans; each span's entrance plays
- * from its start and its exit ends exactly at its end.
- */
 export function buildAnimationCss(
   scope: string,
   run: number,
@@ -565,8 +497,6 @@ export function buildAnimationCss(
   const drawn = new Map<string, string[]>()
   const declared = new Map<string, string[]>()
   const strokes = new Map<string, string[]>()
-  // A chart's pieces can be built by several parts, so each piece's animations
-  // are gathered into one list before its rule is written.
   const chartPieces = new Map<
     string,
     { declarations: Set<string>; animations: string[] }
@@ -574,10 +504,7 @@ export function buildAnimationCss(
   const push = (map: Map<string, string[]>, id: string, value: string) =>
     map.set(id, [...(map.get(id) ?? []), value])
   const paused = pausedAt === undefined ? "" : ";animation-play-state:paused"
-  // Held at a moment: every animation is paused at its start with its delay
-  // shifted, which leaves it exactly `pausedAt` into the slide.
   const at = (ms: number) => ms - (pausedAt ?? 0)
-  // The slide's own class sits on the element that carries the scope.
   const target = (id: string) =>
     id === ROOT_NODE
       ? `.vx-${scope}.${classes[id]}`
@@ -633,11 +560,6 @@ export function buildAnimationCss(
         const easing = definition.stepped
           ? `steps(${stepCount(entry.text)},end)`
           : EASINGS[transition.easing].css
-        // Before it starts the element is hidden by the visibility frames, and
-        // after it ends the next span or the visibility frames take over, so
-        // a transition only holds a frame where nothing else will: the first
-        // entrance shows its first frame from the beginning, and an exit at
-        // the very end of the slide stays put.
         const fill =
           side === "enter"
             ? index === 0
@@ -727,7 +649,6 @@ export function buildAnimationCss(
   const frames = [...keyframes].map(
     ([name, body]) => `@keyframes ${name}{${body}}`
   )
-  // Registered so the pie's sweep angle can animate. At rest it is a full turn.
   if (frames.some((frame) => frame.includes("--vx-sweep")))
     registrations.set(
       "--vx-sweep",

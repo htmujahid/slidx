@@ -78,14 +78,12 @@ function slideSection(
 </section>`
 }
 
-/** A lone slide, with no navigation: just the slide, centred and animated. */
 function singleSection(svg: string, size: SlideSize) {
   return `<section class="slide">
 <div class="frame" style="--w:${size.width};--h:${size.height}">${svg}</div>
 </section>`
 }
 
-/** Where a lone slide has the whole window, rather than leaving room for controls. */
 const SINGLE_CSS =
   ".frame{width:min(100%,calc((100dvh - 32px) * var(--w) / var(--h)))}"
 
@@ -134,10 +132,8 @@ ${body}
   return new Blob([html], { type: "text/html;charset=utf-8" })
 }
 
-/** One self-contained HTML file: every slide inline, navigable without script. */
 export const slidesToHtml = (slides: string[], title: string) =>
   buildHtml(slides, title, { single: false })
 
-/** One slide as its own HTML file, playing its animations when it opens. */
 export const slideToHtml = (slide: string, title: string) =>
   buildHtml([slide], title, { single: true })

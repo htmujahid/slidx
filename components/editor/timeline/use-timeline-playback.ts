@@ -9,15 +9,10 @@ import {
   SCRUB_STEP_MS,
 } from "@/components/editor/timeline/constants"
 
-/**
- * The playhead and everything that moves it: playing, resetting, and
- * scrubbing the ruler with the mouse or keyboard.
- */
 export function useTimelinePlayback({
   durationMs,
   pxPerMs,
 }: {
-  /** How long the slide plays, which is also how long the ruler is drawn. */
   durationMs: number
   pxPerMs: number
 }) {
@@ -35,7 +30,6 @@ export function useTimelinePlayback({
   const playhead =
     animationPreview.mode === "scrub" ? animationPreview.time : clock
 
-  // The slide's clock while a preview plays, so the playhead follows it.
   React.useEffect(() => {
     if (animationPreview.mode !== "play") return
     let frame = 0
@@ -49,7 +43,6 @@ export function useTimelinePlayback({
     return () => cancelAnimationFrame(frame)
   }, [animationPreview.mode, animationPreview.startedAt, durationMs])
 
-  // A preview belongs to one slide, and to the open panel.
   React.useEffect(() => {
     stopAnimationPreview()
     return stopAnimationPreview

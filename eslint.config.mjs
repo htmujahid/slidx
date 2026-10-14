@@ -12,7 +12,6 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
-    // Vendored component libraries, kept as shipped by their registries:
     "components/ui/**",
     "components/reui/**",
     "hooks/use-mobile.ts",

@@ -17,7 +17,6 @@ import { RowReset } from "@/components/editor/timeline/row-reset"
 import { TimelineBar } from "@/components/editor/timeline/timeline-bar"
 import type { TimelineRowData } from "@/components/editor/timeline/use-timeline-data"
 
-/** One element: its label on the left, when it is on the slide on the right. */
 function TimelineRow({
   row,
   entry,
@@ -40,12 +39,10 @@ function TimelineRow({
 }: {
   row: TimelineRowData
   entry: TimelineEntry
-  /** Whether it has been trimmed or given a transition. */
   timed: boolean
   selected: boolean
   pxPerMs: number
   trackWidth: number
-  /** Width of one second, for the lane's grid lines. */
   gridWidth: number
   onSelect: () => void
   onReset: () => void
@@ -92,8 +89,6 @@ function TimelineRow({
   ) => void
   onRemove: (entry: TimelineEntry, index: number) => void
 }) {
-  // The slide itself is always there for the whole slide: it only has an
-  // entrance and an exit, and no keyframes.
   const fixed = row.id === ROOT_NODE
   return (
     <div

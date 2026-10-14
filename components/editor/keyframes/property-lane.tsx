@@ -17,11 +17,6 @@ import {
 
 const round = (value: number) => Math.round(value * 100) / 100
 
-/**
- * One animatable property: its value at the playhead (editing it sets a
- * keyframe there), a diamond to add or remove a keyframe at the playhead, and
- * the keyframes themselves along the lane.
- */
 function PropertyLane({
   property,
   track,
@@ -38,13 +33,11 @@ function PropertyLane({
 }: {
   property: TrackProperty
   track?: AnimationTrack
-  /** The value when nothing is animated. */
   rest: number
   playhead: number
   pxPerMs: number
   trackWidth: number
   gridWidth: number
-  /** The selected keyframe on this lane, if any. */
   selectedIndex?: number
   onToggle: () => void
   onSetValue: (value: number) => void

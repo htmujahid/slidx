@@ -6,7 +6,6 @@ import { markupSize, sectionToImageMarkup, svgToPng } from "@/lib/editor/export"
 import { renderSlides } from "@/lib/editor/render-slides"
 
 const PDF_SCALE = 2
-/** A page is half the slide's pixels, in points. */
 const PAGE_SCALE = 0.5
 
 export async function slidesToPdf(slides: string[], title: string) {

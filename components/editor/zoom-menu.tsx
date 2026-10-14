@@ -24,14 +24,11 @@ import {
 const subscribe = () => () => {}
 const isMac = () => /Mac|iPhone|iPad/.test(navigator.platform)
 
-/** The shortcut's modifier key as this platform calls it. */
 const useModifier = () =>
   React.useSyncExternalStore(subscribe, isMac, () => false) ? "⌘" : "Ctrl+"
 
-/** Sizes to jump to, as a percentage of the slide's own size. */
 const PRESETS = [25, 50, 75, 100, 150, 200]
 
-/** The footer's zoom readout, which opens the zoom options. */
 function ZoomMenu() {
   const {
     canvasScale,

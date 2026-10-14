@@ -6,7 +6,6 @@ const toKebab = (name: string) =>
     .replace(/([A-Z])([A-Z][a-z])/g, "$1-$2")
     .toLowerCase()
 
-/** Every lucide icon, keyed by kebab-case name (the value stored on nodes). */
 export const ICONS: Record<string, LucideIcon> = Object.fromEntries(
   Object.entries(icons).map(([name, Icon]) => [toKebab(name), Icon])
 )

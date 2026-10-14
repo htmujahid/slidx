@@ -10,10 +10,6 @@ import { PlaybackProvider } from "@/components/editor/animation-playback"
 
 const RENDER_SETTLE_MS = 300
 
-/**
- * Renders each serialized slide off screen, in the live document so fonts and
- * styles apply, and maps each slide's `<section>` through `convert`.
- */
 export async function renderSlides<T>(
   slides: string[],
   convert: (section: HTMLElement) => T | Promise<T>,
@@ -60,7 +56,6 @@ export async function renderSlides<T>(
     if (sections.length !== slides.length) {
       throw new Error("Some slides could not be rendered.")
     }
-    // Converted before the render is torn down, which happens after this returns.
     return await Promise.all(sections.map(convert))
   } finally {
     root.unmount()

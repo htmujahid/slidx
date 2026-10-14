@@ -5,7 +5,6 @@ import {
 } from "@/lib/editor/shapes"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 
-/** Preview boxes for shapes that would otherwise look like another one. */
 const PREVIEW_SIZES: Partial<Record<ShapeKind, [number, number]>> = {
   rectangle: [24, 16],
   ellipse: [24, 15],

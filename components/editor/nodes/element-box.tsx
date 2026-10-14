@@ -162,8 +162,6 @@ function ElementBox({
 
   const filter = elementFilter(merged)
 
-  // The element's own box, turned about its centre; the same placement an SVG
-  // `translate rotate flip` gave, now in CSS.
   const transform =
     [
       rotation ? `rotate(${rotation}deg)` : "",
@@ -183,30 +181,22 @@ function ElementBox({
     mixBlendMode: blendMode !== "normal" ? blendMode : undefined,
   }
 
-  // The wrapper is what the animation CSS targets. It is always rendered, so
-  // adding an animation never changes the element's structure (that would
-  // re-create its content and break anything measuring it); its class only
-  // exists while the slide plays.
   const wrapperRef = React.useRef<HTMLDivElement | null>(null)
   const enters = resolveTiming(merged.timing).spans.map(
     (span) => span.enter.preset
   )
   const drawing = enters.includes("draw") || enters.includes("chart-build")
 
-  // Draw-on needs each outline's true length; the keyframes read it from here,
-  // so playback itself stays pure CSS.
   const typing = enters.includes("typewriter")
   React.useLayoutEffect(() => {
     const wrapper = wrapperRef.current
     if (!wrapper || (!drawing && !typing)) return
     const measure = () => {
       if (drawing) measureDrawLengths(wrapper)
-      // Rotated or flipped boxes can't be measured this way; they sweep the box.
       if (typing && !merged.rotation && !merged.flipX && !merged.flipY)
         measureTextExtent(wrapper)
     }
     measure()
-    // A width measured before the fonts arrive would be wrong.
     let cancelled = false
     void document.fonts.ready.then(() => {
       if (!cancelled) measure()
@@ -226,8 +216,6 @@ function ElementBox({
     </div>
   )
 
-  // Inside a group the box is purely visual: the group's own element handles
-  // selection and dragging for the whole subtree.
   if (nested) return <div style={box}>{body}</div>
 
   return (
@@ -260,10 +248,6 @@ function ElementBox({
   )
 }
 
-/**
- * The drawing surface of a graphic element: an SVG the size of its box, whose
- * strokes may run past the edge.
- */
 function ElementSvg({
   width,
   height,

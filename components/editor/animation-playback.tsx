@@ -3,9 +3,7 @@
 import * as React from "react"
 
 type Playback = {
-  /** Whether slides play their animations (Present mode, HTML export). */
   play: boolean
-  /** Changes to restart a slide's animations. */
   run: number
 }
 

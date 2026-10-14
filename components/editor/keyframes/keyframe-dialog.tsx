@@ -41,11 +41,6 @@ import { useTimelinePlayback } from "@/components/editor/timeline/use-timeline-p
 
 type Selection = { property: TrackProperty; index: number }
 
-/**
- * Animates the properties the element's panel shows with keyframes: a lane
- * for each property the element has, a playhead to place them, and the values
- * to set at the playhead.
- */
 function KeyframeEditor({ id }: { id: string }) {
   const { node } = useEditor((state) => ({ node: state.nodes[id]?.data }))
   const { timeline } = useTimelineData()

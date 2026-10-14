@@ -105,7 +105,6 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
             .closest("[data-editor-node]")
             ?.getAttribute("data-editor-node")
           if (id) {
-            // Keep a multi-selection intact when right-clicking inside it.
             const selected = query.getEvent("selected").all()
             if (!selected.includes(id)) actions.selectNode(id)
           } else if (event.button !== 0) actions.clearEvents()
@@ -113,7 +112,6 @@ function EditorContextMenu({ children }: { children: React.ReactNode }) {
             "[data-slide-canvas]"
           )
           const rect = surface?.getBoundingClientRect()
-          // The surface is laid out at the slide's own size, then scaled to fit.
           const SLIDE_WIDTH = surface?.offsetWidth ?? 0
           const SLIDE_HEIGHT = surface?.offsetHeight ?? 0
           insertAt.current =

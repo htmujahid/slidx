@@ -7,14 +7,12 @@ import type { GridSnap, Point } from "@/lib/editor/geometry"
 
 type SlideContextValue = {
   scale: number
-  /** The slide's size, which element positions are in. */
   width: number
   height: number
   setGuides: (guides: AlignmentGuide[]) => void
   grid: GridSnap
   snapToAlignment: boolean
   toSlidePoint: (clientX: number, clientY: number) => Point
-  /** Element id -> class that plays its animation; empty when not playing. */
   animationClasses: Record<string, string>
 }
 

@@ -4,7 +4,6 @@ import type { ShapeGeometry } from "@/lib/editor/shapes"
 
 type GeometryProps = Omit<React.SVGProps<SVGElement>, "ref">
 
-/** Draws a shape as its native SVG element; the props style it. */
 function ShapeGeometryElement({
   geometry,
   ...props

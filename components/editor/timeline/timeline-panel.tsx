@@ -18,10 +18,6 @@ import { useTimelineData } from "@/components/editor/timeline/use-timeline-data"
 import { useTimelineEditing } from "@/components/editor/timeline/use-timeline-editing"
 import { useTimelinePlayback } from "@/components/editor/timeline/use-timeline-playback"
 
-/**
- * The slide laid out in time: a row per element showing when it is on the
- * slide, trim handles at each end, and the entrance and exit at the edges.
- */
 function TimelinePanel() {
   const { setTimelineOpen, setKeyframeTarget } = useEditorLayout()
   const { rows, entries, timeline, selected } = useTimelineData()

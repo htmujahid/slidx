@@ -32,7 +32,6 @@ export const clampDimension = (value: number) =>
 
 const gcd = (a: number, b: number): number => (b ? gcd(b, a % b) : a)
 
-/** A size's shape for the footer: a familiar ratio, or the reduced one. */
 export function aspectLabel({ width, height }: SlideSize) {
   const known: [string, number][] = [
     ["16:9", 16 / 9],
@@ -54,7 +53,6 @@ export function aspectLabel({ width, height }: SlideSize) {
 export const sameSize = (a: SlideSize, b: SlideSize) =>
   a.width === b.width && a.height === b.height
 
-/** A slide's size, from its props; slides saved before sizes existed are the default. */
 export function slideSizeOf(props?: Partial<SlideSize> | null): SlideSize {
   const valid = (value: unknown) =>
     typeof value === "number" && Number.isFinite(value) && value > 0
@@ -64,10 +62,8 @@ export function slideSizeOf(props?: Partial<SlideSize> | null): SlideSize {
   }
 }
 
-/** How existing content follows a new size. */
 export type ResizeMode = "scale" | "keep"
 
-/** The size saved in a slide's JSON. */
 export function slideSizeFromJson(json: string): SlideSize {
   try {
     return slideSizeOf(JSON.parse(json)?.[ROOT_NODE]?.props)
@@ -82,7 +78,6 @@ type Node = {
   props: Record<string, unknown>
 }
 
-/** The pixel measures each element type keeps beyond its box. */
 const PIXEL_PROPS: Record<string, string[]> = {
   TextBox: ["fontSize", "padding", "letterSpacing"],
   CodeBlock: ["fontSize", "cornerRadius"],
@@ -98,7 +93,6 @@ const EFFECT_PROPS = ["shadowBlur", "shadowOffsetX", "shadowOffsetY", "blur"]
 
 const round = (value: number) => Math.round(value * 1000) / 1000
 
-/** Keyframe values that are slide pixels: positions follow the content, sizes only scale. */
 const KEYFRAME_PIXELS: Record<string, "x" | "y" | "size"> = {
   x: "x",
   y: "y",
@@ -107,11 +101,6 @@ const KEYFRAME_PIXELS: Record<string, "x" | "y" | "size"> = {
   strokeWidth: "size",
 }
 
-/**
- * A slide's JSON for a new size. `scale` fits the content inside the new
- * size at the same proportions and centres it; `keep` leaves everything where
- * it is. Either way the slide's own size is updated.
- */
 export function resizeSlideJson(json: string, to: SlideSize, mode: ResizeMode) {
   const nodes = JSON.parse(json) as Record<string, Node>
   const root = nodes[ROOT_NODE]
@@ -128,8 +117,6 @@ export function resizeSlideJson(json: string, to: SlideSize, mode: ResizeMode) {
     }
     for (const [id, node] of Object.entries(nodes)) {
       if (id === ROOT_NODE) continue
-      // Only elements placed directly on the slide move with it; the
-      // children of a group are positioned inside the group.
       const placed = node.parent === ROOT_NODE
       const scaleAt = (axis: "x" | "y", value: number) =>
         round(value * factor + (placed ? shift[axis] : 0))

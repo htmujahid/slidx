@@ -11,7 +11,6 @@ export type TimelineRowData = {
   label: string
 }
 
-/** What the timeline shows: a row per element, its span, the selection. */
 export function useTimelineData() {
   const { nodes, selected } = useEditor((state) => ({
     nodes: state.nodes,

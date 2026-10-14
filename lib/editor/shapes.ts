@@ -48,7 +48,6 @@ export type ShapeKind =
 
 export type ShapeParams = Record<string, number>
 
-/** A control a shape exposes; the properties panel renders one slider each. */
 export type ShapeParam = {
   key: string
   label: string
@@ -57,11 +56,9 @@ export type ShapeParam = {
   step?: number
   default: number
   unit?: "%" | "°" | "px"
-  /** An older prop that held this value before parameters existed. */
   legacyProp?: "cornerRadius"
 }
 
-/** The native SVG element that draws a shape; `path` only where none fits. */
 export type ShapeGeometry =
   | {
       tag: "rect"
@@ -80,14 +77,12 @@ export type ShapeGeometry =
       tag: "path"
       d: string
       fillRule?: "evenodd" | "nonzero"
-      /** Extra path drawn over the shape as a translucent shade (a top face). */
       shade?: string
     }
 
 export type ShapeDefinition = {
   kind: ShapeKind
   label: string
-  /** Closed shapes take a fill; open ones (lines) are drawn with a stroke. */
   filled: boolean
   params?: ShapeParam[]
   geometry: (
@@ -101,7 +96,6 @@ const round = (n: number) => Math.round(n * 100) / 100
 const clamp = (n: number, min: number, max: number) =>
   Math.min(Math.max(n, min), max)
 
-/** Stored values over the shape's defaults (and any legacy prop). */
 export function resolveShapeParams(
   definition: ShapeDefinition,
   stored?: ShapeParams,
@@ -128,7 +122,6 @@ export function strokeDashArray(style: DashStyle, strokeWidth: number) {
 
 type Unit = Array<[number, number]>
 
-/** Points given as 0–1 fractions of the box, as an SVG `points` string. */
 const toPoints = (w: number, h: number, points: Unit) =>
   points.map(([x, y]) => `${round(x * w)},${round(y * h)}`).join(" ")
 
@@ -182,7 +175,6 @@ const star = (
     })
   )
 
-/** A circle-ish outline as path data, for shapes combined with a hole. */
 function ellipsePath(cx: number, cy: number, rx: number, ry: number) {
   return `M${round(cx - rx)} ${round(cy)}A${round(rx)} ${round(ry)} 0 1 1 ${round(cx + rx)} ${round(cy)}A${round(rx)} ${round(ry)} 0 1 1 ${round(cx - rx)} ${round(cy)}Z`
 }

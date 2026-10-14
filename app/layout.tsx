@@ -4,6 +4,7 @@ import "./globals.css"
 
 import { cn } from "@/lib/utils"
 import { ConvexProvider } from "@/components/convex-provider"
+import { StorageProvider } from "@/components/storage-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -31,7 +32,9 @@ export default function RootLayout({
     >
       <body>
         <ConvexProvider>
-          <ThemeProvider>{children}</ThemeProvider>
+          <ThemeProvider>
+            <StorageProvider>{children}</StorageProvider>
+          </ThemeProvider>
         </ConvexProvider>
       </body>
     </html>

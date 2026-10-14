@@ -4,6 +4,7 @@ import * as React from "react"
 import { DefaultEventHandlers, Editor } from "@craftjs/core"
 
 import { resolver } from "@/lib/editor/resolver"
+import { LOCAL_PRESENTATION_ID } from "@/lib/storage/types"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -29,6 +30,7 @@ import {
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
 import { EditorSidebar } from "@/components/editor/editor-sidebar"
 import { KeyframeDialog } from "@/components/editor/keyframes/keyframe-dialog"
+import { PresentationIdProvider } from "@/components/editor/presentation-id"
 import { PresentationProvider } from "@/components/editor/presentation-mode"
 import {
   PropertiesPanel,
@@ -79,7 +81,11 @@ function EditorWorkspace() {
   )
 }
 
-function EditorShell() {
+function EditorShell({
+  presentationId = LOCAL_PRESENTATION_ID,
+}: {
+  presentationId?: string
+}) {
   return (
     <Editor
       resolver={resolver}
@@ -92,38 +98,40 @@ function EditorShell() {
         })
       }
     >
-      <SlidesProvider>
-        <EditorLayoutProvider>
-          <PresentationProvider>
-            <EditorShortcuts />
-            <RenameDialog />
-            <KeyframeDialog />
-            <NewPresentationDialog />
-            <ResetPresentationDialog />
-            <SlideSizeDialog />
-            <Toaster />
-            <div className="[--footer-height:calc(--spacing(10))] [--header-height:calc(--spacing(22))] sm:[--header-height:calc(--spacing(12))]">
-              <SidebarProvider
-                className="h-dvh min-h-0 flex-col overflow-hidden"
-                style={{ "--sidebar-width": "18rem" } as React.CSSProperties}
-              >
-                <WorkspaceSidebarShortcut />
-                <EditorHeader />
-                <div className="flex min-h-0 flex-1">
-                  <EditorSidebar />
-                  <PropertiesSidebarProvider>
-                    <SidebarInset className="min-h-0 min-w-0">
-                      <EditorWorkspace />
-                      <EditorFooter />
-                    </SidebarInset>
-                    <PropertiesPanel />
-                  </PropertiesSidebarProvider>
-                </div>
-              </SidebarProvider>
-            </div>
-          </PresentationProvider>
-        </EditorLayoutProvider>
-      </SlidesProvider>
+      <PresentationIdProvider value={presentationId}>
+        <SlidesProvider key={presentationId} presentationId={presentationId}>
+          <EditorLayoutProvider>
+            <PresentationProvider>
+              <EditorShortcuts />
+              <RenameDialog />
+              <KeyframeDialog />
+              <NewPresentationDialog />
+              <ResetPresentationDialog />
+              <SlideSizeDialog />
+              <Toaster />
+              <div className="[--footer-height:calc(--spacing(10))] [--header-height:calc(--spacing(22))] sm:[--header-height:calc(--spacing(12))]">
+                <SidebarProvider
+                  className="h-dvh min-h-0 flex-col overflow-hidden"
+                  style={{ "--sidebar-width": "18rem" } as React.CSSProperties}
+                >
+                  <WorkspaceSidebarShortcut />
+                  <EditorHeader />
+                  <div className="flex min-h-0 flex-1">
+                    <EditorSidebar />
+                    <PropertiesSidebarProvider>
+                      <SidebarInset className="min-h-0 min-w-0">
+                        <EditorWorkspace />
+                        <EditorFooter />
+                      </SidebarInset>
+                      <PropertiesPanel />
+                    </PropertiesSidebarProvider>
+                  </div>
+                </SidebarProvider>
+              </div>
+            </PresentationProvider>
+          </EditorLayoutProvider>
+        </SlidesProvider>
+      </PresentationIdProvider>
     </Editor>
   )
 }

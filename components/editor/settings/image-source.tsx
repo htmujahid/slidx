@@ -3,18 +3,13 @@
 import * as React from "react"
 import { ImageIcon, XIcon } from "lucide-react"
 
+import { toAssetRef } from "@/lib/storage/assets"
 import { Button } from "@/components/ui/button"
 import { Field, FieldLabel } from "@/components/ui/field"
+import { toast } from "@/components/ui/toast"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-
-function readAsDataUrl(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(reader.error)
-    reader.readAsDataURL(file)
-  })
-}
+import { usePresentationId } from "@/components/editor/presentation-id"
+import { useAssetSrc, useStorage } from "@/components/storage-provider"
 
 function ImageSource({
   value,
@@ -27,6 +22,9 @@ function ImageSource({
 }) {
   const id = React.useId()
   const inputRef = React.useRef<HTMLInputElement>(null)
+  const storage = useStorage()
+  const presentationId = usePresentationId()
+  const preview = useAssetSrc(value)
 
   return (
     <Field>
@@ -34,7 +32,7 @@ function ImageSource({
       {value ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img
-          src={value}
+          src={preview}
           alt=""
           className="aspect-video w-full rounded-lg border object-contain"
         />
@@ -48,7 +46,18 @@ function ImageSource({
         onChange={async (event) => {
           const file = event.target.files?.[0]
           event.target.value = ""
-          if (file) onChange(await readAsDataUrl(file))
+          if (!file) return
+          try {
+            onChange(
+              toAssetRef(await storage.putAsset(file, { presentationId }))
+            )
+          } catch (error) {
+            toast.add({
+              type: "error",
+              title: "Could not add the image",
+              description: error instanceof Error ? error.message : undefined,
+            })
+          }
         }}
       />
       <div className="flex gap-2">

@@ -8,7 +8,12 @@ export const metadata: Metadata = {
   title: "Editor",
 }
 
-export default async function PresentationEditorPage() {
+export default async function PresentationEditorPage({
+  params,
+}: {
+  params: Promise<{ id: string }>
+}) {
   if (!(await isAuthenticated())) redirect("/")
-  return <EditorShell />
+  const { id } = await params
+  return <EditorShell presentationId={id} />
 }

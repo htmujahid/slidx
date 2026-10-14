@@ -1,11 +1,6 @@
 import { embeddedFontCss } from "@/lib/editor/fonts"
 import { slideSizeOf, type SlideSize } from "@/lib/editor/slide-size"
 
-const getCanvasSection = () =>
-  document
-    .querySelector<HTMLElement>("[data-slide-canvas]")
-    ?.closest<HTMLElement>("[data-slide-root]") ?? null
-
 function resolveFontVars(markup: string) {
   const fonts = getComputedStyle(document.documentElement)
   let result = markup
@@ -80,11 +75,6 @@ export async function sectionToImageMarkup(section: HTMLElement) {
 export const markupSize = (markup: string): SlideSize => {
   const [, width, height] = /viewBox="0 0 ([\d.]+) ([\d.]+)"/.exec(markup) ?? []
   return slideSizeOf({ width: Number(width), height: Number(height) })
-}
-
-export async function slideToImageMarkup() {
-  const section = getCanvasSection()
-  return section ? sectionToImageMarkup(section) : null
 }
 
 export function svgToPng(markup: string, scale = 1) {

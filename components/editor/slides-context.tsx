@@ -1,11 +1,11 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 
 import {
   DEFAULT_TITLE,
-  parsePresentation,
   PRESENTATION_VERSION,
   type PresentationFile,
 } from "@/lib/editor/presentation"
@@ -21,7 +21,9 @@ import {
   INITIAL_SLIDE_JSON,
   type SlideData,
 } from "@/lib/editor/slides"
-import { clearDraft, readDraft, writeDraft } from "@/lib/editor/storage"
+import type { StoredSlide } from "@/lib/storage/types"
+import { toast } from "@/components/ui/toast"
+import { useStorage } from "@/components/storage-provider"
 
 type SlidesContextValue = {
   title: string
@@ -45,8 +47,24 @@ type SlidesContextValue = {
 const SlidesContext = React.createContext<SlidesContextValue | null>(null)
 
 const SYNC_DELAY_MS = 250
+const SAVE_DELAY_MS = 800
 
-function SlidesProvider({ children }: { children: React.ReactNode }) {
+type SavedState = {
+  title: string
+  order: string
+  json: Map<string, string>
+  persisted: boolean
+}
+
+function SlidesProvider({
+  presentationId,
+  children,
+}: {
+  presentationId: string
+  children: React.ReactNode
+}) {
+  const service = useStorage()
+  const router = useRouter()
   const { actions, query, nodes } = useEditor((state) => ({
     nodes: state.nodes,
   }))
@@ -220,39 +238,147 @@ function SlidesProvider({ children }: { children: React.ReactNode }) {
     [actions]
   )
 
-  const newPresentation = React.useCallback(
-    () => loadPresentation(DEFAULT_TITLE, [BLANK_SLIDE_JSON]),
+  const newPresentation = React.useCallback(() => {
+    if (service.kind === "cloud") {
+      router.push("/editor/new")
+      return
+    }
+    loadPresentation(DEFAULT_TITLE, [BLANK_SLIDE_JSON])
+  }, [service, router, loadPresentation])
+
+  const resetPresentation = React.useCallback(
+    () => loadPresentation(DEFAULT_TITLE, [INITIAL_SLIDE_JSON]),
     [loadPresentation]
   )
 
-  const resetPresentation = React.useCallback(() => {
-    clearDraft().catch(() => {})
-    loadPresentation(DEFAULT_TITLE, [INITIAL_SLIDE_JSON])
-  }, [loadPresentation])
-
   const [hydrated, setHydrated] = React.useState(false)
   const hydrationStartedRef = React.useRef(false)
+  const savedRef = React.useRef<SavedState | null>(null)
+  const latestRef = React.useRef({ slides, title })
+  const savingRef = React.useRef<Promise<void>>(Promise.resolve())
+  const failureRef = React.useRef<string | null>(null)
 
   React.useEffect(() => {
     if (hydrationStartedRef.current) return
     hydrationStartedRef.current = true
-    readDraft()
-      .then((text) => {
-        if (!text) return
-        const draft = parsePresentation(text)
-        loadPresentation(draft.title, draft.slides)
+    service
+      .get(presentationId)
+      .catch(() => null)
+      .then((stored) => {
+        if (stored === null && service.kind === "cloud") {
+          router.replace("/dashboard")
+          return
+        }
+        const initial: StoredSlide[] = stored?.slides.length
+          ? stored.slides
+          : [{ id: createSlideId(), json: INITIAL_SLIDE_JSON }]
+        const nextTitle = stored?.title ?? DEFAULT_TITLE
+
+        actions.deserialize(initial[0].json)
+        actions.history.clear()
+        const normalized = query.serialize()
+        const next = initial.map((slide, index) => ({
+          id: slide.id,
+          json: index === 0 ? normalized : slide.json,
+          version: 0,
+        }))
+        savedRef.current = {
+          title: nextTitle,
+          order: next.map((slide) => slide.id).join(),
+          json: new Map(next.map((slide) => [slide.id, slide.json])),
+          persisted: Boolean(stored),
+        }
+        activeIdRef.current = next[0].id
+        setSlides(next)
+        setActiveId(next[0].id)
+        setTitle(nextTitle)
+        setHydrated(true)
       })
-      .catch(() => {})
-      .finally(() => setHydrated(true))
-  }, [loadPresentation])
+  }, [service, presentationId, router, actions, query])
+
+  const saveNow = React.useCallback(() => {
+    savingRef.current = savingRef.current.then(async () => {
+      const saved = savedRef.current
+      if (!saved) return
+      let activeJson: string | null = null
+      try {
+        activeJson = query.serialize()
+      } catch {
+        activeJson = null
+      }
+      const { slides: current, title: currentTitle } = latestRef.current
+      const all = current.map((slide) =>
+        slide.id === activeIdRef.current && activeJson !== null
+          ? { ...slide, json: activeJson }
+          : slide
+      )
+      const order = all.map((slide) => slide.id)
+      const dirty = all.filter(
+        (slide) => saved.json.get(slide.id) !== slide.json
+      )
+      if (
+        !dirty.length &&
+        saved.title === currentTitle &&
+        saved.order === order.join()
+      ) {
+        return
+      }
+      const changed = (saved.persisted ? dirty : all).map(({ id, json }) => ({
+        id,
+        json,
+      }))
+      try {
+        await service.save(presentationId, {
+          title: currentTitle,
+          order,
+          changed,
+        })
+        savedRef.current = {
+          title: currentTitle,
+          order: order.join(),
+          json: new Map(all.map((slide) => [slide.id, slide.json])),
+          persisted: true,
+        }
+        failureRef.current = null
+      } catch (error) {
+        const message =
+          error instanceof Error ? error.message : "Changes were not saved."
+        if (failureRef.current !== message) {
+          failureRef.current = message
+          toast.add({
+            type: "error",
+            title: "Could not save",
+            description: message,
+          })
+        }
+      }
+    })
+    return savingRef.current
+  }, [query, service, presentationId])
+
+  React.useEffect(() => {
+    latestRef.current = { slides, title }
+  }, [slides, title])
 
   React.useEffect(() => {
     if (!hydrated) return
-    const timer = setTimeout(() => {
-      writeDraft(JSON.stringify(getPresentation())).catch(() => {})
-    }, SYNC_DELAY_MS)
+    const timer = setTimeout(saveNow, SAVE_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [hydrated, getPresentation])
+  }, [hydrated, slides, title, saveNow])
+
+  React.useEffect(() => {
+    if (!hydrated) return
+    const flush = () => {
+      if (document.visibilityState === "hidden") void saveNow()
+    }
+    document.addEventListener("visibilitychange", flush)
+    window.addEventListener("pagehide", flush)
+    return () => {
+      document.removeEventListener("visibilitychange", flush)
+      window.removeEventListener("pagehide", flush)
+      void saveNow()
+    }
+  }, [hydrated, saveNow])
 
   const value = React.useMemo<SlidesContextValue>(
     () => ({

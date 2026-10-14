@@ -32,6 +32,7 @@ import { useOptionalEditorLayout } from "@/components/editor/editor-layout"
 import { SelectionOverlay } from "@/components/editor/nodes/selection-overlay"
 import { SlideSettings } from "@/components/editor/settings/slide-settings"
 import { SlideContext } from "@/components/editor/slide-context"
+import { useAssetSrc } from "@/components/storage-provider"
 
 type SlideNodeProps = Partial<SlideProps> & { children?: React.ReactNode }
 
@@ -51,6 +52,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
     snapToAlignment,
   } = { ...SLIDE_DEFAULTS, ...props }
   const { width: SLIDE_WIDTH, height: SLIDE_HEIGHT } = slideSizeOf(props)
+  const backgroundSrc = useAssetSrc(backgroundImage)
   const {
     connectors: { connect },
   } = useNode()
@@ -315,7 +317,7 @@ const Slide: UserComponent<SlideNodeProps> = ({ children, ...props }) => {
             />
             {backgroundType === "image" && backgroundImage ? (
               <image
-                href={backgroundImage}
+                href={backgroundSrc}
                 width={SLIDE_WIDTH}
                 height={SLIDE_HEIGHT}
                 preserveAspectRatio={

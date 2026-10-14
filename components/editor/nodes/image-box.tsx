@@ -15,6 +15,7 @@ import {
 import { ElementBox, ElementSvg } from "@/components/editor/nodes/element-box"
 import { ImageSettings } from "@/components/editor/settings/image-settings"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
+import { useAssetSrc } from "@/components/storage-provider"
 
 export type ImageBoxProps = ElementTransformProps & {
   src: string
@@ -43,6 +44,7 @@ const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
     ...props,
   } as ImageBoxProps
   const { width, height } = transform
+  const imageSrc = useAssetSrc(src)
   const clipId = `${React.useId().replace(/\W/g, "")}-clip`
   const maskDefinition =
     mask && mask !== "none" && SHAPES_BY_KIND[mask]?.filled
@@ -74,7 +76,7 @@ const ImageBox: UserComponent<Partial<ImageBoxProps>> = (props) => {
             </clipPath>
             <g clipPath={`url(#${clipId})`}>
               <image
-                href={src}
+                href={imageSrc}
                 aria-label={alt || undefined}
                 role={alt ? "img" : undefined}
                 x={layerX}

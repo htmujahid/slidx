@@ -15,9 +15,11 @@ export type PresentationFile = {
 
 export type ParsedPresentation = { title: string; slides: string[] }
 
-const KNOWN_NODES = new Set(Object.keys(resolver))
+// Read lazily: resolver and the editor stores import each other.
+const knownNodes = () => new Set(Object.keys(resolver))
 
 export function parsePresentation(text: string): ParsedPresentation {
+  const known = knownNodes()
   let data: Partial<PresentationFile>
   try {
     data = JSON.parse(text)
@@ -47,7 +49,7 @@ export function parsePresentation(text: string): ParsedPresentation {
       Object.values(nodes).every(
         (node) =>
           typeof node?.type?.resolvedName === "string" &&
-          KNOWN_NODES.has(node.type.resolvedName)
+          known.has(node.type.resolvedName)
       )
     if (!valid) throw new Error(`Slide ${index + 1} is corrupted.`)
     return json

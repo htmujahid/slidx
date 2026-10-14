@@ -36,7 +36,10 @@ function EditorHeader() {
       <div className="ml-auto flex shrink-0 items-center gap-2">
         <ThemeToggle />
         <AccountMenu />
-        <Button aria-label="Present from current slide" onClick={() => start()}>
+        <Button
+          aria-label="Present from current slide"
+          onClick={(event) => start(event.currentTarget)}
+        >
           <PlayIcon data-icon="inline-start" />
           <span className="hidden sm:inline">Present</span>
         </Button>

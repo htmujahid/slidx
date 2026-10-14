@@ -65,21 +65,15 @@ function PresentationPlayer() {
   const go = usePresenter((state) => state.go)
   const goTo = usePresenter((state) => state.goTo)
   const [fullscreen, setFullscreen] = React.useState(false)
-  const returnFocus = React.useRef<HTMLElement | null>(null)
+  const returnFocus = usePresenter((state) => state.returnFocus)
   const controller = React.useRef<ReturnType<typeof createFullscreen> | null>(
     null
   )
   const presenting = deck !== null
   const wanted = React.useRef(presenting)
 
-  React.useLayoutEffect(() => {
+  React.useEffect(() => {
     wanted.current = presenting
-    if (presenting) {
-      returnFocus.current =
-        document.activeElement instanceof HTMLElement
-          ? document.activeElement
-          : null
-    }
   }, [presenting])
 
   React.useEffect(() => {
@@ -113,7 +107,7 @@ function PresentationPlayer() {
     >
       <DialogContent
         showCloseButton={false}
-        finalFocus={() => returnFocus.current}
+        finalFocus={() => returnFocus}
         className="top-0 left-0 flex h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-none"
         onKeyDown={(event) => {
           event.stopPropagation()

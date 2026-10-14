@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 import { PlayIcon } from "lucide-react"
 import { useTheme } from "next-themes"
@@ -39,6 +40,7 @@ function ViewMenu() {
   const zoomIn = useViewport((state) => state.zoomIn)
   const zoomOut = useViewport((state) => state.zoomOut)
   const start = usePresenter((state) => state.start)
+  const triggerRef = React.useRef<HTMLButtonElement>(null)
   const { theme = "system", setTheme } = useTheme()
   const { actions, slide } = useEditor((state) => ({
     slide: {
@@ -54,10 +56,10 @@ function ViewMenu() {
 
   return (
     <MenubarMenu>
-      <MenubarTrigger>View</MenubarTrigger>
+      <MenubarTrigger ref={triggerRef}>View</MenubarTrigger>
       <MenubarContent className="min-w-56">
         <MenubarGroup>
-          <MenubarItem onClick={() => start()}>
+          <MenubarItem onClick={() => start(triggerRef.current ?? undefined)}>
             <PlayIcon />
             Present from current slide
           </MenubarItem>

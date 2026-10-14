@@ -9,7 +9,8 @@ import { selectActiveIndex, type DeckState } from "./deck-store"
 export type PresenterState = {
   deck: PresentationFile | null
   index: number
-  start: () => void
+  returnFocus: HTMLElement | null
+  start: (trigger?: HTMLElement) => void
   stop: () => void
   go: (delta: number) => void
   goTo: (index: number) => void
@@ -31,16 +32,21 @@ export function createPresenterStore({
     return {
       deck: null,
       index: 0,
+      returnFocus: null,
 
-      start: () => {
+      start: (trigger) => {
         if (get().deck) return
         const state = deck.getState()
         const snapshot = state.getPresentation()
         chrome.getState().setEditingId(null)
-        set({ deck: snapshot, index: selectActiveIndex(state) })
+        set({
+          deck: snapshot,
+          index: selectActiveIndex(state),
+          returnFocus: trigger ?? null,
+        })
       },
 
-      stop: () => set({ deck: null }),
+      stop: () => set({ deck: null, returnFocus: null }),
 
       go: (delta) => goTo(get().index + delta),
       goTo,

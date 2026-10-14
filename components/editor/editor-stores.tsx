@@ -1,40 +1,20 @@
 "use client"
 
 import * as React from "react"
-import { useStore, type StoreApi } from "zustand"
+import { useStore } from "zustand"
 
+import type { ChromeState } from "@/lib/editor/stores/chrome-store"
 import {
-  createChromeStore,
-  type ChromeState,
-} from "@/lib/editor/stores/chrome-store"
+  createEditorStores,
+  type EditorStores,
+} from "@/lib/editor/stores/create-editor-stores"
 import {
-  createCraftRef,
-  createDeckStore,
   selectActiveIndex,
-  type CraftRef,
   type DeckState,
 } from "@/lib/editor/stores/deck-store"
-import {
-  createPresenterStore,
-  type PresenterState,
-} from "@/lib/editor/stores/presenter-store"
-import {
-  createPreviewStore,
-  type PreviewState,
-} from "@/lib/editor/stores/preview-store"
-import {
-  createViewportStore,
-  type ViewportState,
-} from "@/lib/editor/stores/viewport-store"
-
-type EditorStores = {
-  craft: CraftRef
-  deck: StoreApi<DeckState>
-  presenter: StoreApi<PresenterState>
-  chrome: StoreApi<ChromeState>
-  viewport: StoreApi<ViewportState>
-  preview: StoreApi<PreviewState>
-}
+import type { PresenterState } from "@/lib/editor/stores/presenter-store"
+import type { PreviewState } from "@/lib/editor/stores/preview-store"
+import type { ViewportState } from "@/lib/editor/stores/viewport-store"
 
 const EditorStoresContext = React.createContext<EditorStores | null>(null)
 
@@ -45,24 +25,8 @@ function EditorStoresProvider({
   presentationId: string
   children: React.ReactNode
 }) {
-  const [stores] = React.useState<EditorStores>(() => {
-    const craft = createCraftRef()
-    const deck = createDeckStore({ presentationId, craft })
-    const chrome = createChromeStore()
-    const viewport = createViewportStore()
-    const preview = createPreviewStore()
-    const presenter = createPresenterStore({ deck, chrome })
-    return { craft, deck, presenter, chrome, viewport, preview }
-  })
-  React.useEffect(() => {
-    const unsubscribe = stores.deck.subscribe((state, previous) => {
-      if (state.activeId !== previous.activeId) stores.preview.getState().stop()
-    })
-    return () => {
-      unsubscribe()
-      stores.preview.getState().stop()
-    }
-  }, [stores])
+  const [stores] = React.useState(() => createEditorStores({ presentationId }))
+  React.useEffect(() => () => stores.dispose(), [stores])
   return (
     <EditorStoresContext.Provider value={stores}>
       {children}

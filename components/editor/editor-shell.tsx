@@ -36,6 +36,7 @@ function EditorShell({
         key={presentationId}
         presentationId={presentationId}
       >
+        {/* CraftBridge must mount before EditorBootstrap: hydrate() needs craft bound. */}
         <CraftBridge />
         <ActiveSlideSync />
         <EditorBootstrap />

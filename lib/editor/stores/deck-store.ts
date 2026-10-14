@@ -73,17 +73,17 @@ export function createDeckStore({
   presentationId: string
   craft: CraftRef
 }) {
-  const editor = () => {
-    if (!craft.current) throw new Error("The slide editor is not ready.")
-    return craft.current
-  }
-
   return createStore<DeckState>()((set, get) => {
+    // Craft-dependent actions are no-ops until hydrate() has run.
+    const ready = () => (get().status === "ready" ? craft.current : null)
+
     const first = { id: createSlideId(), json: INITIAL_SLIDE_JSON }
 
     const snapshot = () => {
-      const live = editor().query.serialize()
       const { slides, activeId } = get()
+      const handle = ready()
+      if (!handle) return slides
+      const live = handle.query.serialize()
       return slides.map((slide) =>
         slide.id === activeId ? { ...slide, json: live } : slide
       )
@@ -100,14 +100,17 @@ export function createDeckStore({
           : state
       )
 
-    const activate = (slide: SlideData) => {
-      const { actions } = editor()
+    const activate = ({ actions }: CraftHandle, slide: SlideData) => {
       set({ activeId: slide.id })
       actions.deserialize(slide.json)
       actions.history.clear()
     }
 
-    const insertAfter = (afterId: string, json: string) => {
+    const insertAfter = (
+      handle: CraftHandle,
+      afterId: string,
+      json: string
+    ) => {
       const created: SlideData = { id: createSlideId(), json }
       const next = snapshot()
       next.splice(
@@ -116,22 +119,27 @@ export function createDeckStore({
         created
       )
       set({ slides: next })
-      activate(created)
+      activate(handle, created)
     }
 
     const addSlideFrom = (json: string) => {
+      const handle = ready()
+      if (!handle) return
       const size = slideSizeOf(
-        editor().query.node(ROOT_NODE).get().data.props as Partial<SlideSize>
+        handle.query.node(ROOT_NODE).get().data.props as Partial<SlideSize>
       )
       const { slides } = get()
       insertAfter(
+        handle,
         slides[slides.length - 1].id,
         resizeSlideJson(json, size, "scale")
       )
     }
 
     const load = (title: string, jsons: string[]) => {
-      const { actions } = editor()
+      const handle = ready()
+      if (!handle) return
+      const { actions } = handle
       const slides = jsons.map((json) => ({
         id: createSlideId(),
         json,
@@ -151,7 +159,8 @@ export function createDeckStore({
       setTitle: (title) => set({ title }),
 
       hydrate: (stored) => {
-        const { actions, query } = editor()
+        if (!craft.current) throw new Error("The slide editor is not ready.")
+        const { actions, query } = craft.current
         const initial = stored?.slides.length
           ? stored.slides
           : [{ id: createSlideId(), json: INITIAL_SLIDE_JSON }]
@@ -181,26 +190,32 @@ export function createDeckStore({
         if (id === activeId) return
         const target = slides.find((slide) => slide.id === id)
         if (!target) return
-        writeJson(activeId, editor().query.serialize())
-        activate(target)
+        const handle = ready()
+        if (!handle) return
+        writeJson(activeId, handle.query.serialize())
+        activate(handle, target)
       },
 
       addSlide: () => addSlideFrom(BLANK_SLIDE_JSON),
       addSlideFrom,
 
       duplicateSlide: () => {
+        const handle = ready()
+        if (!handle) return
         const { activeId } = get()
         const active = snapshot().find((slide) => slide.id === activeId)
-        if (active) insertAfter(activeId, active.json)
+        if (active) insertAfter(handle, activeId, active.json)
       },
 
       deleteSlide: () => {
+        const handle = ready()
+        if (!handle) return
         const { slides, activeId } = get()
         if (slides.length <= 1) return
         const index = slides.findIndex((slide) => slide.id === activeId)
         const remaining = slides.filter((slide) => slide.id !== activeId)
         set({ slides: remaining })
-        activate(remaining[Math.min(index, remaining.length - 1)])
+        activate(handle, remaining[Math.min(index, remaining.length - 1)])
       },
 
       moveSlide: (id, targetIndex) =>
@@ -219,7 +234,9 @@ export function createDeckStore({
         }),
 
       resizeSlides: (size, mode) => {
-        const { actions } = editor()
+        const handle = ready()
+        if (!handle) return
+        const { actions } = handle
         const next = snapshot().map((slide) => ({
           ...slide,
           json: resizeSlideJson(slide.json, size, mode),

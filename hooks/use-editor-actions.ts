@@ -298,6 +298,32 @@ function useEditorActions() {
     [actions, query, getSelectedId]
   )
 
+  const toggleLock = React.useCallback(
+    (id?: string) => {
+      const targets = getTargets(id)
+      const lock = !targets.every(
+        (targetId) => query.node(targetId).get().data.custom.locked
+      )
+      targets.forEach((targetId) =>
+        actions.setCustom(targetId, (custom) => {
+          custom.locked = lock
+        })
+      )
+    },
+    [actions, query, getTargets]
+  )
+
+  const toggleHidden = React.useCallback(
+    (id?: string) => {
+      const targets = getTargets(id)
+      const hide = !targets.every(
+        (targetId) => query.node(targetId).get().data.hidden
+      )
+      targets.forEach((targetId) => actions.setHidden(targetId, hide))
+    },
+    [actions, query, getTargets]
+  )
+
   const align = React.useCallback(
     (alignment: Alignment, id?: string) => {
       getTargets(id).forEach((targetId) => {
@@ -325,6 +351,8 @@ function useEditorActions() {
     align,
     group,
     ungroup,
+    toggleLock,
+    toggleHidden,
     getSelectedId,
     getSelectedIds,
   }

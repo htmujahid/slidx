@@ -1,6 +1,5 @@
 "use client"
 
-import { useEditor } from "@craftjs/core"
 import {
   FilePlusIcon,
   FileTextIcon,
@@ -8,10 +7,8 @@ import {
   GlobeIcon,
   ImageIcon,
   PencilIcon,
-  Redo2Icon,
   RotateCcwIcon,
   SaveIcon,
-  Undo2Icon,
 } from "lucide-react"
 
 import { useFileActions } from "@/hooks/use-file-actions"
@@ -21,6 +18,9 @@ import {
   MenubarItem,
   MenubarMenu,
   MenubarSeparator,
+  MenubarSub,
+  MenubarSubContent,
+  MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { useEditorLayout } from "@/components/editor/editor-layout"
@@ -30,10 +30,6 @@ function FileMenu() {
   const { setDialog } = useEditorLayout()
   const { save, open, exportPng, exportSlideHtml, exportPdf, exportHtml } =
     useFileActions()
-  const { actions, canUndo, canRedo } = useEditor((_, query) => ({
-    canUndo: query.history.canUndo(),
-    canRedo: query.history.canRedo(),
-  }))
 
   return (
     <MenubarMenu>
@@ -65,41 +61,38 @@ function FileMenu() {
             Save to file
             <Shortcut keys="S" />
           </MenubarItem>
-          <MenubarItem onClick={exportPng}>
-            <ImageIcon />
-            Export slide as PNG
-          </MenubarItem>
-          <MenubarItem onClick={exportSlideHtml}>
-            <GlobeIcon />
-            Export slide as HTML
-          </MenubarItem>
-          <MenubarItem onClick={exportPdf}>
-            <FileTextIcon />
-            Export presentation as PDF
-          </MenubarItem>
-          <MenubarItem onClick={exportHtml}>
-            <GlobeIcon />
-            Export presentation as HTML
-          </MenubarItem>
-        </MenubarGroup>
-        <MenubarSeparator />
-        <MenubarGroup>
-          <MenubarItem
-            disabled={!canUndo}
-            onClick={() => actions.history.undo()}
-          >
-            <Undo2Icon />
-            Undo
-            <Shortcut keys="Z" />
-          </MenubarItem>
-          <MenubarItem
-            disabled={!canRedo}
-            onClick={() => actions.history.redo()}
-          >
-            <Redo2Icon />
-            Redo
-            <Shortcut keys="Z" shift />
-          </MenubarItem>
+          <MenubarSub>
+            <MenubarSubTrigger>
+              <ImageIcon />
+              Export slide
+            </MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem onClick={exportPng}>
+                <ImageIcon />
+                PNG image
+              </MenubarItem>
+              <MenubarItem onClick={exportSlideHtml}>
+                <GlobeIcon />
+                HTML page
+              </MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
+          <MenubarSub>
+            <MenubarSubTrigger>
+              <FileTextIcon />
+              Export presentation
+            </MenubarSubTrigger>
+            <MenubarSubContent>
+              <MenubarItem onClick={exportPdf}>
+                <FileTextIcon />
+                PDF document
+              </MenubarItem>
+              <MenubarItem onClick={exportHtml}>
+                <GlobeIcon />
+                HTML page
+              </MenubarItem>
+            </MenubarSubContent>
+          </MenubarSub>
         </MenubarGroup>
       </MenubarContent>
     </MenubarMenu>

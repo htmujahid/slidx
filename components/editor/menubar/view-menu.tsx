@@ -1,6 +1,7 @@
 "use client"
 
 import { ROOT_NODE, useEditor } from "@craftjs/core"
+import { PlayIcon } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { ZOOM_MAX, ZOOM_MIN } from "@/lib/editor/constants"
@@ -20,6 +21,7 @@ import {
 import { useSidebar } from "@/components/ui/sidebar"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 import { Shortcut } from "@/components/editor/menubar/shortcut"
+import { usePresentation } from "@/components/editor/presentation-mode"
 
 function ViewMenu() {
   const { open, openMobile, isMobile, toggleSidebar } = useSidebar()
@@ -35,6 +37,7 @@ function ViewMenu() {
     zoomIn,
     zoomOut,
   } = useEditorLayout()
+  const { start } = usePresentation()
   const { theme = "system", setTheme } = useTheme()
   const { actions, slide } = useEditor((state) => ({
     slide: {
@@ -52,6 +55,13 @@ function ViewMenu() {
     <MenubarMenu>
       <MenubarTrigger>View</MenubarTrigger>
       <MenubarContent className="min-w-56">
+        <MenubarGroup>
+          <MenubarItem onClick={() => start()}>
+            <PlayIcon />
+            Present from current slide
+          </MenubarItem>
+        </MenubarGroup>
+        <MenubarSeparator />
         <MenubarGroup>
           <MenubarLabel>Canvas</MenubarLabel>
           <MenubarCheckboxItem

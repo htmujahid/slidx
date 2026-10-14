@@ -1,14 +1,22 @@
 "use client"
 
-import { useEditor } from "@craftjs/core"
+import { ROOT_NODE, useEditor } from "@craftjs/core"
 import {
   ArrowDownToLineIcon,
   ArrowUpToLineIcon,
   ClipboardIcon,
   CopyIcon,
+  EyeIcon,
+  EyeOffIcon,
+  GroupIcon,
+  LockIcon,
+  LockOpenIcon,
+  Redo2Icon,
   ScissorsIcon,
   SquareDashedIcon,
   Trash2Icon,
+  Undo2Icon,
+  UngroupIcon,
 } from "lucide-react"
 
 import type { Alignment } from "@/lib/editor/align"
@@ -37,16 +45,66 @@ const ALIGNMENTS: Array<[Alignment, string]> = [
 ]
 
 function EditMenu() {
-  const { duplicate, remove, copy, cut, paste, selectAll, reorder, align } =
-    useEditorActions()
-  const { hasSelection } = useEditor((state) => ({
-    hasSelection: [...state.events.selected].some((id) => id !== "ROOT"),
-  }))
+  const {
+    duplicate,
+    remove,
+    copy,
+    cut,
+    paste,
+    selectAll,
+    reorder,
+    align,
+    group,
+    ungroup,
+    toggleLock,
+    toggleHidden,
+  } = useEditorActions()
+  const {
+    actions,
+    canUndo,
+    canRedo,
+    selectedCount,
+    canUngroup,
+    locked,
+    hidden,
+  } = useEditor((state, query) => {
+    const ids = [...state.events.selected].filter((id) => id !== ROOT_NODE)
+    const nodes = ids.map((id) => state.nodes[id])
+    return {
+      canUndo: query.history.canUndo(),
+      canRedo: query.history.canRedo(),
+      selectedCount: ids.length,
+      canUngroup: nodes.length === 1 && nodes[0]?.data.name === "Group",
+      locked:
+        nodes.length > 0 && nodes.every((node) => node.data.custom.locked),
+      hidden: nodes.length > 0 && nodes.every((node) => node.data.hidden),
+    }
+  })
+  const hasSelection = selectedCount > 0
 
   return (
     <MenubarMenu>
       <MenubarTrigger>Edit</MenubarTrigger>
       <MenubarContent className="min-w-56">
+        <MenubarGroup>
+          <MenubarItem
+            disabled={!canUndo}
+            onClick={() => actions.history.undo()}
+          >
+            <Undo2Icon />
+            Undo
+            <Shortcut keys="Z" />
+          </MenubarItem>
+          <MenubarItem
+            disabled={!canRedo}
+            onClick={() => actions.history.redo()}
+          >
+            <Redo2Icon />
+            Redo
+            <Shortcut keys="Z" shift />
+          </MenubarItem>
+        </MenubarGroup>
+        <MenubarSeparator />
         <MenubarGroup>
           <MenubarItem disabled={!hasSelection} onClick={() => copy()}>
             <CopyIcon />
@@ -87,52 +145,85 @@ function EditMenu() {
           </MenubarItem>
         </MenubarGroup>
         <MenubarSeparator />
-        <MenubarGroup>
-          <MenubarItem
-            disabled={!hasSelection}
-            onClick={() => reorder("forward")}
-          >
-            <ArrowUpToLineIcon />
-            Bring forward
-            <Shortcut keys="]" />
-          </MenubarItem>
-          <MenubarItem
-            disabled={!hasSelection}
-            onClick={() => reorder("backward")}
-          >
-            <ArrowDownToLineIcon />
-            Send backward
-            <Shortcut keys="[" />
-          </MenubarItem>
-          <MenubarItem
-            disabled={!hasSelection}
-            onClick={() => reorder("front")}
-          >
-            <ArrowUpToLineIcon />
-            Bring to front
-            <Shortcut keys="]" shift />
-          </MenubarItem>
-          <MenubarItem disabled={!hasSelection} onClick={() => reorder("back")}>
-            <ArrowDownToLineIcon />
-            Send to back
-            <Shortcut keys="[" shift />
-          </MenubarItem>
-        </MenubarGroup>
-        <MenubarSeparator />
         <MenubarSub>
-          <MenubarSubTrigger disabled={!hasSelection}>
-            Align to slide
-          </MenubarSubTrigger>
+          <MenubarSubTrigger>Arrange</MenubarSubTrigger>
+          <MenubarSubContent>
+            <MenubarGroup>
+              <MenubarItem
+                disabled={!hasSelection}
+                onClick={() => reorder("forward")}
+              >
+                <ArrowUpToLineIcon />
+                Bring forward
+                <Shortcut keys="]" />
+              </MenubarItem>
+              <MenubarItem
+                disabled={!hasSelection}
+                onClick={() => reorder("backward")}
+              >
+                <ArrowDownToLineIcon />
+                Send backward
+                <Shortcut keys="[" />
+              </MenubarItem>
+              <MenubarItem
+                disabled={!hasSelection}
+                onClick={() => reorder("front")}
+              >
+                <ArrowUpToLineIcon />
+                Bring to front
+                <Shortcut keys="]" shift />
+              </MenubarItem>
+              <MenubarItem
+                disabled={!hasSelection}
+                onClick={() => reorder("back")}
+              >
+                <ArrowDownToLineIcon />
+                Send to back
+                <Shortcut keys="[" shift />
+              </MenubarItem>
+            </MenubarGroup>
+          </MenubarSubContent>
+        </MenubarSub>
+        <MenubarSub>
+          <MenubarSubTrigger>Align to slide</MenubarSubTrigger>
           <MenubarSubContent>
             <MenubarGroup>
               {ALIGNMENTS.map(([alignment, label]) => (
-                <MenubarItem key={alignment} onClick={() => align(alignment)}>
+                <MenubarItem
+                  key={alignment}
+                  disabled={!hasSelection}
+                  onClick={() => align(alignment)}
+                >
                   {label}
                 </MenubarItem>
               ))}
             </MenubarGroup>
           </MenubarSubContent>
         </MenubarSub>
+        <MenubarSeparator />
+        <MenubarGroup>
+          <MenubarItem disabled={selectedCount < 2} onClick={() => group()}>
+            <GroupIcon />
+            Group
+            <Shortcut keys="G" />
+          </MenubarItem>
+          <MenubarItem disabled={!canUngroup} onClick={() => ungroup()}>
+            <UngroupIcon />
+            Ungroup
+            <Shortcut keys="G" shift />
+          </MenubarItem>
+        </MenubarGroup>
+        <MenubarSeparator />
+        <MenubarGroup>
+          <MenubarItem disabled={!hasSelection} onClick={() => toggleLock()}>
+            {locked ? <LockOpenIcon /> : <LockIcon />}
+            {locked ? "Unlock" : "Lock"}
+          </MenubarItem>
+          <MenubarItem disabled={!hasSelection} onClick={() => toggleHidden()}>
+            {hidden ? <EyeIcon /> : <EyeOffIcon />}
+            {hidden ? "Show" : "Hide"}
+          </MenubarItem>
+        </MenubarGroup>
       </MenubarContent>
     </MenubarMenu>
   )

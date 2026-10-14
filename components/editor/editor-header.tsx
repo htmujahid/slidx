@@ -4,6 +4,7 @@ import { PanelLeftIcon, PanelRightIcon, PlayIcon } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
+import { AccountMenu } from "@/components/editor/account-menu"
 import { Brand } from "@/components/editor/brand"
 import { useEditorLayout } from "@/components/editor/editor-layout"
 import { EditorMenubar } from "@/components/editor/menubar/editor-menubar"
@@ -34,6 +35,7 @@ function EditorHeader() {
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
         <ThemeToggle />
+        <AccountMenu />
         <Button
           aria-label="Present from current slide"
           onClick={(event) => start(event.currentTarget)}

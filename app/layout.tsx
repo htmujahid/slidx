@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
 import { cn } from "@/lib/utils"
+import { ConvexProvider } from "@/components/convex-provider"
 import { ThemeProvider } from "@/components/theme-provider"
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -29,7 +30,9 @@ export default function RootLayout({
       )}
     >
       <body>
-        <ThemeProvider>{children}</ThemeProvider>
+        <ConvexProvider>
+          <ThemeProvider>{children}</ThemeProvider>
+        </ConvexProvider>
       </body>
     </html>
   )

@@ -32,12 +32,12 @@ function EditorShell({
         key={presentationId}
         presentationId={presentationId}
       >
-        {/* useEditorBootstrap binds craft before it hydrates; keep that effect order. */}
-        <EditorBootstrap />
-        <EditorShortcuts />
-        <EditorDialogs />
-        <PresentationPlayer />
-        <EditorLayout />
+        <EditorBootstrap>
+          <EditorShortcuts />
+          <EditorDialogs />
+          <PresentationPlayer />
+          <EditorLayout />
+        </EditorBootstrap>
       </EditorStoresProvider>
     </Editor>
   )

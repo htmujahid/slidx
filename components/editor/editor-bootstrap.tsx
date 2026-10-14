@@ -8,23 +8,24 @@ import { startAutosave } from "@/lib/storage/autosave"
 import { useDeck, useEditorStores } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
-function CraftBridge() {
-  const { craft } = useEditorStores()
-  const { actions, query } = useEditor()
+const SYNC_DELAY_MS = 250
+
+function useEditorBootstrap() {
+  const service = useStorage()
+  const router = useRouter()
+  const { craft, deck } = useEditorStores()
+  const { actions, query, nodes } = useEditor((state) => ({
+    nodes: state.nodes,
+  }))
+
+  // Bind craft first: hydrate() below requires it to be bound.
   React.useEffect(() => {
     craft.bind({ actions, query })
     return () => {
       craft.bind(null)
     }
   }, [craft, actions, query])
-  return null
-}
 
-const SYNC_DELAY_MS = 250
-
-function ActiveSlideSync() {
-  const { deck } = useEditorStores()
-  const { query, nodes } = useEditor((state) => ({ nodes: state.nodes }))
   React.useEffect(() => {
     const timer = setTimeout(
       () => deck.getState().syncActive(query.serialize()),
@@ -32,14 +33,6 @@ function ActiveSlideSync() {
     )
     return () => clearTimeout(timer)
   }, [deck, nodes, query])
-  return null
-}
-
-function EditorBootstrap() {
-  const service = useStorage()
-  const router = useRouter()
-  const { deck } = useEditorStores()
-  const hydrating = useDeck((state) => state.status === "hydrating")
 
   React.useEffect(() => {
     let cancelled = false
@@ -66,8 +59,12 @@ function EditorBootstrap() {
       stopAutosave?.()
     }
   }, [deck, service, router])
+}
 
+function EditorBootstrap() {
+  useEditorBootstrap()
+  const hydrating = useDeck((state) => state.status === "hydrating")
   return hydrating ? <div className="fixed inset-0 z-50 bg-background" /> : null
 }
 
-export { ActiveSlideSync, CraftBridge, EditorBootstrap }
+export { EditorBootstrap }

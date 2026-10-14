@@ -4,11 +4,7 @@ import { DefaultEventHandlers, Editor } from "@craftjs/core"
 
 import { resolver } from "@/lib/editor/resolver"
 import { LOCAL_PRESENTATION_ID } from "@/lib/storage/types"
-import {
-  ActiveSlideSync,
-  CraftBridge,
-  EditorBootstrap,
-} from "@/components/editor/editor-bootstrap"
+import { EditorBootstrap } from "@/components/editor/editor-bootstrap"
 import { EditorDialogs } from "@/components/editor/editor-dialogs"
 import { EditorLayout } from "@/components/editor/editor-layout"
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
@@ -36,9 +32,7 @@ function EditorShell({
         key={presentationId}
         presentationId={presentationId}
       >
-        {/* CraftBridge must mount before EditorBootstrap: hydrate() needs craft bound. */}
-        <CraftBridge />
-        <ActiveSlideSync />
+        {/* useEditorBootstrap binds craft before it hydrates; keep that effect order. */}
         <EditorBootstrap />
         <EditorShortcuts />
         <EditorDialogs />

@@ -44,11 +44,7 @@ export function SlideListItem({
   const last = index === slideCount - 1
 
   return (
-    <ContextMenu
-      onOpenChange={(open) => {
-        if (open) selectSlide(value)
-      }}
-    >
+    <ContextMenu>
       <SortableItem
         value={value}
         role="listitem"
@@ -89,7 +85,7 @@ export function SlideListItem({
       >
         <ContextMenuGroup>
           <ContextMenuLabel>Slide {index + 1}</ContextMenuLabel>
-          <ContextMenuItem onClick={() => duplicateSlide()}>
+          <ContextMenuItem onClick={() => duplicateSlide(value)}>
             <CopyIcon />
             Duplicate slide
           </ContextMenuItem>
@@ -128,7 +124,7 @@ export function SlideListItem({
           <ContextMenuItem
             variant="destructive"
             disabled={slideCount <= 1}
-            onClick={() => deleteSlide()}
+            onClick={() => deleteSlide(value)}
           >
             <Trash2Icon />
             Delete slide

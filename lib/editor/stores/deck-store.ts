@@ -51,8 +51,8 @@ export type DeckState = {
   select: (id: string) => void
   addSlide: () => void
   addSlideFrom: (json: string) => void
-  duplicateSlide: () => void
-  deleteSlide: () => void
+  duplicateSlide: (id?: string) => void
+  deleteSlide: (id?: string) => void
   moveSlide: (id: string, index: number) => void
   resizeSlides: (size: SlideSize, mode: ResizeMode) => void
   getPresentation: () => PresentationFile
@@ -199,23 +199,26 @@ export function createDeckStore({
       addSlide: () => addSlideFrom(BLANK_SLIDE_JSON),
       addSlideFrom,
 
-      duplicateSlide: () => {
+      duplicateSlide: (id) => {
         const handle = ready()
         if (!handle) return
-        const { activeId } = get()
-        const active = snapshot().find((slide) => slide.id === activeId)
-        if (active) insertAfter(handle, activeId, active.json)
+        const targetId = id ?? get().activeId
+        const source = snapshot().find((slide) => slide.id === targetId)
+        if (source) insertAfter(handle, targetId, source.json)
       },
 
-      deleteSlide: () => {
+      deleteSlide: (id) => {
         const handle = ready()
         if (!handle) return
         const { slides, activeId } = get()
-        if (slides.length <= 1) return
-        const index = slides.findIndex((slide) => slide.id === activeId)
-        const remaining = slides.filter((slide) => slide.id !== activeId)
+        const targetId = id ?? activeId
+        const index = slides.findIndex((slide) => slide.id === targetId)
+        if (slides.length <= 1 || index < 0) return
+        const remaining = slides.filter((slide) => slide.id !== targetId)
         set({ slides: remaining })
-        activate(handle, remaining[Math.min(index, remaining.length - 1)])
+        if (targetId === activeId) {
+          activate(handle, remaining[Math.min(index, remaining.length - 1)])
+        }
       },
 
       moveSlide: (id, targetIndex) =>

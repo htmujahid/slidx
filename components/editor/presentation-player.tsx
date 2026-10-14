@@ -9,6 +9,7 @@ import {
   XIcon,
 } from "lucide-react"
 
+import { createFullscreen } from "@/lib/editor/fullscreen"
 import { resolver } from "@/lib/editor/resolver"
 import { slideSizeFromJson } from "@/lib/editor/slide-size"
 import { Button } from "@/components/ui/button"
@@ -24,10 +25,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { PlaybackProvider } from "@/components/editor/animation-playback"
-import {
-  useEditorStores,
-  usePresenter,
-} from "@/components/editor/editor-stores"
+import { usePresenter } from "@/components/editor/editor-stores"
 
 function PresentationControl({
   label,
@@ -61,13 +59,47 @@ function PresentationControl({
 }
 
 function PresentationPlayer() {
-  const { presenter } = useEditorStores()
-  const { attach, stop, go, goTo, enterFullscreen } = presenter.getState()
   const deck = usePresenter((state) => state.deck)
   const index = usePresenter((state) => state.index)
-  const fullscreen = usePresenter((state) => state.fullscreen)
+  const stop = usePresenter((state) => state.stop)
+  const go = usePresenter((state) => state.go)
+  const goTo = usePresenter((state) => state.goTo)
+  const [fullscreen, setFullscreen] = React.useState(false)
+  const returnFocus = React.useRef<HTMLElement | null>(null)
+  const controller = React.useRef<ReturnType<typeof createFullscreen> | null>(
+    null
+  )
+  const presenting = deck !== null
+  const wanted = React.useRef(presenting)
 
-  React.useEffect(() => attach(), [attach])
+  React.useLayoutEffect(() => {
+    wanted.current = presenting
+    if (presenting) {
+      returnFocus.current =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null
+    }
+  }, [presenting])
+
+  React.useEffect(() => {
+    const fs = createFullscreen({
+      isWanted: () => wanted.current,
+      onChange: setFullscreen,
+      onExternalExit: stop,
+    })
+    controller.current = fs
+    const detach = fs.attach()
+    return () => {
+      detach()
+      controller.current = null
+    }
+  }, [stop])
+
+  React.useEffect(() => {
+    if (presenting) controller.current?.enter()
+    else controller.current?.exit()
+  }, [presenting])
 
   const size = deck ? slideSizeFromJson(deck.slides[index].json) : null
   const ratio = size ? size.width / size.height : 16 / 9
@@ -81,7 +113,7 @@ function PresentationPlayer() {
     >
       <DialogContent
         showCloseButton={false}
-        finalFocus={() => presenter.getState().returnFocus}
+        finalFocus={() => returnFocus.current}
         className="top-0 left-0 flex h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-none"
         onKeyDown={(event) => {
           event.stopPropagation()
@@ -180,7 +212,7 @@ function PresentationPlayer() {
                 {!fullscreen && (
                   <PresentationControl
                     label="Enter fullscreen"
-                    onClick={enterFullscreen}
+                    onClick={() => controller.current?.enter()}
                   >
                     <MaximizeIcon />
                   </PresentationControl>

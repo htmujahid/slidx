@@ -15,14 +15,6 @@ import { Separator } from "@/components/ui/separator"
 import { selectActiveIndex, useDeck } from "@/components/editor/editor-stores"
 import { ZoomMenu } from "@/components/editor/zoom-menu"
 
-type Transform = {
-  x: number
-  y: number
-  width: number
-  height: number
-  rotation: number
-}
-
 function Stat({
   label,
   children,
@@ -40,6 +32,14 @@ function Stat({
 
 function FooterSeparator() {
   return <Separator orientation="vertical" className="h-3.5 self-center!" />
+}
+
+type Transform = {
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
 }
 
 function EditorFooter() {

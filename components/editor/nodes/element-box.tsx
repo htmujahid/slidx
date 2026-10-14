@@ -4,7 +4,7 @@ import * as React from "react"
 import { ROOT_NODE, useEditor, useNode } from "@craftjs/core"
 
 import { snapToAlignment } from "@/lib/editor/alignment-guides"
-import { resolveTiming } from "@/lib/editor/animation"
+import { resolveTiming } from "@/lib/editor/animation/timing"
 import {
   roundTo,
   swallowNextClick,

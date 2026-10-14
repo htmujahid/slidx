@@ -2,11 +2,11 @@ import * as React from "react"
 import { DiamondIcon } from "lucide-react"
 
 import { keyframeIndexAt, valueAt } from "@/lib/editor/keyframes"
+import { TRACK_PROPERTIES } from "@/lib/editor/tracks/properties"
 import {
-  TRACK_PROPERTIES,
   type AnimationTrack,
   type TrackProperty,
-} from "@/lib/editor/tracks"
+} from "@/lib/editor/tracks/types"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"

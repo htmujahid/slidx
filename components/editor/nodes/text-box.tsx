@@ -17,23 +17,6 @@ import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { TextSettings } from "@/components/editor/settings/text-settings"
 
-export type TextBoxProps = ElementTransformProps & {
-  text: string
-  html: string
-  fontSize: number
-  fontWeight: number
-  fontStyle: "normal" | "italic"
-  underline: boolean
-  strikethrough: boolean
-  fontFamily: string
-  fill: string
-  align: TextAlign
-  lineHeight: number
-  letterSpacing: number
-  padding: number
-  background: string
-}
-
 function RichTextEditor({
   initialHtml,
   style,
@@ -82,6 +65,23 @@ function RichTextEditor({
       />
     </div>
   )
+}
+
+export type TextBoxProps = ElementTransformProps & {
+  text: string
+  html: string
+  fontSize: number
+  fontWeight: number
+  fontStyle: "normal" | "italic"
+  underline: boolean
+  strikethrough: boolean
+  fontFamily: string
+  fill: string
+  align: TextAlign
+  lineHeight: number
+  letterSpacing: number
+  padding: number
+  background: string
 }
 
 const TextBox: UserComponent<Partial<TextBoxProps>> = (props) => {

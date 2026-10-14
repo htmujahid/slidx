@@ -1,6 +1,7 @@
 "use client"
 
-import { LIBRARY, LIBRARY_DRAG_TYPE } from "@/lib/editor/library"
+import { LIBRARY } from "@/lib/editor/library/items"
+import { LIBRARY_DRAG_TYPE } from "@/lib/editor/library/types"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import { Button } from "@/components/ui/button"
 import {

@@ -8,7 +8,6 @@ import { startAutosave } from "@/lib/storage/autosave"
 import { useDeck, useEditorStores } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
-const SYNC_DELAY_MS = 250
 function CraftBridge() {
   const { craft } = useEditorStores()
   const { actions, query } = useEditor()
@@ -20,6 +19,9 @@ function CraftBridge() {
   }, [craft, actions, query])
   return null
 }
+
+const SYNC_DELAY_MS = 250
+
 function ActiveSlideSync() {
   const { deck } = useEditorStores()
   const { query, nodes } = useEditor((state) => ({ nodes: state.nodes }))
@@ -32,6 +34,7 @@ function ActiveSlideSync() {
   }, [deck, nodes, query])
   return null
 }
+
 function EditorBootstrap() {
   const service = useStorage()
   const router = useRouter()

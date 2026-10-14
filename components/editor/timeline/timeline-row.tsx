@@ -2,12 +2,12 @@ import * as React from "react"
 import { ROOT_NODE } from "@craftjs/core"
 import { DiamondIcon } from "lucide-react"
 
+import type { TimelineEntry } from "@/lib/editor/animation/timeline"
 import type {
-  AnimationEasing,
   AnimationPreset,
-  TimelineEntry,
   TransitionSide,
-} from "@/lib/editor/animation"
+} from "@/lib/editor/animation/timing"
+import type { AnimationEasing } from "@/lib/editor/easing"
 import { ElementIcon } from "@/lib/editor/labels"
 import type { SpanEdge } from "@/lib/editor/timeline-edit"
 import { cn } from "@/lib/utils"

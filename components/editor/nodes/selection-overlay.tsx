@@ -18,22 +18,6 @@ import type { ElementTransformProps } from "@/lib/editor/types"
 import { cn } from "@/lib/utils"
 import { useSlide } from "@/components/editor/slide-context"
 
-type Handle = { id: string; sx: -1 | 0 | 1; sy: -1 | 0 | 1; cursor: string }
-
-const HANDLES: Handle[] = [
-  { id: "nw", sx: -1, sy: -1, cursor: "cursor-nwse-resize" },
-  { id: "n", sx: 0, sy: -1, cursor: "cursor-ns-resize" },
-  { id: "ne", sx: 1, sy: -1, cursor: "cursor-nesw-resize" },
-  { id: "e", sx: 1, sy: 0, cursor: "cursor-ew-resize" },
-  { id: "se", sx: 1, sy: 1, cursor: "cursor-nwse-resize" },
-  { id: "s", sx: 0, sy: 1, cursor: "cursor-ns-resize" },
-  { id: "sw", sx: -1, sy: 1, cursor: "cursor-nesw-resize" },
-  { id: "w", sx: -1, sy: 0, cursor: "cursor-ew-resize" },
-]
-
-const HANDLE_SIZE = 10
-const ROTATE_OFFSET = 28
-
 function MultiSelectionOverlay({
   nodes,
 }: {
@@ -73,6 +57,22 @@ function MultiSelectionOverlay({
     </g>
   )
 }
+
+type Handle = { id: string; sx: -1 | 0 | 1; sy: -1 | 0 | 1; cursor: string }
+
+const HANDLES: Handle[] = [
+  { id: "nw", sx: -1, sy: -1, cursor: "cursor-nwse-resize" },
+  { id: "n", sx: 0, sy: -1, cursor: "cursor-ns-resize" },
+  { id: "ne", sx: 1, sy: -1, cursor: "cursor-nesw-resize" },
+  { id: "e", sx: 1, sy: 0, cursor: "cursor-ew-resize" },
+  { id: "se", sx: 1, sy: 1, cursor: "cursor-nwse-resize" },
+  { id: "s", sx: 0, sy: 1, cursor: "cursor-ns-resize" },
+  { id: "sw", sx: -1, sy: 1, cursor: "cursor-nesw-resize" },
+  { id: "w", sx: -1, sy: 0, cursor: "cursor-ew-resize" },
+]
+
+const HANDLE_SIZE = 10
+const ROTATE_OFFSET = 28
 
 function SelectionOverlay() {
   const { actions, nodes, enabled } = useEditor((state) => ({

@@ -23,19 +23,6 @@ import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { CodeSettings } from "@/components/editor/settings/code-settings"
 
-export type CodeBlockProps = ElementTransformProps & {
-  code: string
-  language: CodeLanguage
-  theme: CodeTheme
-  fontSize: number
-  lineNumbers: boolean
-  highlightLines: string
-  cornerRadius: number
-}
-
-const FONT_FAMILY = "var(--font-mono), ui-monospace, monospace"
-const CHAR_WIDTH = 0.6
-
 function Tokens({ tokens }: { tokens: HighlightedToken[] }) {
   return tokens.map((token, index) => (
     <span
@@ -53,6 +40,19 @@ function Tokens({ tokens }: { tokens: HighlightedToken[] }) {
     </span>
   ))
 }
+
+export type CodeBlockProps = ElementTransformProps & {
+  code: string
+  language: CodeLanguage
+  theme: CodeTheme
+  fontSize: number
+  lineNumbers: boolean
+  highlightLines: string
+  cornerRadius: number
+}
+
+const FONT_FAMILY = "var(--font-mono), ui-monospace, monospace"
+const CHAR_WIDTH = 0.6
 
 const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
   const {

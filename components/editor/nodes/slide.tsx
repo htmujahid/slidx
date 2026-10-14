@@ -10,14 +10,14 @@ import {
 import { useShallow } from "zustand/react/shallow"
 
 import type { AlignmentGuide } from "@/lib/editor/alignment-guides"
-import { buildAnimationCss } from "@/lib/editor/animation"
+import { buildAnimationCss } from "@/lib/editor/animation/css"
 import {
   elementBounds,
   swallowNextClick,
   swallowNextEvents,
   trackPointer,
 } from "@/lib/editor/geometry"
-import { LIBRARY_DRAG_TYPE } from "@/lib/editor/library"
+import { LIBRARY_DRAG_TYPE } from "@/lib/editor/library/types"
 import {
   linearGradientPoints,
   SLIDE_DEFAULTS,

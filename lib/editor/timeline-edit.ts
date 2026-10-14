@@ -1,10 +1,10 @@
+import { type TimelineEntry } from "@/lib/editor/animation/timeline"
 import {
   DEFAULT_SPAN,
   MIN_VISIBLE_MS,
   type ElementSpan,
-  type TimelineEntry,
   type TransitionSide,
-} from "@/lib/editor/animation"
+} from "@/lib/editor/animation/timing"
 
 export const MIN_TRANSITION_MS = 100
 export const TIME_STEP = 50

@@ -1,4 +1,7 @@
-import { DEFAULT_TIMING, type ElementTiming } from "@/lib/editor/animation"
+import {
+  DEFAULT_TIMING,
+  type ElementTiming,
+} from "@/lib/editor/animation/timing"
 
 export const BLEND_MODES = [
   "normal",

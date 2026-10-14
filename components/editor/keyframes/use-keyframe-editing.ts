@@ -1,7 +1,7 @@
 import * as React from "react"
 import { useEditor } from "@craftjs/core"
 
-import { resolveTiming } from "@/lib/editor/animation"
+import { resolveTiming } from "@/lib/editor/animation/timing"
 import type { AnimationEasing } from "@/lib/editor/easing"
 import { trackPointer } from "@/lib/editor/geometry"
 import {
@@ -12,12 +12,12 @@ import {
   setKeyframeEasing,
 } from "@/lib/editor/keyframes"
 import { snapTime } from "@/lib/editor/timeline-edit"
+import { restValue } from "@/lib/editor/tracks/properties"
 import {
-  restValue,
   type AnimationTrack,
   type ElementValues,
   type TrackProperty,
-} from "@/lib/editor/tracks"
+} from "@/lib/editor/tracks/types"
 import {
   NUDGE_LARGE_MS,
   NUDGE_MS,

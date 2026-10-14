@@ -35,18 +35,6 @@ import { NumberSetting } from "@/components/editor/settings/number-setting"
 import { SettingsRow } from "@/components/editor/settings/settings-row"
 import { SettingsSection } from "@/components/editor/settings/settings-section"
 
-const HORIZONTAL: Array<[Alignment, string, LucideIcon]> = [
-  ["left", "Align left", AlignStartVerticalIcon],
-  ["center", "Center horizontally", AlignCenterVerticalIcon],
-  ["right", "Align right", AlignEndVerticalIcon],
-]
-
-const VERTICAL: Array<[Alignment, string, LucideIcon]> = [
-  ["top", "Align top", AlignStartHorizontalIcon],
-  ["middle", "Center vertically", AlignCenterHorizontalIcon],
-  ["bottom", "Align bottom", AlignEndHorizontalIcon],
-]
-
 function AlignGroup({
   label,
   options,
@@ -79,6 +67,18 @@ function AlignGroup({
     </ButtonGroup>
   )
 }
+
+const HORIZONTAL: Array<[Alignment, string, LucideIcon]> = [
+  ["left", "Align left", AlignStartVerticalIcon],
+  ["center", "Center horizontally", AlignCenterVerticalIcon],
+  ["right", "Align right", AlignEndVerticalIcon],
+]
+
+const VERTICAL: Array<[Alignment, string, LucideIcon]> = [
+  ["top", "Align top", AlignStartHorizontalIcon],
+  ["middle", "Center vertically", AlignCenterHorizontalIcon],
+  ["bottom", "Align bottom", AlignEndHorizontalIcon],
+]
 
 function TransformSettings({
   props,

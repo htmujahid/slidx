@@ -38,22 +38,6 @@ import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { ChartSettings } from "@/components/editor/settings/chart-settings"
 
-export type ChartBoxProps = ElementTransformProps & {
-  kind: ChartKind
-  series: ChartSeries[]
-  rows: ChartRow[]
-  stacked: boolean
-  donut: boolean
-  showLegend: boolean
-  showGrid: boolean
-  showValues: boolean
-  fontSize: number
-  textColor: string
-  gridColor: string
-}
-
-const FONT_FAMILY = "var(--font-sans), system-ui, sans-serif"
-
 function ChartLegend({
   items,
   fontSize,
@@ -101,6 +85,22 @@ function ChartLegend({
     </div>
   )
 }
+
+export type ChartBoxProps = ElementTransformProps & {
+  kind: ChartKind
+  series: ChartSeries[]
+  rows: ChartRow[]
+  stacked: boolean
+  donut: boolean
+  showLegend: boolean
+  showGrid: boolean
+  showValues: boolean
+  fontSize: number
+  textColor: string
+  gridColor: string
+}
+
+const FONT_FAMILY = "var(--font-sans), system-ui, sans-serif"
 
 const ChartBox: UserComponent<Partial<ChartBoxProps>> = (props) => {
   const {

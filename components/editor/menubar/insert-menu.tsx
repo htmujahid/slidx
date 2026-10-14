@@ -2,7 +2,8 @@
 
 import * as React from "react"
 
-import { LIBRARY, LIBRARY_GROUPS, type LibraryItem } from "@/lib/editor/library"
+import { LIBRARY } from "@/lib/editor/library/items"
+import { LIBRARY_GROUPS, type LibraryItem } from "@/lib/editor/library/types"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import {
   MenubarContent,

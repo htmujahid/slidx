@@ -5,33 +5,15 @@ import * as React from "react"
 import { CHART_KINDS, type ChartKind } from "@/lib/editor/chart"
 import { Field, FieldLabel } from "@/components/ui/field"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
-import { Switch } from "@/components/ui/switch"
 import type { ChartBoxProps } from "@/components/editor/nodes/chart-box"
 import { ColorSetting } from "@/components/editor/settings/color-setting"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import { NumberSetting } from "@/components/editor/settings/number-setting"
 import { SettingsRow } from "@/components/editor/settings/settings-row"
 import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SwitchSetting } from "@/components/editor/settings/switch-setting"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
-
-function OptionSwitch({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-}) {
-  const id = React.useId()
-  return (
-    <Field orientation="horizontal">
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Switch id={id} checked={checked} onCheckedChange={onChange} />
-    </Field>
-  )
-}
 
 function ChartSettings() {
   const { props, update } = useNodeProps<ChartBoxProps>()
@@ -62,33 +44,33 @@ function ChartSettings() {
           </NativeSelect>
         </Field>
         {canStack ? (
-          <OptionSwitch
+          <SwitchSetting
             label="Stacked"
             checked={props.stacked}
             onChange={(stacked) => update({ stacked })}
           />
         ) : null}
         {isPie ? (
-          <OptionSwitch
+          <SwitchSetting
             label="Donut"
             checked={props.donut}
             onChange={(donut) => update({ donut })}
           />
         ) : null}
-        <OptionSwitch
+        <SwitchSetting
           label="Legend"
           checked={props.showLegend}
           onChange={(showLegend) => update({ showLegend })}
         />
         {!isPie ? (
-          <OptionSwitch
+          <SwitchSetting
             label="Grid"
             checked={props.showGrid}
             onChange={(showGrid) => update({ showGrid })}
           />
         ) : null}
         {kind !== "radar" ? (
-          <OptionSwitch
+          <SwitchSetting
             label="Value labels"
             checked={props.showValues}
             onChange={(showValues) => update({ showValues })}

@@ -17,7 +17,7 @@ import {
   roundTo,
   type Point,
 } from "@/lib/editor/geometry"
-import { getLibraryItem } from "@/lib/editor/library"
+import { getLibraryItem } from "@/lib/editor/library/items"
 import { slideSizeOf } from "@/lib/editor/slide-size"
 import type { ElementTransformProps } from "@/lib/editor/types"
 import { Group } from "@/components/editor/nodes/group"

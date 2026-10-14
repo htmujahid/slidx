@@ -2,7 +2,7 @@ import {
   type AnimationTrack,
   type Keyframe,
   type TrackProperty,
-} from "@/lib/editor/tracks"
+} from "@/lib/editor/tracks/types"
 
 export const SAME_MOMENT_MS = 25
 

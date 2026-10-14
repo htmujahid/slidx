@@ -42,8 +42,6 @@ import {
   SortableItemHandle,
 } from "@/components/reui/sortable"
 
-const getLayerId = (layer: { id: string }) => layer.id
-
 function RenameInput({
   initial,
   onCommit,
@@ -78,6 +76,8 @@ function RenameInput({
     />
   )
 }
+
+const getLayerId = (layer: { id: string }) => layer.id
 
 function LayersPanel() {
   const { actions, layers, selectedId } = useEditor((state) => {

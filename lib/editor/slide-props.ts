@@ -2,7 +2,7 @@ import {
   DEFAULT_SLIDE_DURATION,
   DEFAULT_TIMING,
   type ElementTiming,
-} from "@/lib/editor/animation"
+} from "@/lib/editor/animation/timing"
 import { SLIDE_HEIGHT, SLIDE_WIDTH } from "@/lib/editor/constants"
 
 export type BackgroundType = "solid" | "gradient" | "image"

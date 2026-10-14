@@ -1,47 +1,25 @@
 "use client"
 
-import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
-import { ArrowLeftRightIcon } from "lucide-react"
 
 import {
   SLIDE_DEFAULTS,
   type BackgroundType,
-  type GradientType,
   type SlideProps,
 } from "@/lib/editor/slide-props"
 import { SLIDE_TEMPLATES, type SlideTemplate } from "@/lib/editor/templates"
 import { Button } from "@/components/ui/button"
-import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
-import { Switch } from "@/components/ui/switch"
+import { FieldDescription } from "@/components/ui/field"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import { ColorSetting } from "@/components/editor/settings/color-setting"
+import { GradientSettings } from "@/components/editor/settings/gradient-settings"
 import { ImageFitSetting } from "@/components/editor/settings/image-fit-setting"
 import { ImageSource } from "@/components/editor/settings/image-source"
 import { NumberSetting } from "@/components/editor/settings/number-setting"
-import { SettingsRow } from "@/components/editor/settings/settings-row"
 import { SettingsSection } from "@/components/editor/settings/settings-section"
-import { SliderSetting } from "@/components/editor/settings/slider-setting"
+import { SwitchSetting } from "@/components/editor/settings/switch-setting"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 import { TemplatePreview } from "@/components/editor/template-preview"
-
-function SwitchSetting({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-}) {
-  const id = React.useId()
-  return (
-    <Field orientation="horizontal">
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Switch id={id} checked={checked} onCheckedChange={onChange} />
-    </Field>
-  )
-}
 
 function ImageBackgroundSettings({
   props,
@@ -96,73 +74,6 @@ function LayoutSettings() {
         Applying a layout replaces the slide’s contents.
       </FieldDescription>
     </SettingsSection>
-  )
-}
-
-function GradientSettings({
-  props,
-  update,
-}: {
-  props: SlideProps
-  update: (patch: Partial<SlideProps>) => void
-}) {
-  return (
-    <>
-      <ToggleGroup
-        variant="outline"
-        size="sm"
-        spacing={0}
-        aria-label="Gradient type"
-        className="w-full"
-        value={[props.gradientType]}
-        onValueChange={([gradientType]) => {
-          if (gradientType)
-            update({ gradientType: gradientType as GradientType })
-        }}
-      >
-        <ToggleGroupItem value="linear" className="flex-1">
-          Linear
-        </ToggleGroupItem>
-        <ToggleGroupItem value="radial" className="flex-1">
-          Radial
-        </ToggleGroupItem>
-      </ToggleGroup>
-      <SettingsRow>
-        <ColorSetting
-          label="From"
-          value={props.gradientFrom}
-          onChange={(gradientFrom) => update({ gradientFrom })}
-        />
-        <ColorSetting
-          label="To"
-          value={props.gradientTo}
-          onChange={(gradientTo) => update({ gradientTo })}
-        />
-      </SettingsRow>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() =>
-          update({
-            gradientFrom: props.gradientTo,
-            gradientTo: props.gradientFrom,
-          })
-        }
-      >
-        <ArrowLeftRightIcon data-icon="inline-start" />
-        Swap colors
-      </Button>
-      {props.gradientType === "linear" ? (
-        <SliderSetting
-          label="Angle"
-          value={props.gradientAngle}
-          min={0}
-          max={360}
-          format={(value) => `${value}°`}
-          onChange={(gradientAngle) => update({ gradientAngle })}
-        />
-      ) : null}
-    </>
   )
 }
 

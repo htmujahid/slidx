@@ -2,7 +2,8 @@
 
 import * as React from "react"
 
-import { isTimed, MIN_VISIBLE_MS } from "@/lib/editor/animation"
+import { isTimed } from "@/lib/editor/animation/timeline"
+import { MIN_VISIBLE_MS } from "@/lib/editor/animation/timing"
 import { useChrome } from "@/lib/editor/stores/chrome-store"
 import {
   DEFAULT_ZOOM,

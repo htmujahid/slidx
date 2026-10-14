@@ -1,15 +1,15 @@
 import * as React from "react"
 import { ROOT_NODE, useEditor } from "@craftjs/core"
 
+import { type TimelineEntry } from "@/lib/editor/animation/timeline"
 import {
   DEFAULT_TIMING,
   resolveTiming,
-  type AnimationEasing,
   type AnimationPreset,
   type ElementSpan,
-  type TimelineEntry,
   type TransitionSide,
-} from "@/lib/editor/animation"
+} from "@/lib/editor/animation/timing"
+import { type AnimationEasing } from "@/lib/editor/easing"
 import { trackPointer } from "@/lib/editor/geometry"
 import {
   moveSpan,

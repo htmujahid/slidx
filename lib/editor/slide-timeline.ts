@@ -2,13 +2,15 @@ import { ROOT_NODE, type Nodes } from "@craftjs/core"
 
 import {
   buildTimeline,
+  type TimelineInput,
+} from "@/lib/editor/animation/timeline"
+import {
   DEFAULT_SLIDE_DURATION,
   resolveTiming,
   type ElementTiming,
-  type TimelineInput,
-} from "@/lib/editor/animation"
+} from "@/lib/editor/animation/timing"
 import type { ChartKind } from "@/lib/editor/chart"
-import { elementValues } from "@/lib/editor/tracks"
+import { elementValues } from "@/lib/editor/tracks/element-values"
 
 export function slideDuration(nodes: Nodes) {
   const duration = (nodes[ROOT_NODE]?.data.props as { duration?: number })

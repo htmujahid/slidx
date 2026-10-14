@@ -21,25 +21,6 @@ import { useElementEditing } from "@/components/editor/nodes/use-element-editing
 import { ShapeSettings } from "@/components/editor/settings/shape-settings"
 import { ShapeGeometryElement } from "@/components/editor/shape-geometry"
 
-export type ShapeProps = ElementTransformProps & {
-  kind: ShapeKind
-  fillType: "solid" | "gradient"
-  gradientType: "linear" | "radial"
-  fill: string
-  fill2: string
-  gradientAngle: number
-  stroke: string
-  strokeWidth: number
-  dashStyle: DashStyle
-  cornerRadius: number
-  params: ShapeParams
-  text: string
-  textColor: string
-  textSize: number
-}
-
-const TEXT_FONT_FAMILY = "var(--font-sans), system-ui, sans-serif"
-
 function ShapeTextEditor({
   initial,
   style,
@@ -85,6 +66,25 @@ function ShapeTextEditor({
     </div>
   )
 }
+
+export type ShapeProps = ElementTransformProps & {
+  kind: ShapeKind
+  fillType: "solid" | "gradient"
+  gradientType: "linear" | "radial"
+  fill: string
+  fill2: string
+  gradientAngle: number
+  stroke: string
+  strokeWidth: number
+  dashStyle: DashStyle
+  cornerRadius: number
+  params: ShapeParams
+  text: string
+  textColor: string
+  textSize: number
+}
+
+const TEXT_FONT_FAMILY = "var(--font-sans), system-ui, sans-serif"
 
 const Shape: UserComponent<Partial<ShapeProps>> = (props) => {
   const {

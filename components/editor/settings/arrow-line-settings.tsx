@@ -2,34 +2,15 @@
 
 import * as React from "react"
 
-import { Field, FieldLabel } from "@/components/ui/field"
-import { Switch } from "@/components/ui/switch"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import type { ArrowLineProps } from "@/components/editor/nodes/arrow-line"
 import { ColorSetting } from "@/components/editor/settings/color-setting"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
 import { NumberSetting } from "@/components/editor/settings/number-setting"
 import { SettingsSection } from "@/components/editor/settings/settings-section"
+import { SwitchSetting } from "@/components/editor/settings/switch-setting"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
-
-function ArrowSwitch({
-  label,
-  checked,
-  onChange,
-}: {
-  label: string
-  checked: boolean
-  onChange: (checked: boolean) => void
-}) {
-  const id = React.useId()
-  return (
-    <Field orientation="horizontal">
-      <FieldLabel htmlFor={id}>{label}</FieldLabel>
-      <Switch id={id} checked={checked} onCheckedChange={onChange} />
-    </Field>
-  )
-}
 
 function ArrowLineSettings() {
   const { props, update } = useNodeProps<ArrowLineProps>()
@@ -71,12 +52,12 @@ function ArrowLineSettings() {
             Dotted
           </ToggleGroupItem>
         </ToggleGroup>
-        <ArrowSwitch
+        <SwitchSetting
           label="Arrow at start"
           checked={props.arrowStart}
           onChange={(arrowStart) => update({ arrowStart })}
         />
-        <ArrowSwitch
+        <SwitchSetting
           label="Arrow at end"
           checked={props.arrowEnd}
           onChange={(arrowEnd) => update({ arrowEnd })}

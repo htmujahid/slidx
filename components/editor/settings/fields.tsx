@@ -42,7 +42,9 @@ function SettingsSection({
           <FieldLegend className="sr-only" variant="label">
             {title}
           </FieldLegend>
-          <FieldGroup className="gap-3">{children}</FieldGroup>
+          <FieldGroup className="gap-3 [&_[data-slot=field-label]]:whitespace-nowrap [&_[data-slot=field]]:min-w-0">
+            {children}
+          </FieldGroup>
         </FieldSet>
       </AccordionContent>
     </AccordionItem>

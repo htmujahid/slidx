@@ -171,7 +171,7 @@ function KeyframeEditor({ id }: { id: string }) {
         </p>
       ) : null}
 
-      <div className="flex min-h-8 items-center gap-2 text-xs text-muted-foreground">
+      <div className="flex min-h-8 flex-wrap items-center gap-2 text-xs text-muted-foreground">
         {selection && selected ? (
           <>
             <span className="min-w-0 flex-1 truncate text-foreground">

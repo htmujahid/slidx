@@ -58,7 +58,7 @@ function EditorWorkspace() {
   const { timelineOpen } = useEditorLayout()
   return (
     <ResizablePanelGroup orientation="vertical" className="min-h-0 flex-1">
-      <ResizablePanel id="canvas" minSize={240} className="flex flex-col">
+      <ResizablePanel id="canvas" minSize={100} className="flex flex-col">
         <EditorCanvas />
       </ResizablePanel>
       {timelineOpen ? (
@@ -102,9 +102,9 @@ function EditorShell() {
             <ResetPresentationDialog />
             <SlideSizeDialog />
             <Toaster />
-            <div className="[--footer-height:calc(--spacing(10))] [--header-height:calc(--spacing(12))]">
+            <div className="[--footer-height:calc(--spacing(10))] [--header-height:calc(--spacing(22))] sm:[--header-height:calc(--spacing(12))]">
               <SidebarProvider
-                className="h-svh flex-col overflow-hidden"
+                className="h-dvh min-h-0 flex-col overflow-hidden"
                 style={{ "--sidebar-width": "18rem" } as React.CSSProperties}
               >
                 <WorkspaceSidebarShortcut />

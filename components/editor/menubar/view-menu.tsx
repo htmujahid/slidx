@@ -22,7 +22,8 @@ import { useEditorLayout } from "@/components/editor/editor-layout"
 import { Shortcut } from "@/components/editor/menubar/shortcut"
 
 function ViewMenu() {
-  const { open: slidesOpen, toggleSidebar } = useSidebar()
+  const { open, openMobile, isMobile, toggleSidebar } = useSidebar()
+  const slidesOpen = isMobile ? openMobile : open
   const {
     propertiesOpen,
     toggleProperties,

@@ -44,8 +44,10 @@ function TimelineHeader({
   onClose: () => void
 }) {
   return (
-    <header className="flex h-9 shrink-0 items-center gap-1 border-b px-2">
-      <h2 className="mr-2 text-sm font-medium">Timeline</h2>
+    <header className="flex min-h-9 shrink-0 flex-wrap items-center gap-1 border-b px-2 py-1 sm:gap-x-2">
+      <h2 className="mr-2 shrink-0 text-sm font-medium whitespace-nowrap">
+        Timeline
+      </h2>
       <Button
         variant="ghost"
         size="icon-xs"
@@ -75,11 +77,11 @@ function TimelineHeader({
       </Button>
       <span
         aria-live="off"
-        className="ml-1 min-w-24 text-xs text-muted-foreground tabular-nums"
+        className="ml-1 min-w-24 shrink-0 text-xs whitespace-nowrap text-muted-foreground tabular-nums"
       >
         {formatTime(playheadMs)} / {formatTime(durationMs)}
       </span>
-      <label className="ml-3 flex items-center gap-1.5 text-xs text-muted-foreground">
+      <label className="flex shrink-0 items-center gap-1.5 text-xs whitespace-nowrap text-muted-foreground sm:ml-3">
         Slide length
         <Input
           type="number"
@@ -95,7 +97,7 @@ function TimelineHeader({
         />
         s
       </label>
-      <div className="ml-auto flex items-center gap-1">
+      <div className="ml-auto flex shrink-0 items-center gap-1">
         <Button
           variant="ghost"
           size="icon-xs"

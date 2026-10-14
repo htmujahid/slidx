@@ -67,9 +67,9 @@ function EditorFooter() {
   return (
     <footer
       aria-label="Status"
-      className="flex h-(--footer-height) shrink-0 items-center gap-3 overflow-x-auto border-t bg-background px-3 text-xs text-muted-foreground"
+      className="flex h-(--footer-height) shrink-0 items-center gap-2 overflow-x-auto border-t bg-background px-3 text-xs text-muted-foreground sm:gap-3"
     >
-      <div className="-ml-1.5 flex items-center gap-0.5">
+      <div className="-ml-1.5 flex shrink-0 items-center gap-0.5">
         <Button
           variant="ghost"
           size="icon-xs"
@@ -92,35 +92,36 @@ function EditorFooter() {
           <ChevronRightIcon />
         </Button>
       </div>
-      <FooterSeparator />
-      <Stat>
-        {count} {count === 1 ? "element" : "elements"}
-      </Stat>
-      <FooterSeparator />
-      {selected ? (
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="max-w-40 truncate font-medium text-foreground">
-            {selected.label}
-          </span>
-          <Stat>
-            {Math.round(selected.transform.width)} ×{" "}
-            {Math.round(selected.transform.height)}
-          </Stat>
-          <span className="hidden items-center gap-3 lg:flex">
-            <Stat label="at">
-              {Math.round(selected.transform.x)},{" "}
-              {Math.round(selected.transform.y)}
+      <div className="hidden shrink-0 items-center gap-3 md:flex">
+        <FooterSeparator />
+        <Stat>
+          {count} {count === 1 ? "element" : "elements"}
+        </Stat>
+        <FooterSeparator />
+        {selected ? (
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="max-w-40 truncate font-medium text-foreground">
+              {selected.label}
+            </span>
+            <Stat>
+              {Math.round(selected.transform.width)} ×{" "}
+              {Math.round(selected.transform.height)}
             </Stat>
-            {selected.transform.rotation ? (
-              <Stat>{Math.round(selected.transform.rotation)}°</Stat>
-            ) : null}
-          </span>
-        </div>
-      ) : (
-        <span>No selection</span>
-      )}
-
-      <div className="ml-auto flex items-center gap-3">
+            <span className="hidden items-center gap-3 lg:flex">
+              <Stat label="at">
+                {Math.round(selected.transform.x)},{" "}
+                {Math.round(selected.transform.y)}
+              </Stat>
+              {selected.transform.rotation ? (
+                <Stat>{Math.round(selected.transform.rotation)}°</Stat>
+              ) : null}
+            </span>
+          </div>
+        ) : (
+          <span className="whitespace-nowrap">No selection</span>
+        )}
+      </div>
+      <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
         {slide.showGrid || slide.snapToGrid ? (
           <>
             <Stat label="Grid">

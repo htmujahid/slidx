@@ -15,6 +15,7 @@ import {
 
 import { getElementLabel } from "@/lib/editor/labels"
 import { useEditorActions } from "@/hooks/use-editor-actions"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
 import { Kbd } from "@/components/ui/kbd"
@@ -70,9 +71,16 @@ function PropertiesSidebarProvider({
   children: React.ReactNode
 }) {
   const { propertiesOpen, setPropertiesOpen } = useEditorLayout()
+  const isMobile = useIsMobile()
   return (
     <SidebarProvider
       open={propertiesOpen}
+      openMobile={isMobile && propertiesOpen}
+      onOpenMobileChange={(next) =>
+        setPropertiesOpen(
+          typeof next === "function" ? next(propertiesOpen) : next
+        )
+      }
       onOpenChange={setPropertiesOpen}
       className="min-h-0 min-w-0 flex-1"
       style={{ "--sidebar-width": "18rem" } as React.CSSProperties}

@@ -73,7 +73,7 @@ function EditorCanvas() {
     <EditorContextMenu>
       <div
         ref={stageRef}
-        className="editor-stage flex min-h-0 flex-1 [scrollbar-gutter:stable] overflow-auto bg-muted/50 p-6 lg:p-10"
+        className="editor-stage flex min-h-0 min-w-0 flex-1 [scrollbar-gutter:stable] overflow-auto bg-muted/50 p-3 sm:p-6 lg:p-10"
         onPointerDown={(event) => {
           if (event.target === event.currentTarget) actions.clearEvents()
         }}

@@ -58,7 +58,7 @@ const EditorLayoutContext =
   React.createContext<EditorLayoutContextValue | null>(null)
 
 function EditorLayoutProvider({ children }: { children: React.ReactNode }) {
-  const [propertiesOpen, setPropertiesOpen] = React.useState(true)
+  const [propertiesOpen, setPropertiesOpen] = React.useState(false)
   const [canvasScale, setCanvasScale] = React.useState(1)
   const [dialog, setDialog] = React.useState<EditorDialog>(null)
   const [editingId, setEditingId] = React.useState<string | null>(null)

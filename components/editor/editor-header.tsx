@@ -36,6 +36,7 @@ function EditorHeader() {
       <div className="ml-auto flex shrink-0 items-center gap-2">
         <AccountMenu />
         <Button
+          size="sm"
           aria-label="Present from current slide"
           onClick={(event) => {
             syncActive()

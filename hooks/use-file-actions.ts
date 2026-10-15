@@ -5,7 +5,6 @@ import * as React from "react"
 import { sectionToImageMarkup, svgToPng } from "@/lib/editor/export"
 import { downloadBlob, pickFile, toFilename } from "@/lib/editor/files"
 import { slidesToHtml, slideToHtml } from "@/lib/editor/html-export"
-import { slidesToPdf } from "@/lib/editor/pdf"
 import { PRESENTATION_EXTENSION } from "@/lib/editor/presentation"
 import { parsePresentation } from "@/lib/editor/presentation-file"
 import { renderSlides } from "@/lib/editor/render-slides"
@@ -115,6 +114,7 @@ function useFileActions() {
     const { title, getPresentation } = deck.getState()
     const presentation = getPresentation()
     try {
+      const { slidesToPdf } = await import("@/lib/editor/pdf")
       const blob = await slidesToPdf(
         await inline(presentation.slides.map((slide) => slide.json)),
         presentation.title

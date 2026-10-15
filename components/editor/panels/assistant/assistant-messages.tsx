@@ -2,7 +2,7 @@
 
 import { isToolUIPart } from "ai"
 
-import { LOGIN_REQUIRED_MESSAGE } from "@/lib/ai/errors"
+import { AI_LIMIT_MESSAGE, LOGIN_REQUIRED_MESSAGE } from "@/lib/ai/errors"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
@@ -101,7 +101,8 @@ export function AssistantMessages({ chat }: { chat: AssistantChat }) {
           <Alert variant="destructive">
             <AlertDescription className="flex flex-col items-start gap-2">
               {chat.error.message || "Something went wrong."}
-              {chat.error.message === LOGIN_REQUIRED_MESSAGE ? null : (
+              {chat.error.message === LOGIN_REQUIRED_MESSAGE ||
+              chat.error.message === AI_LIMIT_MESSAGE ? null : (
                 <Button variant="outline" size="sm" onClick={chat.retry}>
                   Try again
                 </Button>

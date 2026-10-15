@@ -1,3 +1,4 @@
+import { ConvexError } from "convex/values"
 import {
   mutation,
   query,
@@ -33,7 +34,7 @@ async function countDecks(ctx: QueryCtx | MutationCtx, userId: string) {
 export async function assertCanCreateDeck(ctx: MutationCtx, userId: string) {
   const limits = await resolveLimits(ctx, userId)
   if ((await countDecks(ctx, userId)) >= limits.decks) {
-    throw new Error(DECK_LIMIT_ERROR)
+    throw new ConvexError(DECK_LIMIT_ERROR)
   }
 }
 

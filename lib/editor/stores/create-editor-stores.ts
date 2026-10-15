@@ -1,5 +1,5 @@
 import { createChromeStore } from "./chrome-store"
-import { createCraftRef, createDeckStore } from "./deck-store"
+import { createDeckStore } from "./deck-store"
 import { createPresenterStore } from "./presenter-store"
 import { createPreviewStore } from "./preview-store"
 import { createViewportStore } from "./viewport-store"
@@ -9,8 +9,7 @@ export function createEditorStores({
 }: {
   presentationId: string
 }) {
-  const craft = createCraftRef()
-  const deck = createDeckStore({ presentationId, craft })
+  const deck = createDeckStore({ presentationId })
   const chrome = createChromeStore()
   const viewport = createViewportStore()
   const preview = createPreviewStore()
@@ -21,7 +20,6 @@ export function createEditorStores({
   })
 
   return {
-    craft,
     deck,
     chrome,
     viewport,

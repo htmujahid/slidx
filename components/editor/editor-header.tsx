@@ -2,6 +2,7 @@
 
 import { PanelLeftIcon, PanelRightIcon, PlayIcon } from "lucide-react"
 
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import { Button } from "@/components/ui/button"
 import { useSidebar } from "@/components/ui/sidebar"
 import { AccountMenu } from "@/components/editor/account-menu"
@@ -12,6 +13,7 @@ import { ThemeToggle } from "@/components/editor/theme-toggle"
 
 function EditorHeader() {
   const start = usePresenter((state) => state.start)
+  const { syncActive } = useDeckActions()
   const propertiesOpen = useChrome((state) => state.propertiesOpen)
   const toggleProperties = useChrome((state) => state.toggleProperties)
   const { toggleSidebar, isMobile, openMobile, open } = useSidebar()
@@ -38,7 +40,10 @@ function EditorHeader() {
         <AccountMenu />
         <Button
           aria-label="Present from current slide"
-          onClick={(event) => start(event.currentTarget)}
+          onClick={(event) => {
+            syncActive()
+            start(event.currentTarget)
+          }}
         >
           <PlayIcon data-icon="inline-start" />
           <span className="hidden sm:inline">Present</span>

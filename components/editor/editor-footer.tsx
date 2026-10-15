@@ -8,6 +8,7 @@ import { useShallow } from "zustand/react/shallow"
 import { getElementLabel } from "@/lib/editor/labels"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
 import { aspectLabel } from "@/lib/editor/slide-size"
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
@@ -48,7 +49,7 @@ type Transform = {
 function EditorFooter() {
   const activeIndex = useDeck(selectActiveIndex)
   const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))
-  const selectSlide = useDeck((state) => state.select)
+  const { select: selectSlide } = useDeckActions()
   const timelineOpen = useChrome((state) => state.timelineOpen)
   const toggleTimeline = useChrome((state) => state.toggleTimeline)
   const setDialog = useChrome((state) => state.setDialog)

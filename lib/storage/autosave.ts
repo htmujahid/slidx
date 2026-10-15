@@ -1,5 +1,6 @@
 import type { StoreApi } from "zustand"
 
+import type { SlideData } from "@/lib/editor/slides"
 import type { DeckState } from "@/lib/editor/stores/deck-store"
 import { toast } from "@/components/ui/toast"
 
@@ -15,10 +16,12 @@ type SavedState = {
 }
 export function startAutosave({
   deck,
+  snapshot,
   service,
   persisted,
 }: {
   deck: StoreApi<DeckState>
+  snapshot: () => SlideData[]
   service: StorageService
   persisted: boolean
 }) {
@@ -38,7 +41,7 @@ export function startAutosave({
       const state = deck.getState()
       const all = (() => {
         try {
-          return state.snapshot()
+          return snapshot()
         } catch {
           return state.slides
         }

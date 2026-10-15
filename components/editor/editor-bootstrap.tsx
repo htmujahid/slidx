@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { useEditor } from "@craftjs/core"
 
 import { startAutosave } from "@/lib/storage/autosave"
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import { Spinner } from "@/components/ui/spinner"
 import { useDeck, useEditorStores } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
@@ -14,26 +15,14 @@ const SYNC_DELAY_MS = 250
 function useEditorBootstrap() {
   const service = useStorage()
   const router = useRouter()
-  const { craft, deck } = useEditorStores()
-  const { actions, query, nodes } = useEditor((state) => ({
-    nodes: state.nodes,
-  }))
-
-  // Bind craft first: hydrate() below requires it to be bound.
-  React.useEffect(() => {
-    craft.bind({ actions, query })
-    return () => {
-      craft.bind(null)
-    }
-  }, [craft, actions, query])
+  const { deck } = useEditorStores()
+  const deckActions = useDeckActions()
+  const { nodes } = useEditor((state) => ({ nodes: state.nodes }))
 
   React.useEffect(() => {
-    const timer = setTimeout(
-      () => deck.getState().syncActive(query.serialize()),
-      SYNC_DELAY_MS
-    )
+    const timer = setTimeout(deckActions.syncActive, SYNC_DELAY_MS)
     return () => clearTimeout(timer)
-  }, [deck, nodes, query])
+  }, [deckActions, nodes])
 
   React.useEffect(() => {
     let cancelled = false
@@ -48,9 +37,10 @@ function useEditorBootstrap() {
           router.replace("/dashboard")
           return
         }
-        deck.getState().hydrate(stored)
+        deckActions.hydrate(stored)
         stopAutosave = startAutosave({
           deck,
+          snapshot: deckActions.snapshot,
           service,
           persisted: Boolean(stored),
         })
@@ -59,7 +49,7 @@ function useEditorBootstrap() {
       cancelled = true
       stopAutosave?.()
     }
-  }, [deck, service, router])
+  }, [deck, deckActions, service, router])
 }
 
 function EditorBootstrap({ children }: { children: React.ReactNode }) {

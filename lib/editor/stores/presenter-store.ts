@@ -4,7 +4,11 @@ import { createStore } from "zustand/vanilla"
 import type { PresentationFile } from "@/lib/editor/presentation"
 
 import type { ChromeState } from "./chrome-store"
-import { selectActiveIndex, type DeckState } from "./deck-store"
+import {
+  selectActiveIndex,
+  selectPresentation,
+  type DeckState,
+} from "./deck-store"
 
 export type PresenterState = {
   deck: PresentationFile | null
@@ -34,10 +38,12 @@ export function createPresenterStore({
       index: 0,
       returnFocus: null,
 
+      // Reads the store as-is: call deckActions.syncActive() first so the
+      // live canvas is included.
       start: (trigger) => {
         if (get().deck) return
         const state = deck.getState()
-        const snapshot = state.getPresentation()
+        const snapshot = selectPresentation(state)
         chrome.getState().setEditingId(null)
         set({
           deck: snapshot,

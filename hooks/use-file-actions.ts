@@ -9,6 +9,7 @@ import { PRESENTATION_EXTENSION } from "@/lib/editor/presentation"
 import { parsePresentation } from "@/lib/editor/presentation-file"
 import { renderSlides } from "@/lib/editor/render-slides"
 import { externalizeAssets, inlineAssets } from "@/lib/storage/assets"
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import { toast } from "@/components/ui/toast"
 import {
   selectActiveIndex,
@@ -25,6 +26,7 @@ const fail = (title: string, error: unknown) =>
 
 function useFileActions() {
   const { deck } = useEditorStores()
+  const { getPresentation, load } = useDeckActions()
   const storage = useStorage()
 
   const inline = React.useCallback(
@@ -35,7 +37,6 @@ function useFileActions() {
 
   const save = React.useCallback(async () => {
     try {
-      const { title, getPresentation } = deck.getState()
       const presentation = getPresentation()
       const slides = await inline(
         presentation.slides.map((slide) => slide.json)
@@ -49,15 +50,18 @@ function useFileActions() {
         ],
         { type: "application/json" }
       )
-      downloadBlob(blob, `${toFilename(title)}${PRESENTATION_EXTENSION}`)
+      downloadBlob(
+        blob,
+        `${toFilename(presentation.title)}${PRESENTATION_EXTENSION}`
+      )
       toast.add({ type: "success", title: "Presentation saved to a file" })
     } catch (error) {
       fail("Could not save the file", error)
     }
-  }, [deck, inline])
+  }, [getPresentation, inline])
 
   const open = React.useCallback(async () => {
-    const { presentationId, load } = deck.getState()
+    const { presentationId } = deck.getState()
     const file = await pickFile(".json,application/json")
     if (!file) return
     try {
@@ -72,46 +76,42 @@ function useFileActions() {
     } catch (error) {
       fail("Could not open the file", error)
     }
-  }, [deck, storage])
+  }, [deck, load, storage])
 
   const exportPng = React.useCallback(async () => {
     try {
       const state = deck.getState()
-      const { title } = state
       const activeIndex = selectActiveIndex(state)
-      const presentation = state.getPresentation()
+      const presentation = getPresentation()
       const [json] = await inline([presentation.slides[activeIndex].json])
       const [markup] = await renderSlides([json], sectionToImageMarkup)
       downloadBlob(
         await svgToPng(markup),
-        `${toFilename(title)}-slide-${activeIndex + 1}.png`
+        `${toFilename(presentation.title)}-slide-${activeIndex + 1}.png`
       )
       toast.add({ type: "success", title: "Slide exported as PNG" })
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [deck, inline])
+  }, [deck, getPresentation, inline])
 
   const exportSlideHtml = React.useCallback(async () => {
-    const state = deck.getState()
-    const { title } = state
-    const activeIndex = selectActiveIndex(state)
-    const presentation = state.getPresentation()
+    const activeIndex = selectActiveIndex(deck.getState())
+    const presentation = getPresentation()
     const slide = presentation.slides[activeIndex]
     if (!slide) return fail("Nothing to export", undefined)
     try {
       downloadBlob(
         await slideToHtml((await inline([slide.json]))[0], presentation.title),
-        `${toFilename(title)}-slide-${activeIndex + 1}.html`
+        `${toFilename(presentation.title)}-slide-${activeIndex + 1}.html`
       )
       toast.add({ type: "success", title: "Slide exported as HTML" })
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [deck, inline])
+  }, [deck, getPresentation, inline])
 
   const exportPdf = React.useCallback(async () => {
-    const { title, getPresentation } = deck.getState()
     const presentation = getPresentation()
     try {
       const { slidesToPdf } = await import("@/lib/editor/pdf")
@@ -119,7 +119,7 @@ function useFileActions() {
         await inline(presentation.slides.map((slide) => slide.json)),
         presentation.title
       )
-      downloadBlob(blob, `${toFilename(title)}.pdf`)
+      downloadBlob(blob, `${toFilename(presentation.title)}.pdf`)
       const count = presentation.slides.length
       toast.add({
         type: "success",
@@ -128,17 +128,16 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [deck, inline])
+  }, [getPresentation, inline])
 
   const exportHtml = React.useCallback(async () => {
-    const { title, getPresentation } = deck.getState()
     const presentation = getPresentation()
     try {
       const blob = await slidesToHtml(
         await inline(presentation.slides.map((slide) => slide.json)),
         presentation.title
       )
-      downloadBlob(blob, `${toFilename(title)}.html`)
+      downloadBlob(blob, `${toFilename(presentation.title)}.html`)
       const count = presentation.slides.length
       toast.add({
         type: "success",
@@ -147,7 +146,7 @@ function useFileActions() {
     } catch (error) {
       fail("Export failed", error)
     }
-  }, [deck, inline])
+  }, [getPresentation, inline])
 
   return { save, open, exportPng, exportSlideHtml, exportPdf, exportHtml }
 }

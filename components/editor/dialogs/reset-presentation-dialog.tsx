@@ -1,5 +1,6 @@
 "use client"
 
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,12 +11,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useChrome, useDeck } from "@/components/editor/editor-stores"
+import { useChrome } from "@/components/editor/editor-stores"
 
 function ResetPresentationDialog() {
   const open = useChrome((state) => state.dialog === "reset")
   const setDialog = useChrome((state) => state.setDialog)
-  const resetPresentation = useDeck((state) => state.reset)
+  const { reset: resetPresentation } = useDeckActions()
 
   return (
     <AlertDialog open={open} onOpenChange={(open) => !open && setDialog(null)}>

@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation"
 
 import { DEFAULT_TITLE } from "@/lib/editor/presentation"
 import { BLANK_SLIDE_JSON } from "@/lib/editor/slides"
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,13 +15,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { useChrome, useDeck } from "@/components/editor/editor-stores"
+import { useChrome } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
 function NewPresentationDialog() {
   const open = useChrome((state) => state.dialog === "new")
   const setDialog = useChrome((state) => state.setDialog)
-  const load = useDeck((state) => state.load)
+  const { load } = useDeckActions()
   const service = useStorage()
   const router = useRouter()
 

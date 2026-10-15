@@ -13,6 +13,7 @@ import {
   type ResizeMode,
   type SlideSize,
 } from "@/lib/editor/slide-size"
+import { useDeckActions } from "@/hooks/use-deck-actions"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { DialogFooter } from "@/components/ui/dialog"
@@ -25,7 +26,6 @@ import {
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
-import { useDeck } from "@/components/editor/editor-stores"
 
 function DimensionField({
   label,
@@ -72,7 +72,7 @@ const MODES: { value: ResizeMode; label: string; hint: string }[] = [
 
 export function SlideSizeForm({ onDone }: { onDone: () => void }) {
   const current = useSlideSize()
-  const resizeSlides = useDeck((state) => state.resizeSlides)
+  const { resizeSlides } = useDeckActions()
   const [width, setWidth] = React.useState(String(current.width))
   const [height, setHeight] = React.useState(String(current.height))
   const [mode, setMode] = React.useState<ResizeMode>("scale")

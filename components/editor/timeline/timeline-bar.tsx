@@ -45,7 +45,7 @@ function EdgeHandle({
       aria-valuenow={Math.round(ms)}
       aria-valuetext={formatTime(ms)}
       className={cn(
-        "absolute inset-y-0 z-10 w-2 cursor-ew-resize rounded-sm bg-foreground/25 outline-none hover:bg-foreground/50 focus-visible:ring-2 focus-visible:ring-ring",
+        "absolute inset-y-0 z-10 flex w-2.5 cursor-ew-resize items-center justify-center outline-none after:h-3 after:w-0.5 after:rounded-full after:bg-foreground/40 focus-visible:after:bg-ring",
         edge === "start" ? "left-0" : "right-0"
       )}
       onPointerDown={onPointerDown}
@@ -168,7 +168,7 @@ function TimelineBar({
         data-span={index}
         aria-label={`${name}, on the slide from ${formatTime(span.start)} to ${formatTime(span.end)}`}
         className={cn(
-          "absolute top-1 h-6 rounded-md border bg-secondary text-xs text-secondary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring",
+          "absolute isolate top-1 h-6 rounded-md border bg-secondary text-xs text-secondary-foreground outline-none focus-visible:ring-2 focus-visible:ring-ring",
           !fixed && "cursor-grab active:cursor-grabbing"
         )}
         style={{ left: span.start * pxPerMs, width }}

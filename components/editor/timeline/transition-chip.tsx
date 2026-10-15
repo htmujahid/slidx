@@ -89,7 +89,7 @@ export function TransitionChip({
       )}
       <span
         data-timeline-chip-handle={side}
-        className="w-1.5 shrink-0 cursor-ew-resize rounded-sm bg-foreground/30 hover:bg-foreground/50"
+        className="flex w-2 shrink-0 cursor-ew-resize items-center justify-center after:h-3 after:w-0.5 after:rounded-full after:bg-foreground/40"
         onPointerDown={onDragStart}
       />
     </div>

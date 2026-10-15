@@ -16,6 +16,11 @@ export default defineSchema({
   })
     .index("by_presentation_order", ["presentationId", "order"])
     .index("by_presentation_key", ["presentationId", "key"]),
+  aiUsage: defineTable({
+    userId: v.string(),
+    day: v.number(),
+    used: v.number(),
+  }).index("by_user", ["userId"]),
   assets: defineTable({
     ownerId: v.string(),
     presentationId: v.optional(v.id("presentations")),

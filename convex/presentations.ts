@@ -2,6 +2,7 @@ import { v } from "convex/values"
 
 import { mutation, query } from "./_generated/server"
 import { assertSlideSize, ownedPresentation, requireUserId } from "./access"
+import { assertCanCreateDeck } from "./quota"
 
 const slideInput = v.object({ id: v.string(), json: v.string() })
 
@@ -46,6 +47,7 @@ export const create = mutation({
   args: { title: v.string(), slides: v.array(slideInput) },
   handler: async (ctx, { title, slides }) => {
     const userId = await requireUserId(ctx)
+    await assertCanCreateDeck(ctx, userId)
     slides.forEach(({ json }) => assertSlideSize(json))
     const presentationId = await ctx.db.insert("presentations", {
       ownerId: userId,

@@ -1,6 +1,8 @@
 import { ROOT_NODE, type useEditor } from "@craftjs/core"
 import type { StoreApi } from "zustand"
 
+import { applyOperations } from "@/lib/ai/apply-edits"
+import type { EditOperation } from "@/lib/ai/edit-schema"
 import { DEFAULT_TITLE, type PresentationFile } from "@/lib/editor/presentation"
 import {
   resizeSlideJson,
@@ -155,6 +157,18 @@ export function createDeckActions(
       if (active) actions.deserialize(active.json)
       actions.history.clear()
     }),
+
+    // Applies assistant edits to the live deck. Returns the steps that failed.
+    applyEdits: (operations: EditOperation[]) => {
+      if (!isReady()) return ["The editor is still loading"]
+      const result = applyOperations(snapshot(), operations)
+      const { activeId } = getState()
+      const active =
+        result.slides.find((slide) => slide.id === activeId) ?? result.slides[0]
+      setState({ slides: result.slides, activeId: active.id })
+      show(active.json)
+      return result.errors
+    },
 
     // Pure data changes, exposed here so callers have one place to look.
     setTitle: (title: string) => getState().setTitle(title),

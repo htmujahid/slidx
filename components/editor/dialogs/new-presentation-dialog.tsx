@@ -1,7 +1,5 @@
 "use client"
 
-import { useRouter } from "next/navigation"
-
 import { DEFAULT_TITLE } from "@/lib/editor/presentation"
 import { BLANK_SLIDE_JSON } from "@/lib/editor/slides"
 import {
@@ -14,6 +12,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { CreatePresentationDialog } from "@/components/create-presentation-dialog"
 import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useChrome } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
@@ -23,11 +22,14 @@ function NewPresentationDialog() {
   const setDialog = useChrome((state) => state.setDialog)
   const { load } = useDeckActions()
   const service = useStorage()
-  const router = useRouter()
 
-  const newPresentation = () => {
-    if (service.kind === "cloud") router.push("/editor/new")
-    else load(DEFAULT_TITLE, [BLANK_SLIDE_JSON])
+  if (service.kind === "cloud") {
+    return (
+      <CreatePresentationDialog
+        open={open}
+        onOpenChange={(open) => !open && setDialog(null)}
+      />
+    )
   }
 
   return (
@@ -44,7 +46,7 @@ function NewPresentationDialog() {
           <AlertDialogCancel>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={() => {
-              newPresentation()
+              load(DEFAULT_TITLE, [BLANK_SLIDE_JSON])
               setDialog(null)
             }}
           >

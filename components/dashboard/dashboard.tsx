@@ -1,7 +1,6 @@
 "use client"
 
 import * as React from "react"
-import Link from "next/link"
 import { PlusIcon, PresentationIcon, SearchIcon } from "lucide-react"
 
 import { importLocalPresentation } from "@/lib/storage/import-local"
@@ -23,6 +22,7 @@ import {
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Skeleton } from "@/components/ui/skeleton"
 import { toast } from "@/components/ui/toast"
+import { CreatePresentationDialog } from "@/components/create-presentation-dialog"
 import { DeletePresentationDialog } from "@/components/dashboard/delete-presentation-dialog"
 import { PresentationCard } from "@/components/dashboard/presentation-card"
 import { AccountMenu } from "@/components/editor/account-menu"
@@ -42,11 +42,15 @@ const SORTS: Record<
 }
 
 function NewPresentationButton() {
+  const [open, setOpen] = React.useState(false)
   return (
-    <Button render={<Link href="/editor/new" />} nativeButton={false}>
-      <PlusIcon data-icon="inline-start" />
-      New presentation
-    </Button>
+    <>
+      <Button onClick={() => setOpen(true)}>
+        <PlusIcon data-icon="inline-start" />
+        New presentation
+      </Button>
+      <CreatePresentationDialog open={open} onOpenChange={setOpen} />
+    </>
   )
 }
 

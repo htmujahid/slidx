@@ -4,7 +4,7 @@
 
 **Design, animate and present slides in your browser.**
 
-A fast, visual slide editor with a timeline, charts, code blocks, equations and an AI assistant — no install, and your work stays yours.
+A fast, visual slide editor with a timeline, charts, code blocks, equations and an AI assistant · no install, and your work stays yours.
 
 </div>
 

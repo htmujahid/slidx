@@ -41,7 +41,7 @@ function EdgeHandle({
       role="slider"
       tabIndex={0}
       data-timeline-handle={edge}
-      aria-label={`${edge === "start" ? "Appears" : "Disappears"} — ${label}`}
+      aria-label={`${edge === "start" ? "Appears" : "Disappears"} · ${label}`}
       aria-valuenow={Math.round(ms)}
       aria-valuetext={formatTime(ms)}
       className={cn(

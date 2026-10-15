@@ -108,7 +108,7 @@ function PresentationPlayer() {
       <DialogContent
         showCloseButton={false}
         finalFocus={() => returnFocus}
-        className="top-0 left-0 flex h-dvh w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-none"
+        className="top-0 left-0 flex h-dvh max-h-none w-screen max-w-none translate-x-0 translate-y-0 flex-col gap-0 rounded-none p-0 sm:max-w-none"
         onKeyDown={(event) => {
           event.stopPropagation()
           if (event.key === "Escape") {

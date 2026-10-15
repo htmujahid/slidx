@@ -136,7 +136,7 @@ export function SlideSizeForm({ onDone }: { onDone: () => void }) {
           >
             {SLIDE_SIZE_PRESETS.map((candidate) => (
               <NativeSelectOption key={candidate.id} value={candidate.id}>
-                {candidate.label} — {candidate.width} × {candidate.height}
+                {candidate.label} · {candidate.width} × {candidate.height}
               </NativeSelectOption>
             ))}
             <NativeSelectOption value={CUSTOM}>Custom</NativeSelectOption>

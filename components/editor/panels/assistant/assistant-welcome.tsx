@@ -20,7 +20,7 @@ const PROMPTS: {
   { label: "Summarize this presentation", mode: "ask", icon: FileTextIcon },
   { label: "Make the story more compelling", mode: "edit", icon: SparklesIcon },
   {
-    label: "Insert, rewrite, or remove content",
+    label: "Edit, add, or remove content",
     mode: "edit",
     icon: PencilLineIcon,
   },

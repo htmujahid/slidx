@@ -9,7 +9,6 @@ import { Brand } from "@/components/editor/brand"
 import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useChrome, usePresenter } from "@/components/editor/editor-stores"
 import { EditorMenubar } from "@/components/editor/menubar/editor-menubar"
-import { ThemeToggle } from "@/components/editor/theme-toggle"
 
 function EditorHeader() {
   const start = usePresenter((state) => state.start)
@@ -23,8 +22,7 @@ function EditorHeader() {
       <Button
         variant="ghost"
         size="icon"
-        className="md:hidden"
-        aria-label="Toggle elements and slides"
+        aria-label="Toggle left sidebar"
         aria-expanded={isMobile ? openMobile : open}
         onClick={toggleSidebar}
       >
@@ -36,7 +34,6 @@ function EditorHeader() {
       </div>
 
       <div className="ml-auto flex shrink-0 items-center gap-2">
-        <ThemeToggle />
         <AccountMenu />
         <Button
           aria-label="Present from current slide"
@@ -51,8 +48,7 @@ function EditorHeader() {
         <Button
           variant="ghost"
           size="icon"
-          className="md:hidden"
-          aria-label="Toggle properties"
+          aria-label="Toggle right sidebar"
           aria-expanded={propertiesOpen}
           onClick={toggleProperties}
         >

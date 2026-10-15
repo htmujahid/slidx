@@ -115,7 +115,7 @@ function IconPicker({
           )}
           {matches.length > visible.length && (
             <p className="px-3 pb-2 text-center text-xs text-muted-foreground">
-              Showing {visible.length} of {matches.length} — type to narrow
+              Showing {visible.length} of {matches.length} · type to narrow
               down.
             </p>
           )}

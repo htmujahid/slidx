@@ -7,6 +7,7 @@ import { Editor, Frame } from "@craftjs/core"
 import { resolver } from "@/lib/editor/resolver"
 import { slideSizeFromJson } from "@/lib/editor/slide-size"
 import { PlaybackProvider } from "@/components/editor/animation-playback"
+import { EditorStoresProvider } from "@/components/editor/editor-stores"
 
 const RENDER_SETTLE_MS = 300
 
@@ -24,7 +25,7 @@ export async function renderSlides<T>(
   try {
     flushSync(() =>
       root.render(
-        <>
+        <EditorStoresProvider presentationId="export">
           {slides.map((json, index) => (
             <div
               key={index}
@@ -43,7 +44,7 @@ export async function renderSlides<T>(
               </PlaybackProvider>
             </div>
           ))}
-        </>
+        </EditorStoresProvider>
       )
     )
     await document.fonts.ready

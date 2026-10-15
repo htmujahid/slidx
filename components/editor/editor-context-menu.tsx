@@ -21,7 +21,6 @@ import type { Alignment } from "@/lib/editor/align"
 import type { Point } from "@/lib/editor/geometry"
 import { canEditContent, getElementLabel } from "@/lib/editor/labels"
 import { LIBRARY } from "@/lib/editor/library/items"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import { useEditorActions } from "@/hooks/use-editor-actions"
 import {
   ContextMenu,
@@ -36,6 +35,7 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useChrome } from "@/components/editor/editor-stores"
 
 const ALIGNMENTS: Array<[Alignment, string]> = [

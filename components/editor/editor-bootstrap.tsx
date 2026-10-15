@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation"
 import { useEditor } from "@craftjs/core"
 
 import { startAutosave } from "@/lib/storage/autosave"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import { Spinner } from "@/components/ui/spinner"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useDeck, useEditorStores } from "@/components/editor/editor-stores"
 import { useStorage } from "@/components/storage-provider"
 
@@ -57,7 +57,7 @@ function EditorBootstrap({ children }: { children: React.ReactNode }) {
   const hydrating = useDeck((state) => state.status === "hydrating")
   // Children stay mounted while hydrating: hydrate() needs the live canvas.
   return (
-    <div className="grid">
+    <div className="grid grid-cols-[minmax(0,1fr)]">
       <div
         className="col-start-1 row-start-1 data-[hydrating]:invisible"
         data-hydrating={hydrating ? "" : undefined}

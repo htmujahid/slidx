@@ -1,6 +1,5 @@
 "use client"
 
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,6 +10,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useChrome } from "@/components/editor/editor-stores"
 
 function ResetPresentationDialog() {

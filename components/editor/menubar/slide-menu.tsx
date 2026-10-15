@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 import { useShallow } from "zustand/react/shallow"
 
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   MenubarContent,
   MenubarGroup,
@@ -24,6 +23,7 @@ import {
   MenubarSubTrigger,
   MenubarTrigger,
 } from "@/components/ui/menubar"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import {
   selectActiveIndex,
   useChrome,
@@ -34,11 +34,11 @@ function SlideMenu() {
   const slideIds = useDeck(useShallow((state) => state.slides.map((s) => s.id)))
   const activeId = useDeck((state) => state.activeId)
   const activeIndex = useDeck(selectActiveIndex)
-  const moveSlide = useDeck((state) => state.moveSlide)
   const {
     addSlide,
     duplicateSlide,
     deleteSlide,
+    moveSlide,
     select: selectSlide,
   } = useDeckActions()
   const setDialog = useChrome((state) => state.setDialog)

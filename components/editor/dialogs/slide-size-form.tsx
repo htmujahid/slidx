@@ -13,7 +13,6 @@ import {
   type ResizeMode,
   type SlideSize,
 } from "@/lib/editor/slide-size"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { DialogFooter } from "@/components/ui/dialog"
@@ -26,6 +25,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 
 function DimensionField({
   label,

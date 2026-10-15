@@ -14,11 +14,12 @@ import {
 } from "@/components/ui/dialog"
 import { Field, FieldGroup, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useChrome, useDeck } from "@/components/editor/editor-stores"
 
 function RenameForm({ onDone }: { onDone: () => void }) {
   const title = useDeck((state) => state.title)
-  const setTitle = useDeck((state) => state.setTitle)
+  const { setTitle } = useDeckActions()
   const [value, setValue] = React.useState(title)
 
   return (

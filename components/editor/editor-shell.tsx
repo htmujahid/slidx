@@ -4,6 +4,7 @@ import { DefaultEventHandlers, Editor } from "@craftjs/core"
 
 import { resolver } from "@/lib/editor/resolver"
 import { LOCAL_PRESENTATION_ID } from "@/lib/storage/types"
+import { DeckActionsProvider } from "@/components/editor/deck-actions-provider"
 import { EditorBootstrap } from "@/components/editor/editor-bootstrap"
 import { EditorDialogs } from "@/components/editor/editor-dialogs"
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
@@ -32,12 +33,14 @@ function EditorShell({
         key={presentationId}
         presentationId={presentationId}
       >
-        <EditorBootstrap>
-          <EditorShortcuts />
-          <EditorDialogs />
-          <PresentationPlayer />
-          <EditorWorkspace />
-        </EditorBootstrap>
+        <DeckActionsProvider>
+          <EditorBootstrap>
+            <EditorShortcuts />
+            <EditorDialogs />
+            <PresentationPlayer />
+            <EditorWorkspace />
+          </EditorBootstrap>
+        </DeckActionsProvider>
       </EditorStoresProvider>
     </Editor>
   )

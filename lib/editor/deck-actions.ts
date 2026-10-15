@@ -156,6 +156,10 @@ export function createDeckActions(
       actions.history.clear()
     }),
 
+    // Pure data changes, exposed here so callers have one place to look.
+    setTitle: (title: string) => getState().setTitle(title),
+    moveSlide: (id: string, index: number) => getState().moveSlide(id, index),
+
     load,
     reset: () => load(DEFAULT_TITLE, [INITIAL_SLIDE_JSON]),
   }

@@ -12,7 +12,6 @@ import {
 } from "lucide-react"
 
 import { cn } from "@/lib/utils"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   ContextMenu,
   ContextMenuContent,
@@ -24,6 +23,7 @@ import {
 } from "@/components/ui/context-menu"
 import { SidebarMenuButton } from "@/components/ui/sidebar"
 import { SortableItem, SortableItemHandle } from "@/components/reui/sortable"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import { useDeck } from "@/components/editor/editor-stores"
 
 export function SlideListItem({
@@ -37,8 +37,12 @@ export function SlideListItem({
 }) {
   const slideCount = useDeck((state) => state.slides.length)
   const active = useDeck((state) => state.activeId === value)
-  const moveSlide = useDeck((state) => state.moveSlide)
-  const { select: selectSlide, duplicateSlide, deleteSlide } = useDeckActions()
+  const {
+    select: selectSlide,
+    duplicateSlide,
+    deleteSlide,
+    moveSlide,
+  } = useDeckActions()
   const first = index === 0
   const last = index === slideCount - 1
 

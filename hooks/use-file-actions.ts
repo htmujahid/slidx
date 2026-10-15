@@ -9,8 +9,8 @@ import { PRESENTATION_EXTENSION } from "@/lib/editor/presentation"
 import { parsePresentation } from "@/lib/editor/presentation-file"
 import { renderSlides } from "@/lib/editor/render-slides"
 import { externalizeAssets, inlineAssets } from "@/lib/storage/assets"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import { toast } from "@/components/ui/toast"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import {
   selectActiveIndex,
   useEditorStores,

@@ -7,7 +7,6 @@ import { useTheme } from "next-themes"
 
 import { ZOOM_MAX, ZOOM_MIN } from "@/lib/editor/constants"
 import { SLIDE_DEFAULTS, type SlideProps } from "@/lib/editor/slide-props"
-import { useDeckActions } from "@/hooks/use-deck-actions"
 import {
   MenubarCheckboxItem,
   MenubarContent,
@@ -21,6 +20,7 @@ import {
   MenubarTrigger,
 } from "@/components/ui/menubar"
 import { useSidebar } from "@/components/ui/sidebar"
+import { useDeckActions } from "@/components/editor/deck-actions-provider"
 import {
   useChrome,
   usePresenter,

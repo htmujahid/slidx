@@ -37,6 +37,7 @@ function EditorHeader() {
         <AccountMenu />
         <Button
           size="sm"
+          className="max-sm:w-7 max-sm:px-0"
           aria-label="Present from current slide"
           onClick={(event) => {
             syncActive()

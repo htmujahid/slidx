@@ -6,7 +6,6 @@ import {
   ChevronRightIcon,
   EyeIcon,
   EyeOffIcon,
-  GripVerticalIcon,
   LayersIcon,
   LockIcon,
   UnlockIcon,
@@ -79,7 +78,7 @@ function RenameInput({
 
 const getLayerId = (layer: { id: string }) => layer.id
 
-function LayersPanel() {
+function LayersPanel({ embedded = false }: { embedded?: boolean }) {
   const { actions, layers, selectedId } = useEditor((state) => {
     const ids = state.nodes[ROOT_NODE]?.data.nodes ?? []
     return {
@@ -128,11 +127,13 @@ function LayersPanel() {
 
   if (layers.length === 0) {
     return (
-      <Empty>
+      <Empty className={embedded ? "gap-2 border-0 px-3 py-4" : undefined}>
         <EmptyHeader>
-          <EmptyMedia variant="icon">
-            <LayersIcon />
-          </EmptyMedia>
+          {!embedded && (
+            <EmptyMedia variant="icon">
+              <LayersIcon />
+            </EmptyMedia>
+          )}
           <EmptyTitle>No layers yet</EmptyTitle>
           <EmptyDescription>
             Add a shape or text to see it listed here.
@@ -143,15 +144,22 @@ function LayersPanel() {
   }
 
   return (
-    <SidebarGroup>
-      <SidebarGroupLabel>Layers</SidebarGroupLabel>
+    <SidebarGroup className={embedded ? "p-0" : undefined}>
+      {!embedded && (
+        <SidebarGroupLabel className="flex justify-between">
+          Layers
+          <span className="font-normal text-muted-foreground">
+            {layers.length}
+          </span>
+        </SidebarGroupLabel>
+      )}
       <SidebarGroupContent>
         <Sortable
           value={layers}
           getItemValue={getLayerId}
           onValueChange={() => {}}
           onMove={handleMove}
-          render={<SidebarMenu className="gap-1" />}
+          render={<SidebarMenu className="gap-0.5" />}
         >
           {layers.map((layer) => {
             const isGroup = layer.children.length > 0
@@ -169,7 +177,7 @@ function LayersPanel() {
                       <Button
                         variant="ghost"
                         size="icon-sm"
-                        className="group absolute top-1 left-1 size-6 hover:bg-transparent aria-expanded:bg-transparent aria-expanded:hover:bg-transparent dark:hover:bg-transparent"
+                        className="group absolute top-1 left-1 size-6"
                       />
                     }
                     aria-label="Toggle group"
@@ -181,7 +189,7 @@ function LayersPanel() {
                   <div
                     className={cn(
                       "flex h-8 items-center gap-2 pr-2",
-                      isGroup ? "pl-9" : "pl-2"
+                      isGroup ? "pl-8" : "pl-2"
                     )}
                   >
                     <ElementIcon
@@ -211,9 +219,10 @@ function LayersPanel() {
                       <SidebarMenuButton
                         isActive={layer.id === selectedId}
                         className={cn(
-                          "pr-[4.5rem]",
+                          "pr-14",
+                          isGroup ? "pl-8" : "pl-2",
                           isGroup &&
-                            "pl-9 group-has-[[data-slot=collapsible-trigger]:hover]/menu-item:bg-sidebar-accent group-has-[[data-slot=collapsible-trigger]:hover]/menu-item:text-sidebar-accent-foreground"
+                            "group-has-[[data-slot=collapsible-trigger]:hover]/menu-item:bg-sidebar-accent"
                         )}
                         onClick={() => actions.selectNode(layer.id)}
                         onDoubleClick={() => setRenamingId(layer.id)}
@@ -239,7 +248,7 @@ function LayersPanel() {
                       className={cn(
                         "pointer-events-auto size-6",
                         !layer.locked &&
-                          "opacity-0 group-hover/menu-item:opacity-100 focus-visible:opacity-100"
+                          "md:opacity-0 md:group-focus-within/menu-item:opacity-100 md:group-hover/menu-item:opacity-100"
                       )}
                       aria-label={layer.locked ? "Unlock" : "Lock"}
                       aria-pressed={layer.locked}
@@ -258,7 +267,7 @@ function LayersPanel() {
                       className={cn(
                         "pointer-events-auto size-6",
                         !layer.hidden &&
-                          "opacity-0 group-hover/menu-item:opacity-100 focus-visible:opacity-100"
+                          "md:opacity-0 md:group-focus-within/menu-item:opacity-100 md:group-hover/menu-item:opacity-100"
                       )}
                       aria-label={layer.hidden ? "Show" : "Hide"}
                       aria-pressed={layer.hidden}
@@ -267,7 +276,6 @@ function LayersPanel() {
                     >
                       {layer.hidden ? <EyeOffIcon /> : <EyeIcon />}
                     </Button>
-                    <GripVerticalIcon className="size-4 shrink-0 text-muted-foreground" />
                   </div>
                 )}
               </SortableItem>
@@ -297,7 +305,7 @@ function LayersPanel() {
                       <SidebarMenuItem key={child.id}>
                         <SidebarMenuButton
                           size="sm"
-                          className="pl-9 text-muted-foreground"
+                          className="pl-7 text-muted-foreground"
                           title="Select the group"
                           onClick={() => actions.selectNode(layer.id)}
                         >

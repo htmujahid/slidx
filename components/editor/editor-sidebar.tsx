@@ -44,7 +44,7 @@ function EditorSidebar(props: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarContent className="gap-0 bg-background">
-        <Tabs defaultValue="elements" className="min-h-0 flex-1 gap-0">
+        <Tabs defaultValue="slides" className="min-h-0 flex-1 gap-0">
           <SidebarHeader className="shrink-0 p-4 pb-3">
             <TabsList className="w-full">
               <TabsTrigger value="elements">
@@ -114,7 +114,7 @@ function EditorSidebar(props: React.ComponentProps<typeof Sidebar>) {
           </TabsContent>
           <TabsContent
             value="slides"
-            className="min-h-0 overflow-y-auto px-4 pt-1 pb-4"
+            className="min-h-0 overflow-y-auto px-2 pt-1 pb-4"
           >
             <SlidesPanel />
           </TabsContent>

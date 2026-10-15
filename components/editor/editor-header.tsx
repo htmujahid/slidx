@@ -52,7 +52,7 @@ function EditorHeader() {
           variant="ghost"
           size="icon"
           className="md:hidden"
-          aria-label="Toggle properties and layers"
+          aria-label="Toggle properties"
           aria-expanded={propertiesOpen}
           onClick={toggleProperties}
         >

@@ -8,8 +8,8 @@ import {
   ArrowUpToLineIcon,
   CopyIcon,
   GroupIcon,
-  LayersIcon,
   SlidersHorizontalIcon,
+  SparklesIcon,
   Trash2Icon,
 } from "lucide-react"
 
@@ -35,7 +35,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { useChrome } from "@/components/editor/editor-stores"
-import { LayersPanel } from "@/components/editor/panels/layers-panel"
+import { AssistantPanel } from "@/components/editor/panels/assistant-panel"
 
 function ActionButton({
   label,
@@ -108,7 +108,7 @@ function InspectorSidebar() {
     >
       <Sidebar
         side="right"
-        aria-label="Properties"
+        aria-label="Properties and assistant"
         className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"
       >
         <SidebarContent className="gap-0 bg-background">
@@ -119,9 +119,9 @@ function InspectorSidebar() {
                   <SlidersHorizontalIcon />
                   Properties
                 </TabsTrigger>
-                <TabsTrigger value="layers">
-                  <LayersIcon />
-                  Layers
+                <TabsTrigger value="assistant">
+                  <SparklesIcon />
+                  Assistant
                 </TabsTrigger>
               </TabsList>
             </SidebarHeader>
@@ -205,8 +205,12 @@ function InspectorSidebar() {
                 </ScrollAreaPrimitive.Content>
               </ScrollArea>
             </TabsContent>
-            <TabsContent value="layers" className="min-h-0 overflow-y-auto">
-              <LayersPanel />
+            <TabsContent
+              value="assistant"
+              keepMounted
+              className="min-h-0 overflow-hidden data-[hidden]:hidden"
+            >
+              <AssistantPanel />
             </TabsContent>
           </Tabs>
         </SidebarContent>

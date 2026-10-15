@@ -10,6 +10,7 @@ export type GradientType = "linear" | "radial"
 export type ImageFit = "cover" | "contain"
 
 export type SlideProps = {
+  name: string
   backgroundType: BackgroundType
   background: string
   gradientType: GradientType
@@ -29,6 +30,7 @@ export type SlideProps = {
 }
 
 export const SLIDE_DEFAULTS: SlideProps = {
+  name: "",
   backgroundType: "solid",
   background: "#ffffff",
   gradientType: "linear",

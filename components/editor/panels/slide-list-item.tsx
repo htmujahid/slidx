@@ -48,11 +48,13 @@ export function SlideListItem({
     (state) => state.slides.find((slide) => slide.id === value)?.json
   )
   const { liveTitle, liveCount } = useEditor((state) => ({
-    liveTitle: Object.values(state.nodes).find(
-      (node) =>
-        node.data.name === "TextBox" &&
-        String(node.data.props.text ?? "").trim()
-    )?.data.props.text as string | undefined,
+    liveTitle:
+      String(state.nodes[ROOT_NODE]?.data.props.name ?? "").trim() ||
+      (Object.values(state.nodes).find(
+        (node) =>
+          node.data.name === "TextBox" &&
+          String(node.data.props.text ?? "").trim()
+      )?.data.props.text as string | undefined),
     liveCount: state.nodes[ROOT_NODE]?.data.nodes.length ?? 0,
   }))
   const summary = React.useMemo(() => {
@@ -61,16 +63,18 @@ export function SlideListItem({
         string,
         {
           type?: { resolvedName?: string }
-          props?: { text?: string }
+          props?: { text?: string; name?: string }
           nodes?: string[]
         }
       >
       return {
-        title: Object.values(nodes).find(
-          (node) =>
-            node.type?.resolvedName === "TextBox" &&
-            String(node.props?.text ?? "").trim()
-        )?.props?.text,
+        title:
+          nodes[ROOT_NODE]?.props?.name?.trim() ||
+          Object.values(nodes).find(
+            (node) =>
+              node.type?.resolvedName === "TextBox" &&
+              String(node.props?.text ?? "").trim()
+          )?.props?.text,
         count: nodes[ROOT_NODE]?.nodes?.length ?? 0,
       }
     } catch {

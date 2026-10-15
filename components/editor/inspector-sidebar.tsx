@@ -18,6 +18,8 @@ import { useEditorActions } from "@/hooks/use-editor-actions"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Accordion } from "@/components/ui/accordion"
 import { Button } from "@/components/ui/button"
+import { Field, FieldLabel } from "@/components/ui/field"
+import { Input } from "@/components/ui/input"
 import { Kbd } from "@/components/ui/kbd"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Separator } from "@/components/ui/separator"
@@ -67,7 +69,8 @@ function ActionButton({
 
 function InspectorSidebar() {
   const { duplicate, remove, reorder, group } = useEditorActions()
-  const { id, count, title, Settings } = useEditor((state) => {
+  const nameId = React.useId()
+  const { actions, id, count, title, name, Settings } = useEditor((state) => {
     const selected = [...state.events.selected].filter(
       (nodeId) => nodeId !== ROOT_NODE && state.nodes[nodeId]
     )
@@ -76,6 +79,8 @@ function InspectorSidebar() {
     return {
       id,
       count: selected.length,
+      name:
+        typeof node.data.props.name === "string" ? node.data.props.name : "",
       title:
         selected.length > 1
           ? `${selected.length} elements`
@@ -156,6 +161,22 @@ function InspectorSidebar() {
                   </div>
                 ) : null}
               </div>
+              {count <= 1 && (
+                <Field className="shrink-0 px-4 pb-3">
+                  <FieldLabel htmlFor={nameId}>Name</FieldLabel>
+                  <Input
+                    id={nameId}
+                    value={name}
+                    placeholder={isElement ? "Element name" : "Slide name"}
+                    maxLength={80}
+                    onChange={(event) =>
+                      actions.setProp(id, (props) => {
+                        props.name = event.target.value
+                      })
+                    }
+                  />
+                </Field>
+              )}
               {!isElement && (
                 <p className="px-4 pb-3 text-xs text-muted-foreground">
                   Select an element on the slide to edit its appearance.

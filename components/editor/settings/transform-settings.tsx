@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
   AlignCenterHorizontalIcon,
   AlignCenterVerticalIcon,
@@ -23,8 +22,6 @@ import {
 import { useSlideSize } from "@/hooks/use-slide-size"
 import { Button } from "@/components/ui/button"
 import { ButtonGroup } from "@/components/ui/button-group"
-import { Field, FieldLabel } from "@/components/ui/field"
-import { Input } from "@/components/ui/input"
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group"
 import {
   Tooltip,
@@ -93,20 +90,9 @@ function TransformSettings({
 }) {
   const merged = { ...DEFAULT_TRANSFORM, ...props }
   const slideSize = useSlideSize()
-  const nameId = React.useId()
 
   return (
     <SettingsSection title="Layout">
-      <Field>
-        <FieldLabel htmlFor={nameId}>Name</FieldLabel>
-        <Input
-          id={nameId}
-          value={merged.name}
-          placeholder="Element name"
-          maxLength={80}
-          onChange={(event) => update({ name: event.target.value })}
-        />
-      </Field>
       <SettingsRow>
         <AlignGroup
           label="Align horizontally to slide"

@@ -5,6 +5,7 @@ import { isAuthenticated } from "@/lib/auth-server"
 import { NewPresentation } from "@/components/new-presentation"
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "New presentation",
 }
 

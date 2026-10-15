@@ -5,6 +5,7 @@ import { isAuthenticated } from "@/lib/auth-server"
 import { EditorShell } from "@/components/editor/editor-shell"
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "Editor",
 }
 

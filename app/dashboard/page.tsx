@@ -5,6 +5,7 @@ import { isAuthenticated } from "@/lib/auth-server"
 import { Dashboard } from "@/components/dashboard/dashboard"
 
 export const metadata: Metadata = {
+  robots: { index: false, follow: false },
   title: "Dashboard",
 }
 

@@ -22,10 +22,10 @@ export function parsePresentation(text: string): ParsedPresentation {
     !Array.isArray(data.slides) ||
     !data.slides.length
   ) {
-    throw new Error("This is not a Visx presentation file.")
+    throw new Error("This is not a Slidx presentation file.")
   }
   if ((data.version ?? 0) > PRESENTATION_VERSION) {
-    throw new Error("This file was saved by a newer version of Visx.")
+    throw new Error("This file was saved by a newer version of Slidx.")
   }
 
   const slides = data.slides.map(({ json }, index) => {

@@ -225,7 +225,7 @@ const DEFAULT_CODE = `function greet(name: string) {
   return \`Hello, \${name}!\`
 }
 
-console.log(greet("Visx"))`
+console.log(greet("Slidx"))`
 
 CodeBlock.craft = {
   displayName: "Code",

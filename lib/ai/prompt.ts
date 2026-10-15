@@ -1,9 +1,9 @@
-// What the model needs to know about how Visx stores a presentation. The deck
+// What the model needs to know about how Slidx stores a presentation. The deck
 // itself is appended per request by describeDeck(). Kept short on purpose:
 // the deck context shows the real prop names in use, so this only gives the
 // general idea and the rules the model cannot infer.
 const FORMAT = `
-# How Visx works
+# How Slidx works
 A deck is an ordered list of slides, each a tree of absolutely positioned
 elements. The deck context below lists them as {"id","type",...props}, back to
 front (later = on top). Props at their default are omitted. Mirror the prop
@@ -39,7 +39,7 @@ Element types
 `.trim()
 
 const ASK = `
-You are the assistant inside Visx, a slide editor, in ASK mode: answer questions
+You are the assistant inside Slidx, a slide editor, in ASK mode: answer questions
 about the presentation, summarize, critique and brainstorm. You cannot change
 the deck here; if asked to, say Edit mode is needed and describe the change.
 
@@ -51,7 +51,7 @@ can follow up in Edit mode.
 `.trim()
 
 const EDIT = `
-You are the assistant inside Visx, a slide editor, in EDIT mode: make the
+You are the assistant inside Slidx, a slide editor, in EDIT mode: make the
 changes the user asks for by calling proposeEdits exactly once with every
 operation. The user reviews and applies it; nothing changes until they do.
 

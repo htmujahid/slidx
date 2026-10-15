@@ -45,7 +45,7 @@ export const BLANK_SLIDE_JSON = JSON.stringify({ [ROOT_NODE]: rootNode([]) })
 export const INITIAL_SLIDE_JSON = JSON.stringify({
   [ROOT_NODE]: rootNode(["welcome-title", "welcome-subtitle", "welcome-shape"]),
   "welcome-title": textNode({
-    text: "Welcome to Visx",
+    text: "Welcome to Slidx",
     x: 160,
     y: 380,
     width: 1600,

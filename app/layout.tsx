@@ -1,7 +1,15 @@
+import type { Metadata, Viewport } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
 
+import {
+  BRAND_COLOR,
+  getSiteUrl,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from "@/lib/site"
 import { cn } from "@/lib/utils"
 import { Toaster } from "@/components/ui/toast"
 import { ConvexProvider } from "@/components/convex-provider"
@@ -14,6 +22,41 @@ const fontMono = Geist_Mono({
   subsets: ["latin"],
   variable: "--font-mono",
 })
+
+export const metadata: Metadata = {
+  metadataBase: getSiteUrl(),
+  title: {
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    template: `%s · ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  applicationName: SITE_NAME,
+  keywords: [
+    "presentation maker",
+    "slide editor",
+    "online slides",
+    "animated presentations",
+    "AI presentation assistant",
+    "export slides to PDF",
+  ],
+  alternates: { canonical: "/" },
+  openGraph: {
+    type: "website",
+    siteName: SITE_NAME,
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+    url: "/",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${SITE_NAME} — ${SITE_TAGLINE}`,
+    description: SITE_DESCRIPTION,
+  },
+}
+
+export const viewport: Viewport = {
+  themeColor: BRAND_COLOR,
+}
 
 export default function RootLayout({
   children,

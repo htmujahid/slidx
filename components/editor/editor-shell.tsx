@@ -6,9 +6,9 @@ import { resolver } from "@/lib/editor/resolver"
 import { LOCAL_PRESENTATION_ID } from "@/lib/storage/types"
 import { EditorBootstrap } from "@/components/editor/editor-bootstrap"
 import { EditorDialogs } from "@/components/editor/editor-dialogs"
-import { EditorLayout } from "@/components/editor/editor-layout"
 import { EditorShortcuts } from "@/components/editor/editor-shortcuts"
 import { EditorStoresProvider } from "@/components/editor/editor-stores"
+import { EditorWorkspace } from "@/components/editor/editor-workspace"
 import { PresentationPlayer } from "@/components/editor/presentation-player"
 
 function EditorShell({
@@ -36,7 +36,7 @@ function EditorShell({
           <EditorShortcuts />
           <EditorDialogs />
           <PresentationPlayer />
-          <EditorLayout />
+          <EditorWorkspace />
         </EditorBootstrap>
       </EditorStoresProvider>
     </Editor>

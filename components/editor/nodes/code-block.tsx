@@ -2,93 +2,95 @@
 
 import * as React from "react"
 import { useNode, type UserComponent } from "@craftjs/core"
+import { DownloadIcon, WrapTextIcon } from "lucide-react"
 
 import {
+  CODE_FONT_SIZE,
   CODE_LINE_HEIGHT,
   CODE_PADDING,
+  codeTop,
   measureCodeHeight,
   parseLineRanges,
   type CodeLanguage,
-  type CodeTheme,
 } from "@/lib/editor/code"
 import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
+import { useHighlightedCode } from "@/hooks/use-highlighted-code"
+import { Button } from "@/components/ui/button"
 import {
-  useHighlightedCode,
-  type HighlightedToken,
-} from "@/hooks/use-highlighted-code"
+  CodeBlockActions,
+  CodeBlockContent,
+  CodeBlockCopyButton,
+  CodeBlockHeader,
+  CodeBlockLine,
+  CodeBlock as CodeBlockRoot,
+  CodeBlockTitle,
+} from "@/components/ui/code-block"
 import { ElementBox } from "@/components/editor/nodes/element-box"
 import { useElementEditing } from "@/components/editor/nodes/use-element-editing"
 import { CodeSettings } from "@/components/editor/settings/code-settings"
 
-function Tokens({ tokens }: { tokens: HighlightedToken[] }) {
-  return tokens.map((token, index) => (
-    <span
-      key={index}
-      style={{
-        color: token.color,
-        fontStyle:
-          token.fontStyle && token.fontStyle & 1 ? "italic" : undefined,
-        fontWeight: token.fontStyle && token.fontStyle & 2 ? 700 : undefined,
-        textDecoration:
-          token.fontStyle && token.fontStyle & 4 ? "underline" : undefined,
-      }}
-    >
-      {token.content}
-    </span>
-  ))
-}
-
 export type CodeBlockProps = ElementTransformProps & {
   code: string
   language: CodeLanguage
-  theme: CodeTheme
-  fontSize: number
   lineNumbers: boolean
   highlightLines: string
-  cornerRadius: number
+  header: boolean
+  title: string
+  wrap: boolean
+  showWrap: boolean
+  showDownload: boolean
+  showCopy: boolean
 }
 
-const FONT_FAMILY = "var(--font-mono), ui-monospace, monospace"
+// The line number column is at least 1.5rem wide, followed by a 0.75rem gap.
 const CHAR_WIDTH = 0.6
+const GUTTER_MIN = 24
+const GUTTER_GAP = 12
+
+function download(value: string, filename: string) {
+  const url = URL.createObjectURL(new Blob([value], { type: "text/plain" }))
+  const link = document.createElement("a")
+  link.href = url
+  link.download = filename
+  link.click()
+  URL.revokeObjectURL(url)
+}
 
 const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
   const {
     code,
     language,
-    theme,
-    fontSize,
     lineNumbers,
     highlightLines,
-    cornerRadius,
+    header,
+    title,
+    wrap,
+    showWrap,
+    showDownload,
+    showCopy,
     ...transform
   } = { ...CodeBlock.craft!.props, ...props } as CodeBlockProps
-  const highlighted = useHighlightedCode(code, language, theme)
+  const lines = useHighlightedCode(code, language)
   const { editing, start, stop } = useElementEditing()
   const {
     actions: { setProp },
   } = useNode()
-  const emphasized = React.useMemo(
-    () => parseLineRanges(highlightLines),
-    [highlightLines]
-  )
+  const emphasized = parseLineRanges(highlightLines)
 
-  const lineSize = fontSize * CODE_LINE_HEIGHT
-  const lines =
-    highlighted?.lines ?? code.split("\n").map((content) => [{ content }])
-  const foreground = highlighted?.foreground ?? "#a1a1aa"
-  const background = highlighted?.background ?? "#18181b"
   const gutter = lineNumbers
-    ? String(lines.length).length * fontSize * CHAR_WIDTH + CODE_PADDING / 2
+    ? Math.max(
+        GUTTER_MIN,
+        String(lines.length).length * CODE_FONT_SIZE * CHAR_WIDTH
+      ) + GUTTER_GAP
     : 0
-  const textX = CODE_PADDING + gutter
 
   const updateCode = (next: string) =>
     setProp((draft: CodeBlockProps) => {
       draft.code = next
-      draft.height = measureCodeHeight(next, draft.fontSize)
+      draft.height = measureCodeHeight(next, draft.header)
     }, 400)
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -97,70 +99,68 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
     event.preventDefault()
     const area = event.currentTarget
     const { selectionStart, selectionEnd, value } = area
-    const next = `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`
-    updateCode(next)
+    updateCode(
+      `${value.slice(0, selectionStart)}  ${value.slice(selectionEnd)}`
+    )
     requestAnimationFrame(() => {
       area.selectionStart = area.selectionEnd = selectionStart + 2
     })
   }
 
+  const [toggled, setToggled] = React.useState(false)
+  const wrapped = wrap !== toggled
+
   return (
     <ElementBox {...transform} editing={editing} onStartEditing={start}>
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          overflow: "hidden",
-          borderRadius: cornerRadius,
-          background,
-          fontFamily: FONT_FAMILY,
-          fontSize,
-          lineHeight: `${lineSize}px`,
-        }}
-      >
-        <div
+      <CodeBlockRoot className="absolute inset-0 bg-background">
+        {header ? (
+          <CodeBlockHeader>
+            <CodeBlockTitle>{title}</CodeBlockTitle>
+            {showWrap || showDownload || showCopy ? (
+              <CodeBlockActions>
+                {showWrap ? (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Wrap lines"
+                    aria-pressed={wrapped}
+                    className="aria-pressed:text-foreground"
+                    onClick={() => setToggled(!toggled)}
+                  >
+                    <WrapTextIcon />
+                  </Button>
+                ) : null}
+                {showDownload ? (
+                  <Button
+                    variant="ghost"
+                    size="icon-xs"
+                    aria-label="Download"
+                    onClick={() => download(code, title || "code.txt")}
+                  >
+                    <DownloadIcon />
+                  </Button>
+                ) : null}
+                {showCopy ? <CodeBlockCopyButton value={code} /> : null}
+              </CodeBlockActions>
+            ) : null}
+          </CodeBlockHeader>
+        ) : null}
+        <CodeBlockContent
           aria-hidden={editing || undefined}
-          style={{
-            position: "absolute",
-            inset: 0,
-            padding: `${CODE_PADDING}px 0`,
-            color: foreground,
-            whiteSpace: "pre",
-            userSelect: "none",
-            pointerEvents: "none",
-          }}
+          tabIndex={-1}
+          lineNumbers={lineNumbers}
+          wrap={wrapped}
+          className="flex-1 select-none"
         >
-          {lines.map((tokens, index) => (
-            <div
+          {lines.map((line, index) => (
+            <CodeBlockLine
               key={index}
-              style={{
-                display: "flex",
-                height: lineSize,
-                paddingLeft: CODE_PADDING,
-                background: emphasized.has(index + 1)
-                  ? `color-mix(in srgb, ${foreground} 14%, transparent)`
-                  : undefined,
-              }}
+              variant={emphasized.has(index + 1) ? "highlighted" : "default"}
             >
-              {lineNumbers ? (
-                <span
-                  style={{
-                    width: gutter,
-                    paddingRight: CODE_PADDING / 2,
-                    boxSizing: "border-box",
-                    textAlign: "right",
-                    opacity: emphasized.has(index + 1) ? 0.9 : 0.4,
-                  }}
-                >
-                  {index + 1}
-                </span>
-              ) : null}
-              <span>
-                <Tokens tokens={tokens} />
-              </span>
-            </div>
+              {line}
+            </CodeBlockLine>
           ))}
-        </div>
+        </CodeBlockContent>
         {editing ? (
           <textarea
             autoFocus
@@ -171,29 +171,19 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
             onBlur={stop}
             onKeyDown={handleKeyDown}
             onChange={(event) => updateCode(event.target.value)}
+            className="absolute inset-0 m-0 size-full resize-none overflow-hidden border-0 bg-transparent font-mono text-sm text-transparent caret-foreground outline-none"
             style={{
-              position: "absolute",
-              inset: 0,
-              boxSizing: "border-box",
-              width: "100%",
-              height: "100%",
-              margin: 0,
-              padding: `${CODE_PADDING}px ${CODE_PADDING}px ${CODE_PADDING}px ${textX}px`,
-              border: 0,
-              outline: 0,
-              resize: "none",
-              overflow: "hidden",
-              background: "transparent",
-              color: "transparent",
-              caretColor: foreground,
-              whiteSpace: "pre",
+              padding: CODE_PADDING,
+              paddingTop: codeTop(header),
+              paddingLeft: CODE_PADDING + gutter,
+              lineHeight: `${CODE_LINE_HEIGHT}px`,
+              whiteSpace: wrapped ? "pre-wrap" : "pre",
+              overflowWrap: wrapped ? "break-word" : undefined,
               tabSize: 2,
-              font: "inherit",
-              lineHeight: `${lineSize}px`,
             }}
           />
         ) : null}
-      </div>
+      </CodeBlockRoot>
     </ElementBox>
   )
 }
@@ -208,17 +198,20 @@ CodeBlock.craft = {
   displayName: "Code",
   props: {
     ...DEFAULT_TRANSFORM,
-    x: 360,
-    y: 300,
-    width: 1200,
-    height: measureCodeHeight(DEFAULT_CODE, 36),
+    x: 640,
+    y: 400,
+    width: 640,
+    height: measureCodeHeight(DEFAULT_CODE),
     code: DEFAULT_CODE,
     language: "typescript",
-    theme: "github-dark",
-    fontSize: 36,
     lineNumbers: true,
     highlightLines: "",
-    cornerRadius: 24,
+    header: false,
+    title: "",
+    wrap: false,
+    showWrap: false,
+    showDownload: false,
+    showCopy: true,
   } satisfies CodeBlockProps,
   custom: { handles: "horizontal" },
   related: { settings: CodeSettings },

@@ -1,5 +1,11 @@
-export const CODE_PADDING = 40
-export const CODE_LINE_HEIGHT = 1.6
+// Metrics of the shadcn code block: text-sm, leading-relaxed, p-3, a 1px
+// border, and a header of pt-3 plus a size-6 action button.
+export const CODE_FONT_SIZE = 14
+export const CODE_LINE_HEIGHT = 1.625 * CODE_FONT_SIZE
+export const CODE_PADDING = 12
+export const CODE_BORDER = 1
+export const CODE_HEADER_HEIGHT = 36
+export const CODE_HEADER_GAP = 8
 
 export const CODE_LANGUAGES = [
   { value: "typescript", label: "TypeScript" },
@@ -19,45 +25,19 @@ export const CODE_LANGUAGES = [
   { value: "yaml", label: "YAML" },
   { value: "sql", label: "SQL" },
   { value: "bash", label: "Bash" },
+  { value: "diff", label: "Diff" },
   { value: "markdown", label: "Markdown" },
 ] as const
 
-export const CODE_THEMES = [
-  { value: "github-light", label: "GitHub Light", mode: "light" },
-  { value: "one-light", label: "One Light", mode: "light" },
-  { value: "vitesse-light", label: "Vitesse Light", mode: "light" },
-  { value: "solarized-light", label: "Solarized Light", mode: "light" },
-  { value: "catppuccin-latte", label: "Catppuccin Latte", mode: "light" },
-  { value: "rose-pine-dawn", label: "Rosé Pine Dawn", mode: "light" },
-  { value: "min-light", label: "Min Light", mode: "light" },
-  { value: "github-dark", label: "GitHub Dark", mode: "dark" },
-  { value: "github-dark-dimmed", label: "GitHub Dark Dimmed", mode: "dark" },
-  { value: "one-dark-pro", label: "One Dark Pro", mode: "dark" },
-  { value: "dracula", label: "Dracula", mode: "dark" },
-  { value: "nord", label: "Nord", mode: "dark" },
-  { value: "tokyo-night", label: "Tokyo Night", mode: "dark" },
-  { value: "catppuccin-mocha", label: "Catppuccin Mocha", mode: "dark" },
-  { value: "monokai", label: "Monokai", mode: "dark" },
-  { value: "solarized-dark", label: "Solarized Dark", mode: "dark" },
-  { value: "night-owl", label: "Night Owl", mode: "dark" },
-  { value: "material-theme-palenight", label: "Palenight", mode: "dark" },
-  { value: "rose-pine", label: "Rosé Pine", mode: "dark" },
-  { value: "vitesse-dark", label: "Vitesse Dark", mode: "dark" },
-  { value: "ayu-dark", label: "Ayu Dark", mode: "dark" },
-  { value: "synthwave-84", label: "Synthwave '84", mode: "dark" },
-  { value: "everforest-dark", label: "Everforest Dark", mode: "dark" },
-  { value: "kanagawa-wave", label: "Kanagawa Wave", mode: "dark" },
-  { value: "min-dark", label: "Min Dark", mode: "dark" },
-] as const
-
 export type CodeLanguage = (typeof CODE_LANGUAGES)[number]["value"]
-export type CodeTheme = (typeof CODE_THEMES)[number]["value"]
 
-export const countLines = (code: string) => Math.max(code.split("\n").length, 1)
+export const codeTop = (header: boolean) =>
+  header ? CODE_HEADER_HEIGHT + CODE_HEADER_GAP : CODE_PADDING
 
-export function measureCodeHeight(code: string, fontSize: number) {
+export function measureCodeHeight(code: string, header = false) {
+  const lines = Math.max(code.split("\n").length, 1)
   return Math.round(
-    countLines(code) * fontSize * CODE_LINE_HEIGHT + CODE_PADDING * 2
+    CODE_BORDER * 2 + codeTop(header) + lines * CODE_LINE_HEIGHT + CODE_PADDING
   )
 }
 

@@ -12,8 +12,8 @@ export const codeItems: LibraryItem[] = [
     label: "Code block",
     icon: CodeIcon,
     create: (at) => {
-      const width = 1200
-      const height = measureCodeHeight(DEFAULT_CODE, 36)
+      const width = 640
+      const height = measureCodeHeight(DEFAULT_CODE)
       return <CodeBlock {...center(at, width, height)} />
     },
   },

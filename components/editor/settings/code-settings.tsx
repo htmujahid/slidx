@@ -2,29 +2,19 @@
 
 import * as React from "react"
 
-import {
-  CODE_LANGUAGES,
-  CODE_THEMES,
-  measureCodeHeight,
-} from "@/lib/editor/code"
+import { CODE_LANGUAGES, measureCodeHeight } from "@/lib/editor/code"
 import { Field, FieldDescription, FieldLabel } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import {
-  NativeSelect,
-  NativeSelectOptGroup,
-  NativeSelectOption,
-} from "@/components/ui/native-select"
+import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Switch } from "@/components/ui/switch"
 import type { CodeBlockProps } from "@/components/editor/nodes/code-block"
 import { EffectsSettings } from "@/components/editor/settings/effects-settings"
-import { NumberSetting } from "@/components/editor/settings/number-setting"
-import { SettingsRow } from "@/components/editor/settings/settings-row"
 import { SettingsSection } from "@/components/editor/settings/settings-section"
 import { TransformSettings } from "@/components/editor/settings/transform-settings"
 import { useNodeProps } from "@/components/editor/settings/use-node-props"
 
 const deriveHeight = (props: CodeBlockProps) => ({
-  height: measureCodeHeight(props.code, props.fontSize),
+  height: measureCodeHeight(props.code, props.header),
 })
 
 function CodeSettings() {
@@ -53,54 +43,20 @@ function CodeSettings() {
             ))}
           </NativeSelect>
         </Field>
-        <Field>
-          <FieldLabel htmlFor={`${id}-theme`}>Theme</FieldLabel>
-          <NativeSelect
-            id={`${id}-theme`}
-            className="w-full"
-            value={props.theme}
-            onChange={(event) =>
-              update({ theme: event.target.value as typeof props.theme })
-            }
-          >
-            {(["light", "dark"] as const).map((mode) => (
-              <NativeSelectOptGroup
-                key={mode}
-                label={mode === "light" ? "Light" : "Dark"}
-              >
-                {CODE_THEMES.filter((theme) => theme.mode === mode).map(
-                  (theme) => (
-                    <NativeSelectOption key={theme.value} value={theme.value}>
-                      {theme.label}
-                    </NativeSelectOption>
-                  )
-                )}
-              </NativeSelectOptGroup>
-            ))}
-          </NativeSelect>
-        </Field>
-        <SettingsRow>
-          <NumberSetting
-            label="Font size"
-            value={props.fontSize}
-            min={10}
-            max={120}
-            onChange={(fontSize) => update({ fontSize })}
-          />
-          <NumberSetting
-            label="Radius"
-            value={props.cornerRadius}
-            min={0}
-            max={120}
-            onChange={(cornerRadius) => update({ cornerRadius })}
-          />
-        </SettingsRow>
         <Field orientation="horizontal">
           <FieldLabel htmlFor={`${id}-numbers`}>Line numbers</FieldLabel>
           <Switch
             id={`${id}-numbers`}
             checked={props.lineNumbers}
             onCheckedChange={(lineNumbers) => update({ lineNumbers })}
+          />
+        </Field>
+        <Field orientation="horizontal">
+          <FieldLabel htmlFor={`${id}-wrap`}>Wrap lines</FieldLabel>
+          <Switch
+            id={`${id}-wrap`}
+            checked={props.wrap}
+            onCheckedChange={(wrap) => update({ wrap })}
           />
         </Field>
         <Field>
@@ -115,6 +71,55 @@ function CodeSettings() {
             Line numbers or ranges, comma separated.
           </FieldDescription>
         </Field>
+      </SettingsSection>
+      <SettingsSection title="Header">
+        <Field orientation="horizontal">
+          <FieldLabel htmlFor={`${id}-header`}>Show header</FieldLabel>
+          <Switch
+            id={`${id}-header`}
+            checked={props.header}
+            onCheckedChange={(header) => update({ header })}
+          />
+        </Field>
+        {props.header ? (
+          <>
+            <Field>
+              <FieldLabel htmlFor={`${id}-title`}>Title</FieldLabel>
+              <Input
+                id={`${id}-title`}
+                placeholder="greet.ts"
+                value={props.title}
+                onChange={(event) => update({ title: event.target.value })}
+              />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor={`${id}-showWrap`}>Wrap button</FieldLabel>
+              <Switch
+                id={`${id}-showWrap`}
+                checked={props.showWrap}
+                onCheckedChange={(showWrap) => update({ showWrap })}
+              />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor={`${id}-showDownload`}>
+                Download button
+              </FieldLabel>
+              <Switch
+                id={`${id}-showDownload`}
+                checked={props.showDownload}
+                onCheckedChange={(showDownload) => update({ showDownload })}
+              />
+            </Field>
+            <Field orientation="horizontal">
+              <FieldLabel htmlFor={`${id}-show-copy`}>Copy button</FieldLabel>
+              <Switch
+                id={`${id}-show-copy`}
+                checked={props.showCopy}
+                onCheckedChange={(showCopy) => update({ showCopy })}
+              />
+            </Field>
+          </>
+        ) : null}
       </SettingsSection>
       <TransformSettings props={props} update={update} autoHeight />
       <EffectsSettings props={props} update={update} />

@@ -1,83 +1,75 @@
-"use client"
-
 import * as React from "react"
 
-export type HighlightedToken = {
-  content: string
-  color?: string
-  fontStyle?: number
-}
+import { loadHighlighter } from "@/lib/highlighter"
 
-export type HighlightedCode = {
-  lines: HighlightedToken[][]
-  background: string
-  foreground: string
-}
-
-type Highlighter = Awaited<ReturnType<typeof createHighlighter>>
-
-async function createHighlighter() {
-  const { createHighlighter, createJavaScriptRegexEngine } =
-    await import("shiki")
-  return createHighlighter({
-    themes: [],
-    langs: [],
-    engine: createJavaScriptRegexEngine(),
-  })
-}
-
-let highlighterPromise: Promise<Highlighter> | undefined
-const cache = new Map<string, HighlightedCode>()
-
-async function highlight(
-  code: string,
-  language: string,
-  theme: string
-): Promise<HighlightedCode> {
-  const key = `${language}\u0000${theme}\u0000${code}`
-  const cached = cache.get(key)
-  if (cached) return cached
-
-  highlighterPromise ??= createHighlighter()
-  const highlighter = await highlighterPromise
-  await Promise.all([
-    highlighter.loadTheme(theme as never),
-    highlighter.loadLanguage(language as never),
-  ])
-  const result = highlighter.codeToTokens(code, {
-    lang: language as never,
-    theme: theme as never,
-  })
-  const value: HighlightedCode = {
-    lines: result.tokens,
-    background: result.bg ?? "#ffffff",
-    foreground: result.fg ?? "#000000",
-  }
-  if (cache.size > 200) cache.clear()
-  cache.set(key, value)
-  return value
-}
-
-function useHighlightedCode(code: string, language: string, theme: string) {
-  const key = `${language}\u0000${theme}\u0000${code}`
-  const [result, setResult] = React.useState<{
-    key: string
-    value: HighlightedCode
-  }>()
+export function useHighlightedCode(value: string, language: string) {
+  // A trailing newline would render as an extra empty line.
+  const code = value.endsWith("\n") ? value.slice(0, -1) : value
+  const [loaded, setLoaded] = React.useState<{
+    language: string
+    highlighter: Awaited<ReturnType<typeof loadHighlighter>>
+  } | null>(null)
+  const highlighter = loaded?.language === language ? loaded.highlighter : null
 
   React.useEffect(() => {
     let cancelled = false
-    highlight(code, language, theme)
-      .then((value) => {
-        if (!cancelled) setResult({ key, value })
+
+    loadHighlighter(language)
+      .then((next) => {
+        if (!cancelled) {
+          setLoaded({ language, highlighter: next })
+        }
       })
       .catch(() => {})
+
     return () => {
       cancelled = true
     }
-  }, [code, language, theme, key])
+  }, [language])
 
-  return result?.value
+  // The complete lines, highlighted. While the code streams, only the new
+  // lines are tokenized, starting from the grammar state of the last one.
+  const [done, setDone] = React.useState<{
+    highlighter: typeof highlighter
+    text: string
+    lines: React.ReactNode[]
+    state?: Parameters<NonNullable<typeof highlighter>["highlight"]>[1]
+  }>({ highlighter: null, text: "", lines: [] })
+
+  let next = done
+
+  if (next.highlighter !== highlighter || !code.startsWith(next.text)) {
+    next = { highlighter, text: "", lines: [] }
+  }
+
+  const end = code.lastIndexOf("\n") + 1
+
+  if (highlighter && end > next.text.length) {
+    const result = highlighter.highlight(
+      code.slice(next.text.length, end - 1),
+      next.state
+    )
+
+    next = {
+      highlighter,
+      text: code.slice(0, end),
+      lines: [...next.lines, ...result.lines],
+      state: result.state,
+    }
+  }
+
+  if (next !== done) {
+    setDone(next)
+  }
+
+  // The last line is still being written, so it is tokenized on every render.
+  const tail = code.slice(end)
+
+  return React.useMemo(() => {
+    if (!highlighter) {
+      return code.split("\n")
+    }
+
+    return [...next.lines, highlighter.highlight(tail, next.state).lines[0]]
+  }, [code, highlighter, next, tail])
 }
-
-export { useHighlightedCode }

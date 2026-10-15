@@ -80,7 +80,6 @@ type Node = {
 
 const PIXEL_PROPS: Record<string, string[]> = {
   TextBox: ["fontSize", "padding", "letterSpacing"],
-  CodeBlock: ["fontSize", "cornerRadius"],
   ChartBox: ["fontSize"],
   Table: ["fontSize"],
   Equation: ["fontSize"],

@@ -43,6 +43,20 @@ function CodeSettings() {
             ))}
           </NativeSelect>
         </Field>
+        <Field>
+          <FieldLabel htmlFor={`${id}-theme`}>Theme</FieldLabel>
+          <NativeSelect
+            id={`${id}-theme`}
+            className="w-full"
+            value={props.theme}
+            onChange={(event) =>
+              update({ theme: event.target.value as typeof props.theme })
+            }
+          >
+            <NativeSelectOption value="light">Light</NativeSelectOption>
+            <NativeSelectOption value="dark">Dark</NativeSelectOption>
+          </NativeSelect>
+        </Field>
         <Field orientation="horizontal">
           <FieldLabel htmlFor={`${id}-numbers`}>Line numbers</FieldLabel>
           <Switch

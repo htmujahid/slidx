@@ -17,6 +17,7 @@ import {
   DEFAULT_TRANSFORM,
   type ElementTransformProps,
 } from "@/lib/editor/types"
+import { cn } from "@/lib/utils"
 import { useHighlightedCode } from "@/hooks/use-highlighted-code"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +36,7 @@ import { CodeSettings } from "@/components/editor/settings/code-settings"
 export type CodeBlockProps = ElementTransformProps & {
   code: string
   language: CodeLanguage
+  theme: "light" | "dark"
   lineNumbers: boolean
   highlightLines: string
   header: boolean
@@ -44,6 +46,26 @@ export type CodeBlockProps = ElementTransformProps & {
   showDownload: boolean
   showCopy: boolean
 }
+
+// The block keeps its own palette so it does not follow the app theme.
+const THEME_TOKENS = {
+  light: {
+    "--background": "oklch(1 0 0)",
+    "--foreground": "oklch(0.145 0 0)",
+    "--muted": "oklch(0.97 0 0)",
+    "--muted-foreground": "oklch(0.556 0 0)",
+    "--input": "oklch(0.922 0 0)",
+    "--ring": "oklch(0.708 0 0)",
+  },
+  dark: {
+    "--background": "oklch(0.145 0 0)",
+    "--foreground": "oklch(0.985 0 0)",
+    "--muted": "oklch(0.269 0 0)",
+    "--muted-foreground": "oklch(0.708 0 0)",
+    "--input": "oklch(1 0 0 / 15%)",
+    "--ring": "oklch(0.556 0 0)",
+  },
+} as Record<"light" | "dark", React.CSSProperties>
 
 // The line number column is at least 1.5rem wide, followed by a 0.75rem gap.
 const CHAR_WIDTH = 0.6
@@ -63,6 +85,7 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
   const {
     code,
     language,
+    theme,
     lineNumbers,
     highlightLines,
     header,
@@ -112,78 +135,88 @@ const CodeBlock: UserComponent<Partial<CodeBlockProps>> = (props) => {
 
   return (
     <ElementBox {...transform} editing={editing} onStartEditing={start}>
-      <CodeBlockRoot className="absolute inset-0 bg-background">
-        {header ? (
-          <CodeBlockHeader>
-            <CodeBlockTitle>{title}</CodeBlockTitle>
-            {showWrap || showDownload || showCopy ? (
-              <CodeBlockActions>
-                {showWrap ? (
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label="Wrap lines"
-                    aria-pressed={wrapped}
-                    className="aria-pressed:text-foreground"
-                    onClick={() => setToggled(!toggled)}
-                  >
-                    <WrapTextIcon />
-                  </Button>
-                ) : null}
-                {showDownload ? (
-                  <Button
-                    variant="ghost"
-                    size="icon-xs"
-                    aria-label="Download"
-                    onClick={() => download(code, title || "code.txt")}
-                  >
-                    <DownloadIcon />
-                  </Button>
-                ) : null}
-                {showCopy ? <CodeBlockCopyButton value={code} /> : null}
-              </CodeBlockActions>
-            ) : null}
-          </CodeBlockHeader>
-        ) : null}
-        <CodeBlockContent
-          aria-hidden={editing || undefined}
-          tabIndex={-1}
-          lineNumbers={lineNumbers}
-          wrap={wrapped}
-          className="flex-1 select-none"
-        >
-          {lines.map((line, index) => (
-            <CodeBlockLine
-              key={index}
-              variant={emphasized.has(index + 1) ? "highlighted" : "default"}
-            >
-              {line}
-            </CodeBlockLine>
-          ))}
-        </CodeBlockContent>
-        {editing ? (
-          <textarea
-            autoFocus
-            wrap="off"
-            spellCheck={false}
-            aria-label="Code"
-            value={code}
-            onBlur={stop}
-            onKeyDown={handleKeyDown}
-            onChange={(event) => updateCode(event.target.value)}
-            className="absolute inset-0 m-0 size-full resize-none overflow-hidden border-0 bg-transparent font-mono text-sm text-transparent caret-foreground outline-none"
-            style={{
-              padding: CODE_PADDING,
-              paddingTop: codeTop(header),
-              paddingLeft: CODE_PADDING + gutter,
-              lineHeight: `${CODE_LINE_HEIGHT}px`,
-              whiteSpace: wrapped ? "pre-wrap" : "pre",
-              overflowWrap: wrapped ? "break-word" : undefined,
-              tabSize: 2,
-            }}
-          />
-        ) : null}
-      </CodeBlockRoot>
+      <div
+        style={THEME_TOKENS[theme]}
+        className={cn(
+          "absolute inset-0 text-foreground",
+          theme === "dark"
+            ? "[&_[data-slot=code-block-line-content]_span]:text-(--shiki-dark)!"
+            : "[&_[data-slot=code-block-line-content]_span]:text-(--shiki-light)!"
+        )}
+      >
+        <CodeBlockRoot className="size-full bg-background dark:bg-background">
+          {header ? (
+            <CodeBlockHeader>
+              <CodeBlockTitle>{title}</CodeBlockTitle>
+              {showWrap || showDownload || showCopy ? (
+                <CodeBlockActions>
+                  {showWrap ? (
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Wrap lines"
+                      aria-pressed={wrapped}
+                      className="aria-pressed:text-foreground"
+                      onClick={() => setToggled(!toggled)}
+                    >
+                      <WrapTextIcon />
+                    </Button>
+                  ) : null}
+                  {showDownload ? (
+                    <Button
+                      variant="ghost"
+                      size="icon-xs"
+                      aria-label="Download"
+                      onClick={() => download(code, title || "code.txt")}
+                    >
+                      <DownloadIcon />
+                    </Button>
+                  ) : null}
+                  {showCopy ? <CodeBlockCopyButton value={code} /> : null}
+                </CodeBlockActions>
+              ) : null}
+            </CodeBlockHeader>
+          ) : null}
+          <CodeBlockContent
+            aria-hidden={editing || undefined}
+            tabIndex={-1}
+            lineNumbers={lineNumbers}
+            wrap={wrapped}
+            className="flex-1 select-none"
+          >
+            {lines.map((line, index) => (
+              <CodeBlockLine
+                key={index}
+                variant={emphasized.has(index + 1) ? "highlighted" : "default"}
+              >
+                {line}
+              </CodeBlockLine>
+            ))}
+          </CodeBlockContent>
+          {editing ? (
+            <textarea
+              autoFocus
+              wrap="off"
+              spellCheck={false}
+              aria-label="Code"
+              value={code}
+              onBlur={stop}
+              onKeyDown={handleKeyDown}
+              onChange={(event) => updateCode(event.target.value)}
+              className="absolute inset-0 m-0 size-full resize-none overflow-hidden border-0 bg-transparent font-mono text-sm text-transparent caret-foreground outline-none"
+              style={{
+                padding: CODE_PADDING,
+                paddingTop: codeTop(header),
+                paddingLeft: CODE_PADDING + gutter,
+                lineHeight: `${CODE_LINE_HEIGHT}px`,
+                whiteSpace: wrapped ? "pre-wrap" : "pre",
+                overflowWrap: wrapped ? "break-word" : undefined,
+                tabSize: 2,
+              }}
+            />
+          ) : null}
+        </CodeBlockRoot>
+      </div>
     </ElementBox>
   )
 }
@@ -204,6 +237,7 @@ CodeBlock.craft = {
     height: measureCodeHeight(DEFAULT_CODE),
     code: DEFAULT_CODE,
     language: "typescript",
+    theme: "light",
     lineNumbers: true,
     highlightLines: "",
     header: false,

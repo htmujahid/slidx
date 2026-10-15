@@ -47,6 +47,7 @@ import {
   InputGroupButton,
   InputGroupTextarea,
 } from "@/components/ui/input-group"
+import { Marker, MarkerContent } from "@/components/ui/marker"
 import { Message, MessageContent, MessageHeader } from "@/components/ui/message"
 import {
   MessageScroller,
@@ -216,7 +217,6 @@ export function AssistantPanel() {
                         <Message>
                           <MessageContent>
                             <MessageHeader>
-                              <SparklesIcon className="mr-1.5 size-3" />
                               Assistant · Sample response
                             </MessageHeader>
                             <Bubble variant="ghost">
@@ -281,9 +281,11 @@ export function AssistantPanel() {
                                 </CardFooter>
                               </Card>
                             ) : turn.dismissed ? (
-                              <p className="text-xs text-muted-foreground">
-                                Example changes dismissed.
-                              </p>
+                              <Marker>
+                                <MarkerContent>
+                                  Example changes dismissed
+                                </MarkerContent>
+                              </Marker>
                             ) : null}
                           </MessageContent>
                         </Message>
